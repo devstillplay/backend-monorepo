@@ -15,7 +15,7 @@ import {
 import { useMutation } from "@tanstack/react-query";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { Suspense, useCallback, useEffect, useState } from "react";
 import OTPInput from "react-otp-input";
 
 import AuthShell from "../../components/AuthShell";
@@ -27,7 +27,7 @@ import {
 
 const OTP_LENGTH = 4;
 
-export default function ResetPasswordPage() {
+function ResetPasswordPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const emailFromQuery = searchParams.get("email") ?? "";
@@ -249,5 +249,21 @@ export default function ResetPasswordPage() {
         </Typography>
       </Stack>
     </AuthShell>
+  );
+}
+
+export default function ResetPasswordPage() {
+  return (
+    <Suspense
+      fallback={
+        <AuthShell>
+          <Box sx={{ py: 4, textAlign: "center" }}>
+            <Typography color="text.secondary">Loading...</Typography>
+          </Box>
+        </AuthShell>
+      }
+    >
+      <ResetPasswordPageContent />
+    </Suspense>
   );
 }

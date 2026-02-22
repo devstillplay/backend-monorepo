@@ -15,7 +15,7 @@ import {
 import { useMutation } from "@tanstack/react-query";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 
 import AuthShell from "../components/AuthShell";
 import { requestCode } from "../lib/api";
@@ -25,7 +25,7 @@ import { useUserStore } from "../store/user";
 
 const OTP_EXPIRY_MS = 10 * 60 * 1000; // 10 min for UI timer (backend has its own expiry)
 
-export default function LoginPage() {
+function LoginPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const resetSuccess = searchParams.get("reset") === "success";
@@ -195,5 +195,21 @@ export default function LoginPage() {
         </Box>
       </Stack>
     </AuthShell>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense
+      fallback={
+        <AuthShell>
+          <Box sx={{ py: 4, textAlign: "center" }}>
+            <Typography color="text.secondary">Loading...</Typography>
+          </Box>
+        </AuthShell>
+      }
+    >
+      <LoginPageContent />
+    </Suspense>
   );
 }
