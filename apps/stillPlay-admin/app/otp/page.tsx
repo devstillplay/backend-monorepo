@@ -9,7 +9,7 @@ import {
 } from "@mui/material";
 import { useMutation } from "@tanstack/react-query";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import OTPInput from "react-otp-input";
 
 import AuthShell from "../../components/AuthShell";
@@ -21,7 +21,7 @@ import type { UserProfile } from "../../store/auth";
 
 const OTP_LENGTH = 4;
 
-export default function OtpPage() {
+function OtpPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const flow = searchParams.get("flow") ?? "login"; // login | register
@@ -179,5 +179,21 @@ export default function OtpPage() {
         </Box>
       </Stack>
     </AuthShell>
+  );
+}
+
+export default function OtpPage() {
+  return (
+    <Suspense
+      fallback={
+        <AuthShell>
+          <Box sx={{ py: 4, textAlign: "center" }}>
+            <Typography color="text.secondary">Loading...</Typography>
+          </Box>
+        </AuthShell>
+      }
+    >
+      <OtpPageContent />
+    </Suspense>
   );
 }
