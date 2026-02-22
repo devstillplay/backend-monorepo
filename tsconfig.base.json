@@ -1,6 +1,7 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
+    "baseUrl": ".",
     "rootDir": ".",
     "sourceMap": true,
     "declaration": false,
@@ -14,7 +15,11 @@
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
-    "paths": {}
+    "paths": {
+      "@my-workspace/prisma": ["libs/prisma/src/index.ts"],
+      "@my-workspace/prisma/*": ["libs/prisma/src/*"],
+      "@my-workspace/prisma/generated": ["libs/prisma/generated/index.d.ts"]
+    }
   },
   "exclude": ["node_modules", "tmp"]
 }

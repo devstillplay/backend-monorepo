@@ -2,15 +2,41 @@
   "name": "@my-workspace/source",
   "version": "0.0.0",
   "license": "MIT",
-  "scripts": {},
+  "scripts": {
+    "prisma:generate": "prisma generate",
+    "prisma:push": "prisma db push",
+    "postinstall": "prisma generate"
+  },
   "private": true,
+  "overrides": {
+    "prisma": "6.19.0",
+    "@prisma/client": "6.19.0"
+  },
+  "engines": {
+    "prisma": "6.x"
+  },
   "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
+    "@mui/icons-material": "^7.3.7",
+    "@mui/material": "^7.3.7",
     "@nestjs/common": "^11.0.0",
+    "@nestjs/config": "^4.0.3",
     "@nestjs/core": "^11.0.0",
+    "@nestjs/jwt": "^11.0.2",
+    "@nestjs/microservices": "^11.1.14",
     "@nestjs/platform-express": "^11.0.0",
+    "@nestjs/typeorm": "^11.0.0",
+    "@prisma/client": "6.19.0",
     "axios": "^1.6.0",
+    "bcrypt": "^5.1.1",
+    "cloudinary": "^2.5.1",
+    "mysql2": "^3.17.4",
+    "prisma": "6.19.0",
+    "resend": "^4.0.0",
     "reflect-metadata": "^0.1.13",
-    "rxjs": "^7.8.0"
+    "rxjs": "^7.8.0",
+    "typeorm": "^0.3.28"
   },
   "devDependencies": {
     "@eslint/js": "^9.8.0",
@@ -19,7 +45,7 @@
     "@nx/eslint": "22.5.2",
     "@nx/eslint-plugin": "22.5.2",
     "@nx/js": "22.5.2",
-    "@nx/nest": "22.5.2",
+    "@nx/nest": "^22.5.2",
     "@nx/node": "22.5.2",
     "@nx/web": "22.5.2",
     "@nx/webpack": "22.5.2",
@@ -27,6 +53,7 @@
     "@swc-node/register": "~1.11.1",
     "@swc/core": "~1.15.5",
     "@swc/helpers": "~0.5.18",
+    "@types/multer": "^1.4.12",
     "@types/node": "20.19.9",
     "eslint": "^9.8.0",
     "eslint-config-prettier": "^10.0.0",

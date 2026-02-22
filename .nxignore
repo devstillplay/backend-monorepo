@@ -1,0 +1,9 @@
+# Next.js build output – Nx must not treat these as projects
+.next
+**/.next
+
+# Other common build/cache dirs
+node_modules
+**/node_modules
+dist
+**/dist

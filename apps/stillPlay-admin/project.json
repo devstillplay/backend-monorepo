@@ -1,0 +1,27 @@
+{
+  "name": "stillplay-admin",
+  "projectType": "application",
+  "sourceRoot": "apps/stillplay-admin",
+  "targets": {
+    "dev": {
+      "executor": "@nx/next:dev",
+      "options": {
+        "port": 3000
+      }
+    },
+    "build": {
+      "executor": "@nx/next:build",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/apps/stillplay-admin"
+      }
+    },
+    "start": {
+      "executor": "@nx/next:start",
+      "options": {
+        "buildTarget": "stillplay-admin:build",
+        "port": 3000
+      }
+    }
+  }
+}
