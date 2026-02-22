@@ -1,5 +1,46 @@
 {
   "$schema": "./node_modules/nx/schemas/nx-schema.json",
+  "projects": {
+    "api-gateway": {
+      "tags": ["type:app", "scope:api-gateway"]
+    },
+    "auth-service": {
+      "tags": ["type:app", "scope:auth-service"]
+    },
+    "user-service": {
+      "tags": ["type:app", "scope:user-service"]
+    },
+    "prisma-service": {
+      "tags": ["type:app", "scope:prisma-service"]
+    },
+    "notification-service": {
+      "tags": ["type:app", "scope:notification-service"]
+    },
+    "payment-service": {
+      "tags": ["type:app", "scope:payment-service"]
+    },
+    "admin-service": {
+      "tags": ["type:app", "scope:admin-service"]
+    },
+    "employee-service": {
+      "tags": ["type:app", "scope:employee-service"]
+    },
+    "stillplay-mobile": {
+      "tags": ["type:app", "scope:stillplay-mobile"]
+    },
+    "stillplay-admin": {
+      "tags": ["type:app", "scope:stillplay-admin"]
+    },
+    "file-service": {
+      "tags": ["type:app", "scope:file-service"]
+    },
+    "loan-service": {
+      "tags": ["type:app", "scope:loan-service"]
+    },
+    "provider-service": {
+      "tags": ["type:app", "scope:provider-service"]
+    }
+  },
   "namedInputs": {
     "default": ["{projectRoot}/**/*", "sharedGlobals"],
     "production": [

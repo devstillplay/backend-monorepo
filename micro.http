@@ -1,0 +1,348 @@
+### API Gateway (default: http://localhost:3000)
+@base = http://localhost:3000/api
+@token = {{login.response.body.token}} 
+
+### Root
+GET {{base}}
+
+### Auth – Login (direct; returns token)
+# @name login
+POST {{base}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "devstillplay@gmail.com",
+  "password": "secret"
+}
+
+### Auth – Step 1: Request login code (sends 4-digit code to email)
+POST {{base}}/auth/request-login-code
+Content-Type: application/json
+
+{
+  "email": "devstillplay@gmail.com",
+  "password": "secret"
+}
+
+### Auth – Step 2: Verify code and get token
+POST {{base}}/auth/verify-login-code
+Content-Type: application/json
+
+{
+  "email": "devstillplay@gmail.com",
+  "code": "7739"
+}
+
+### Auth – Request code (single flow: type login | register)
+# Login: send code to existing user
+POST {{base}}/auth/request-code
+Content-Type: application/json
+
+{
+  "type": "login",
+  "email": "devstillplay@gmail.com",
+  "password": "secret"
+}
+
+# Register: send code (user created only after verify)
+POST {{base}}/auth/request-code
+Content-Type: application/json
+
+{
+  "type": "register",
+  "email": "newuser@example.com",
+  "password": "secret",
+  "firstName": "Jane",
+  "lastName": "Doe",
+  "nin": "12345670901",
+  "picture": ""
+}
+
+### Auth – Verify code (type login | register; for register creates user then returns token)
+POST {{base}}/auth/verify-code
+Content-Type: application/json
+
+{
+  "type": "login",
+  "email": "devstillplay@gmail.com",
+  "code": "7739"
+}
+
+# After register request-code, verify to create user and get token:
+# POST {{base}}/auth/verify-code
+# { "type": "register", "email": "newuser@example.com", "code": "1234" }
+
+### Auth – Register (legacy: immediate create, no code)
+POST {{base}}/auth/register
+Content-Type: application/json
+
+{
+  "firstName": "Jane",
+  "lastName": "Doe",
+  "nin": "12345670901",
+  "email": "devstillplay@gmail.com",
+  "password": "secret",
+  "picture": ""
+}
+
+### User – Get Profile
+GET {{base}}/user
+Authorization: Bearer {{token}}
+
+### ---------------------------------------------------------------------------
+### Admin (all require Authorization: Bearer &lt;admin token&gt;)
+### ---------------------------------------------------------------------------
+
+### Admin – List users
+GET {{base}}/admin/users
+Authorization: Bearer {{token}}
+
+### Admin – Get user
+GET {{base}}/admin/users/USER_ID
+Authorization: Bearer {{token}}
+
+### Admin – Create user
+POST {{base}}/admin/users
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "email": "newuser@example.com",
+  "password": "secret",
+  "firstName": "New",
+  "lastName": "User",
+  "nin": "12345678901",
+  "picture": ""
+}
+
+### Admin – Update user (e.g. suspend/unsuspend)
+PATCH {{base}}/admin/users/USER_ID
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "firstName": "Updated",
+  "lastName": "Name"
+}
+
+# Suspend user (they cannot log in)
+# PATCH body: { "suspended": true }
+# Unsuspend: { "suspended": false }
+
+### Admin – Delete user
+DELETE {{base}}/admin/users/USER_ID
+Authorization: Bearer {{token}}
+
+### Admin – Verify user
+POST {{base}}/admin/users/USER_ID/verify
+Authorization: Bearer {{token}}
+
+### ---------------------------------------------------------------------------
+### Providers (funding; all require Authorization: Bearer &lt;token&gt;)
+### ---------------------------------------------------------------------------
+
+### Providers – List
+GET {{base}}/providers
+Authorization: Bearer {{token}}
+
+### Providers – Create (register provider: name, amount, agreed %, agreed date/terms)
+POST {{base}}/providers
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "Acme Capital",
+  "email": "funding@acme.com",
+  "agreedAmount": 5000000,
+  "percentageToAdd": 5,
+  "agreedAt": "2025-02-21",
+  "agreedTerms": "Standard 5% on repayments; quarterly settlement."
+}
+
+### Providers – Get one
+GET {{base}}/providers/PROVIDER_ID
+Authorization: Bearer {{token}}
+
+### Providers – Update
+PATCH {{base}}/providers/PROVIDER_ID
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "percentageToAdd": 6,
+  "agreedTerms": "Updated terms."
+}
+
+### Admin – List employees
+GET {{base}}/admin/employees
+Authorization: Bearer {{token}}
+
+### Admin – Get employee
+GET {{base}}/admin/employees/EMPLOYEE_ID
+Authorization: Bearer {{token}}
+
+### Admin – Create employee
+POST {{base}}/admin/employees
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "email": "ops@example.com",
+  "password": "secret",
+  "firstName": "Ops",
+  "lastName": "Agent",
+  "role": "Operations"
+}
+
+### Admin – Update employee
+PATCH {{base}}/admin/employees/EMPLOYEE_ID
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "firstName": "Updated",
+  "role": "Finance"
+}
+
+### Admin – Delete employee
+DELETE {{base}}/admin/employees/EMPLOYEE_ID
+Authorization: Bearer {{token}}
+
+### Notifications – Send push (OneSignal; requires ONE_SIGNAL_APP_ID + ONE_SIGNAL_REST_API_KEY in .env)
+POST {{base}}/notifications/send
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "contents": "Hello from StillPlay",
+  "headings": "Notification",
+  "includedSegments": ["Subscribed Users"]
+}
+
+### Webhooks – Render (configure this URL in Render Dashboard > Integrations > Webhooks)
+POST {{base}}/notifications/webhooks/render
+Content-Type: application/json
+
+{
+  "type": "deploy_ended",
+  "timestamp": "2025-02-25T16:22:19.979Z",
+  "data": {
+    "id": "evt-xxx",
+    "serviceId": "srv-xxx",
+    "serviceName": "my-service",
+    "status": "succeeded"
+  }
+}
+
+### Files – Upload (multipart/form-data; field "file" required; optional: folder, publicId)
+# Replace ./sample.png with your file path (relative to this .http file)
+POST {{base}}/files/upload
+Content-Type: multipart/form-data; boundary=----FormBoundary
+
+------FormBoundary
+Content-Disposition: form-data; name="file"; filename="sample.png"
+Content-Type: image/png
+
+< ./sample.png
+------FormBoundary
+Content-Disposition: form-data; name="folder"
+
+stillplay/documents
+------FormBoundary--
+
+### Loans – Get wallet
+GET {{base}}/loans/wallet/USER_ID
+
+### Loans – Request
+POST {{base}}/loans/request
+Content-Type: application/json
+
+{
+  "userId": "USER_ID",
+  "amount": 50000,
+  "purpose": "Working capital"
+}
+
+### Loans – List by user
+GET {{base}}/loans/list/USER_ID
+
+### Loans – Get one
+GET {{base}}/loans/LOAN_ID
+
+### Loans – Approve (admin)
+POST {{base}}/loans/approve
+Content-Type: application/json
+
+{ "loanId": "LOAN_ID" }
+
+### Loans – Reject / Deny (admin)
+POST {{base}}/loans/reject
+Content-Type: application/json
+
+{ "loanId": "LOAN_ID" }
+
+# Same as reject – deny loan request
+POST {{base}}/loans/deny
+Content-Type: application/json
+
+{ "loanId": "LOAN_ID" }
+
+### Loans – Disburse (admin; credits user wallet; optional provider funding)
+POST {{base}}/loans/disburse
+Content-Type: application/json
+
+{
+  "loanId": "LOAN_ID",
+  "dueDate": "2026-06-01T00:00:00.000Z",
+  "providerFunding": [
+    { "providerId": "PROVIDER_ID_1", "amount": 30000 },
+    { "providerId": "PROVIDER_ID_2", "amount": 20000 }
+  ]
+}
+
+### Loans – Repay (debits wallet; credits providers by share + percentage; full repayment marks loan REPAID)
+POST {{base}}/loans/repay
+Content-Type: application/json
+
+{
+  "loanId": "LOAN_ID",
+  "amount": 25000
+}
+
+### ---------------------------------------------------------------------------
+### Providers (funding for loans; wallet = amount returned; credits = history)
+### ---------------------------------------------------------------------------
+
+### Providers – Create (creates provider + wallet; providerNumber SP-XXXXX)
+POST {{base}}/providers
+Content-Type: application/json
+
+{
+  "name": "Acme Funding Co",
+  "email": "funding@acme.com",
+  "percentageToAdd": 5
+}
+
+### Providers – List
+GET {{base}}/providers
+
+### Providers – Get one
+GET {{base}}/providers/PROVIDER_ID
+
+### Providers – Update
+PATCH {{base}}/providers/PROVIDER_ID
+Content-Type: application/json
+
+{
+  "name": "Acme Funding Ltd",
+  "percentageToAdd": 6
+}
+
+### Providers – Wallet (balance = returned so far; totalFunded = amount brought)
+GET {{base}}/providers/PROVIDER_ID/wallet
+
+### Providers – Credit history (occurring credits to provider)
+GET {{base}}/providers/PROVIDER_ID/credits?limit=20
+
+### Providers – Funding history (loans they funded)
+GET {{base}}/providers/PROVIDER_ID/funding?limit=20
