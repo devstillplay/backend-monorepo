@@ -63,6 +63,16 @@ Root `nixpacks.toml` uses `npm install` so Nx and devDependencies are available 
 
 Without `DATABASE_URL`, the app will fail at startup with a PrismaClientInitializationError.
 
+**If you only deploy api-gateway:** It talks to auth, user, loan, etc. over **TCP**. If those services are not running or not reachable, you get **500 Internal Server Error** (or 503 after the latest change). You must either:
+
+- **Option A – Deploy every backend service** (auth-service, user-service, admin-service, loan-service, etc.) as separate Railway services from this repo (same Root Directory, different Build/Start commands per service). Then on **api-gateway** set variables so it can reach them over [Railway private networking](https://docs.railway.com/guides/private-networking):
+  - `AUTH_SERVICE_HOST` = `auth-service.railway.internal` (use your Railway service name)
+  - `AUTH_SERVICE_PORT` = the port the auth-service listens on (Railway sets `PORT` per service; you can reference the auth-service’s `PORT` in the api-gateway’s variables if your plan supports it, or set the same fixed port in both)
+  - Same pattern for `USER_SERVICE_HOST` / `USER_SERVICE_PORT`, `ADMIN_SERVICE_HOST` / `ADMIN_SERVICE_PORT`, `LOAN_SERVICE_HOST` / `LOAN_SERVICE_PORT`, etc.
+- **Option B – Deploy only the services you need** and set the corresponding `*_SERVICE_HOST` and `*_SERVICE_PORT` on api-gateway for those. Routes that call a non-deployed service will return 503 with a message like "Auth service is unavailable".
+
+Backend microservices now listen on `0.0.0.0` and use `PORT` when set so they are reachable from the gateway on Railway’s private network.
+
 To see all available targets to run for a project, run:
 
 ```sh
