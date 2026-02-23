@@ -10,7 +10,7 @@ import { RpcExceptionFilter } from './app/rpc-exception.filter';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 
 async function bootstrap() {
-  const port = parseInt(process.env.PORT || process.env.AUTH_TCP_PORT ?? '8877', 10) || 8877;
+  const port = parseInt((process.env.PORT || process.env.AUTH_TCP_PORT) ?? '8877', 10) || 8877;
   const app = await NestFactory.createMicroservice<MicroserviceOptions>(
     AppModule,
     {
