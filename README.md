@@ -6,6 +6,15 @@
 
 [Learn more about this workspace setup and its capabilities](https://nx.dev/nx-api/nest?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects) or run `npx nx graph` to visually explore what was created. Now, let's get you up to speed!
 
+## Important: run from this directory
+
+All `nx` and `npm` commands must be run from **this directory** (the one that contains `nx.json` and `package.json`). If you see "The current directory isn't part of an Nx workspace", change into this folder first:
+
+```sh
+cd my-workspace   # or cd path/to/my-workspace
+npx nx build api-gateway
+```
+
 ## Run tasks
 
 To run the dev server for your app, use:
@@ -19,6 +28,16 @@ To create a production bundle:
 ```sh
 npx nx build api-gateway
 ```
+
+### Docker build
+
+Build the workspace in Docker (context must be this directory so `nx.json` is included):
+
+```sh
+docker build -t myapp .
+```
+
+The Dockerfile uses `npm ci --omit=dev` (not the deprecated `--production` flag).
 
 To see all available targets to run for a project, run:
 
