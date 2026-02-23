@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaPromise, PrismaService } from '@my-workspace/prisma';
 
 export const LoanStatus = {
@@ -21,8 +25,13 @@ export class AppService {
     return wallet;
   }
 
-  async requestLoan(payload: { userId: string; amount: number; purpose?: string }) {
-    if (payload.amount <= 0) throw new BadRequestException('Amount must be positive');
+  async requestLoan(payload: {
+    userId: string;
+    amount: number;
+    purpose?: string;
+  }) {
+    if (payload.amount <= 0)
+      throw new BadRequestException('Amount must be positive');
     const loan = await this.prisma.loan.create({
       data: {
         userId: payload.userId,
@@ -134,12 +143,15 @@ export class AppService {
       }
     }
     await this.prisma.$transaction(updates);
-    const updated = await this.prisma.loan.findUnique({ where: { id: loanId } });
+    const updated = await this.prisma.loan.findUnique({
+      where: { id: loanId },
+    });
     return { message: 'Loan disbursed to wallet', loan: updated };
   }
 
   async repayLoan(loanId: string, amount: number) {
-    if (amount <= 0) throw new BadRequestException('Repayment amount must be positive');
+    if (amount <= 0)
+      throw new BadRequestException('Repayment amount must be positive');
     const loan = await this.prisma.loan.findUnique({ where: { id: loanId } });
     if (!loan) throw new NotFoundException('Loan not found');
     if (loan.status !== LoanStatus.DISBURSED) {
@@ -153,7 +165,9 @@ export class AppService {
     });
     if (!wallet) throw new NotFoundException('Wallet not found');
     if (wallet.balance < amount) {
-      throw new BadRequestException('Insufficient wallet balance for repayment');
+      throw new BadRequestException(
+        'Insufficient wallet balance for repayment',
+      );
     }
     const now = new Date();
     await this.prisma.$transaction([
@@ -198,7 +212,12 @@ export class AppService {
         ]);
       }
     }
-    const updated = await this.prisma.loan.findUnique({ where: { id: loanId } });
-    return { message: fullRepaid ? 'Loan fully repaid' : 'Repayment recorded', loan: updated };
+    const updated = await this.prisma.loan.findUnique({
+      where: { id: loanId },
+    });
+    return {
+      message: fullRepaid ? 'Loan fully repaid' : 'Repayment recorded',
+      loan: updated,
+    };
   }
 }
