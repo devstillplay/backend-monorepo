@@ -9,11 +9,13 @@ import {
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
+import { throwIfServiceUnavailable } from '../utils/microservice-error';
 import { AUTH_SERVICE } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 
 function handleAuthError(err: unknown): never {
+  throwIfServiceUnavailable(err, 'Auth');
   const o = err && typeof err === 'object' ? (err as Record<string, unknown>) : {};
   const payload = (o.error ?? o.response ?? o) as Record<string, unknown> | undefined;
   const statusCode = Number(

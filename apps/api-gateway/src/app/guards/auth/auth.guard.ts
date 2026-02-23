@@ -7,6 +7,7 @@ import {
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
+import { throwIfServiceUnavailable } from '../../utils/microservice-error';
 import { AUTH_SERVICE } from '../../auth/auth.service';
 
 @Injectable()
@@ -34,6 +35,7 @@ export class AuthGuard implements CanActivate {
       };
       return true;
     } catch (error: unknown) {
+      throwIfServiceUnavailable(error, 'Auth');
       const message = error instanceof Error ? error.message : 'Invalid token';
       throw new UnauthorizedException('Invalid token: ' + message);
     }
