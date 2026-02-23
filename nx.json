@@ -63,6 +63,16 @@
       }
     },
     {
+      "tasksRunnerOptions": {
+        "default": {
+          "runner": "nx/tasks-runners/default",
+          "options": {
+            "useDaemonProcess": false
+          }
+        }
+      }
+    },
+    {
       "plugin": "@nx/eslint/plugin",
       "options": {
         "targetName": "lint"
