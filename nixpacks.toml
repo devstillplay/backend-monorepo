@@ -1,0 +1,17 @@
+# Nx monorepo – NestJS microservices on Railway (no Docker)
+# Set Root Directory to this folder (my-workspace) in Railway.
+# Override build/start in Railway dashboard per service (see README or below).
+
+[phases.install]
+# Use npm install so install succeeds even if lockfile is missing in context
+cmds = ["npm install --omit=dev"]
+
+# Build/start are set per-service in Railway. Examples:
+# api-gateway:    build = "npx nx build api-gateway"     start = "node dist/apps/api-gateway/main.js"
+# auth-service:   build = "npx nx build auth-service"    start = "node dist/apps/auth-service/main.js"
+# admin-service: build = "npx nx build admin-service"    start = "node dist/apps/admin-service/main.js"
+# user-service:  build = "npx nx build user-service"    start = "node dist/apps/user-service/main.js"
+# provider-service: build = "npx nx build provider-service" start = "node dist/apps/provider-service/main.js"
+
+[variables]
+NODE_ENV = "production"

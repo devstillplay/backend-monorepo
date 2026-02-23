@@ -8,8 +8,8 @@ WORKDIR /app
 COPY package.json package-lock.json* .npmrc* ./
 COPY nx.json tsconfig.base.json* ./
 
-# Install dependencies (use --omit=dev instead of deprecated --production)
-RUN npm ci --omit=dev
+# Install dependencies (ci when lockfile exists, else install; use --omit=dev not --production)
+RUN if [ -f package-lock.json ]; then npm ci --omit=dev; else npm install --omit=dev; fi
 
 # Copy rest of workspace (nx.json already present so Nx finds the workspace)
 COPY . .

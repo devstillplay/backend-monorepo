@@ -39,6 +39,24 @@ docker build -t myapp .
 
 The Dockerfile uses `npm ci --omit=dev` (not the deprecated `--production` flag).
 
+### Deploy NestJS microservice on Railway (Nixpacks, no Docker)
+
+1. **Root Directory** in Railway must be this folder (`my-workspace`), so Nx and Prisma can run.
+2. **Build command** (override in Railway): `npx nx build <service-name>`
+3. **Start command**: `node dist/apps/<service-name>/main.js`
+
+Examples:
+
+| Service          | Build command                    | Start command                            |
+|------------------|----------------------------------|------------------------------------------|
+| api-gateway      | `npx nx build api-gateway`       | `node dist/apps/api-gateway/main.js`     |
+| auth-service     | `npx nx build auth-service`      | `node dist/apps/auth-service/main.js`    |
+| admin-service    | `npx nx build admin-service`     | `node dist/apps/admin-service/main.js`   |
+| user-service     | `npx nx build user-service`      | `node dist/apps/user-service/main.js`    |
+| provider-service | `npx nx build provider-service`  | `node dist/apps/provider-service/main.js`|
+
+Root `nixpacks.toml` uses `npm install --omit=dev` so install works even when no lockfile is in context.
+
 To see all available targets to run for a project, run:
 
 ```sh
