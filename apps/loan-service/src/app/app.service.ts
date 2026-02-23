@@ -1,6 +1,5 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
-import { PrismaPromise } from '@prisma/client';
-import { PrismaService } from '@my-workspace/prisma';
+import { PrismaPromise, PrismaService } from '@my-workspace/prisma';
 
 export const LoanStatus = {
   PENDING: 'PENDING',
