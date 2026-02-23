@@ -13,7 +13,10 @@ import { EmployeeController } from './employee/employee.controller';
 import { NotificationController } from './notification/notification.controller';
 import { FileController, FILE_SERVICE } from './file/file.controller';
 import { LoanController, LOAN_SERVICE } from './loan/loan.controller';
-import { ProviderController, PROVIDER_SERVICE } from './provider/provider.controller';
+import {
+  ProviderController,
+  PROVIDER_SERVICE,
+} from './provider/provider.controller';
 
 @Module({
   imports: [
@@ -67,7 +70,8 @@ import { ProviderController, PROVIDER_SERVICE } from './provider/provider.contro
           options: {
             host: config.get('EMPLOYEE_SERVICE_HOST', 'localhost'),
             port:
-              parseInt(config.get('EMPLOYEE_SERVICE_PORT') ?? '8880', 10) || 8880,
+              parseInt(config.get('EMPLOYEE_SERVICE_PORT') ?? '8880', 10) ||
+              8880,
           },
         }),
         inject: [ConfigService],
@@ -80,7 +84,8 @@ import { ProviderController, PROVIDER_SERVICE } from './provider/provider.contro
           options: {
             host: config.get('NOTIFICATION_SERVICE_HOST', 'localhost'),
             port:
-              parseInt(config.get('NOTIFICATION_SERVICE_PORT') ?? '8881', 10) || 8881,
+              parseInt(config.get('NOTIFICATION_SERVICE_PORT') ?? '8881', 10) ||
+              8881,
           },
         }),
         inject: [ConfigService],
@@ -119,14 +124,25 @@ import { ProviderController, PROVIDER_SERVICE } from './provider/provider.contro
           options: {
             host: config.get('PROVIDER_SERVICE_HOST', 'localhost'),
             port:
-              parseInt(config.get('PROVIDER_SERVICE_PORT') ?? '8884', 10) || 8884,
+              parseInt(config.get('PROVIDER_SERVICE_PORT') ?? '8884', 10) ||
+              8884,
           },
         }),
         inject: [ConfigService],
       },
     ]),
   ],
-  controllers: [AppController, AuthController, UserController, AdminController, EmployeeController, NotificationController, FileController, LoanController, ProviderController],
+  controllers: [
+    AppController,
+    AuthController,
+    UserController,
+    AdminController,
+    EmployeeController,
+    NotificationController,
+    FileController,
+    LoanController,
+    ProviderController,
+  ],
   providers: [AppService, AuthService],
 })
 export class AppModule {}

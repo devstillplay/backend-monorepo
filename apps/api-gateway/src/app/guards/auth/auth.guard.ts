@@ -12,9 +12,7 @@ import { AUTH_SERVICE } from '../../auth/auth.service';
 @Injectable()
 export class AuthGuard implements CanActivate {
   constructor(@Inject(AUTH_SERVICE) private readonly authClient: ClientProxy) {}
-  async canActivate(
-    context: ExecutionContext
-  ): Promise<boolean> {
+  async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
     const authHeader = request.headers.authorization;
     if (!authHeader) {
@@ -23,7 +21,7 @@ export class AuthGuard implements CanActivate {
     try {
       const token = authHeader.split(' ')[1];
       const decoded = await firstValueFrom(
-        this.authClient.send('validate-token', token)
+        this.authClient.send('validate-token', token),
       );
       if (!decoded?.valid) {
         throw new UnauthorizedException('Invalid token');
