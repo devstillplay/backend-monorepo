@@ -4,13 +4,13 @@ import { AppModule } from './app/app.module';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 
 async function bootstrap() {
-  const port = parseInt(process.env.PORT || process.env.NOTIFICATION_SERVICE_PORT || '8881', 10);
+  const port = parseInt(process.env.NOTIFICATION_SERVICE_PORT || '8881', 10);
   const app = await NestFactory.createMicroservice<MicroserviceOptions>(
     AppModule,
     {
       transport: Transport.TCP,
       options: { host: '0.0.0.0', port },
-    }
+    },
   );
   await app.listen();
   Logger.log(`🚀 Notification service running on: TCP:${port}`);

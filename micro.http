@@ -89,6 +89,9 @@ Content-Type: application/json
 GET {{base}}/user
 Authorization: Bearer {{token}}
 
+### User – Get all users (no auth)
+GET {{base}}/user/all
+
 ### ---------------------------------------------------------------------------
 ### Admin (all require Authorization: Bearer &lt;admin token&gt;)
 ### ---------------------------------------------------------------------------
