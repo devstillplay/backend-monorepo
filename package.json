@@ -5,7 +5,7 @@
   "scripts": {
     "prisma:generate": "prisma generate",
     "prisma:push": "prisma db push",
-    "postinstall": "prisma generate",
+    "postinstall": "node scripts/postinstall.js",
     "install:prod": "npm install --omit=dev"
   },
   "private": true,
