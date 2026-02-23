@@ -1,0 +1,4 @@
+# When Railway builds from this directory (apps/stillPlay-admin), there is no
+# package-lock.json here (it lives at workspace root). Use npm install so install succeeds.
+[phases.install]
+cmds = ["npm install --omit=dev"]
