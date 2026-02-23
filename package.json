@@ -5,7 +5,8 @@
   "scripts": {
     "prisma:generate": "prisma generate",
     "prisma:push": "prisma db push",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "install:prod": "npm install --omit=dev"
   },
   "private": true,
   "overrides": {
