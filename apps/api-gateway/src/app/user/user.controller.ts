@@ -11,6 +11,12 @@ export class UserController {
     @Inject('USER_SERVICE') private readonly userClient: ClientProxy
   ) {}
 
+  /** Get all users (no auth) */
+  @Get('all')
+  async getAllUsers() {
+    return firstValueFrom(this.userClient.send('get-all-users', {}));
+  }
+
   @UseGuards(AuthGuard)
   @Get()
   async getProfile(@Req() req: RequestWithUser) {

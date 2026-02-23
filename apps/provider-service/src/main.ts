@@ -5,13 +5,13 @@ import { RpcExceptionFilter } from './app/rpc-exception.filter';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 
 async function bootstrap() {
-  const port = parseInt(process.env.PORT || process.env.PROVIDER_SERVICE_PORT || '8884', 10);
+  const port = parseInt(process.env.PROVIDER_SERVICE_PORT || '8884', 10);
   const app = await NestFactory.createMicroservice<MicroserviceOptions>(
     AppModule,
     {
       transport: Transport.TCP,
       options: { host: '0.0.0.0', port },
-    }
+    },
   );
   app.useGlobalFilters(new RpcExceptionFilter());
   await app.listen();

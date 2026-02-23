@@ -28,4 +28,21 @@ export class AppService {
       },
     };
   }
+
+  async getAllUsers() {
+    const users = await this.prisma.user.findMany({
+      select: {
+        id: true,
+        userNumber: true,
+        email: true,
+        firstName: true,
+        lastName: true,
+        picture: true,
+        role: true,
+        verified: true,
+        createdAt: true,
+      },
+    });
+    return { users };
+  }
 }

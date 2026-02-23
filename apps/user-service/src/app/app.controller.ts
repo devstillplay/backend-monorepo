@@ -10,4 +10,9 @@ export class AppController {
   async getUser(@Payload() payload: string) {
     return await this.appService.getUserProfile(payload);
   }
+
+  @MessagePattern('get-all-users')
+  async getAllUsers() {
+    return await this.appService.getAllUsers();
+  }
 }
