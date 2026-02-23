@@ -55,7 +55,13 @@ Examples:
 | user-service     | `npx nx build user-service`      | `node dist/apps/user-service/main.js`    |
 | provider-service | `npx nx build provider-service`  | `node dist/apps/provider-service/main.js`|
 
-Root `nixpacks.toml` uses `npm install --omit=dev` so install works even when no lockfile is in context.
+Root `nixpacks.toml` uses `npm install` so Nx and devDependencies are available for the build.
+
+**Required environment variables** (e.g. in Railway → your service → Variables):
+
+- `DATABASE_URL` – MongoDB connection string (required by Prisma; e.g. `mongodb+srv://user:pass@cluster.mongodb.net/dbname`)
+
+Without `DATABASE_URL`, the app will fail at startup with a PrismaClientInitializationError.
 
 To see all available targets to run for a project, run:
 

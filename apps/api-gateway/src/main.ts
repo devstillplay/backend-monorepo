@@ -8,6 +8,11 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app/app.module';
 
 async function bootstrap() {
+  if (!process.env.DATABASE_URL) {
+    throw new Error(
+      'DATABASE_URL is not set. Add it to your environment (e.g. Railway project or service variables).'
+    );
+  }
   const app = await NestFactory.create(AppModule);
   app.enableCors({
     origin: [
