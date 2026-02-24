@@ -11,20 +11,13 @@ import { LoggingExceptionFilter } from './app/logging-exception.filter';
 async function bootstrap() {
   if (!process.env.DATABASE_URL) {
     throw new Error(
-      'DATABASE_URL is not set. Add it to your environment (e.g. Railway project or service variables).'
+      'DATABASE_URL is not set. Add it to your environment (e.g. Railway project or service variables).',
     );
   }
   const app = await NestFactory.create(AppModule);
   app.useGlobalFilters(new LoggingExceptionFilter());
   app.enableCors({
-    origin: [
-      'http://localhost:3000',
-      'http://localhost:3001',
-      'http://localhost:4200',
-      'http://127.0.0.1:3000',
-      'http://127.0.0.1:3001',
-      'http://127.0.0.1:4200',
-    ],
+    origin: '*',
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
@@ -34,7 +27,7 @@ async function bootstrap() {
   const port = process.env.PORT || 3000;
   await app.listen(port);
   Logger.log(
-    `🚀 Application is running on: http://localhost:${port}/${globalPrefix}`
+    `🚀 Application is running on: http://localhost:${port}/${globalPrefix}`,
   );
 }
 
