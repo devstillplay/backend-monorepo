@@ -1,4 +1,8 @@
-# When Railway builds from this directory (apps/stillPlay-admin), there is no
-# package-lock.json here (it lives at workspace root). Use npm install so install succeeds.
+# Railway / Nixpacks: use npm install so lock file stays valid (npm ci fails if lock is out of sync).
+# If you get "Missing: yaml@2.8.2 from lock file", run in this directory: npm install, then commit package-lock.json.
 [phases.install]
 cmds = ["npm install --omit=dev"]
+
+[variables]
+# Prefer npm install over npm ci so deploy works when lock file is slightly out of sync
+NIXPACKS_INSTALL_CMD = "npm install --omit=dev"

@@ -57,4 +57,14 @@ export class AppController {
   repayLoan(@Payload() payload: { loanId: string; amount: number }) {
     return this.appService.repayLoan(payload.loanId, payload.amount);
   }
+
+  @MessagePattern('loan-repayments-by-loan')
+  listRepaymentsByLoanId(@Payload() loanId: string) {
+    return this.appService.listRepaymentsByLoanId(loanId);
+  }
+
+  @MessagePattern('loan-repayments-by-user')
+  listRepaymentsByUserId(@Payload() userId: string) {
+    return this.appService.listRepaymentsByUserId(userId);
+  }
 }
