@@ -6,6 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "start:3009": "PORT=3009 next start",
     "lint": "next lint"
   },
   "dependencies": {
