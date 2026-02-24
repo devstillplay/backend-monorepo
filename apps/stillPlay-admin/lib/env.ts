@@ -1,12 +1,11 @@
 /**
  * Single place for base URL and API endpoints.
- * Use NEXT_PUBLIC_* in .env.local so they are available in the browser.
+ * Must use NEXT_PUBLIC_* so the value is available in the browser (Next.js only inlines that prefix).
+ * Set NEXT_PUBLIC_API_BASE_URL in Railway / .env.local (e.g. https://your-api.railway.app/api).
  */
 
 const baseUrl =
-  typeof window !== 'undefined'
-    ? (process.env.PUBLIC_API_BASE_URL ?? '')
-    : (process.env.PUBLIC_API_BASE_URL ?? '');
+  process.env.NEXT_PUBLIC_API_BASE_URL ?? process.env.PUBLIC_API_BASE_URL ?? '';
 
 export function getBaseUrl(): string {
   return baseUrl.replace(/\/$/, '');
@@ -17,7 +16,7 @@ export function requireBaseUrl(): void {
   const url = getBaseUrl();
   if (!url) {
     throw new Error(
-      'API URL not configured. Add PUBLIC_API_BASE_URL to .env.local (e.g. http://localhost:3000/api) and restart the dev server.',
+      'API URL not configured. Set NEXT_PUBLIC_API_BASE_URL in .env.local or Railway (e.g. https://your-api.railway.app/api).',
     );
   }
 }
