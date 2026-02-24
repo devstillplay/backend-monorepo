@@ -4,12 +4,12 @@
  */
 
 const baseUrl =
-  typeof window !== "undefined"
-    ? (process.env.NEXT_PUBLIC_API_BASE_URL ?? "")
-    : process.env.NEXT_PUBLIC_API_BASE_URL ?? "";
+  typeof window !== 'undefined'
+    ? (process.env.PUBLIC_API_BASE_URL ?? '')
+    : (process.env.PUBLIC_API_BASE_URL ?? '');
 
 export function getBaseUrl(): string {
-  return baseUrl.replace(/\/$/, "");
+  return baseUrl.replace(/\/$/, '');
 }
 
 /** Use before auth/API calls; throws if API base URL is not set (avoids 404 to same origin). */
@@ -17,7 +17,7 @@ export function requireBaseUrl(): void {
   const url = getBaseUrl();
   if (!url) {
     throw new Error(
-      "API URL not configured. Add NEXT_PUBLIC_API_BASE_URL to .env.local (e.g. http://localhost:3000/api) and restart the dev server."
+      'API URL not configured. Add PUBLIC_API_BASE_URL to .env.local (e.g. http://localhost:3000/api) and restart the dev server.',
     );
   }
 }
