@@ -183,6 +183,14 @@ exports.Prisma.LoanScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.LoanRepaymentScalarFieldEnum = {
+  id: 'id',
+  loanId: 'loanId',
+  userId: 'userId',
+  amount: 'amount',
+  repaidAt: 'repaidAt'
+};
+
 exports.Prisma.ProviderScalarFieldEnum = {
   id: 'id',
   providerNumber: 'providerNumber',
@@ -261,6 +269,7 @@ exports.Prisma.ModelName = {
   PendingRegistration: 'PendingRegistration',
   Wallet: 'Wallet',
   Loan: 'Loan',
+  LoanRepayment: 'LoanRepayment',
   Provider: 'Provider',
   ProviderWallet: 'ProviderWallet',
   LoanFunding: 'LoanFunding',

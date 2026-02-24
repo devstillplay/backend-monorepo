@@ -140,6 +140,33 @@ Authorization: Bearer {{token}}
 POST {{base}}/admin/users/USER_ID/verify
 Authorization: Bearer {{token}}
 
+### Admin – Request loan for a user (eligibility: no PENDING/APPROVED/DISBURSED loan)
+POST {{base}}/admin/loans/request
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "userId": "USER_OBJECT_ID",
+  "amount": 50000,
+  "purpose": "Working capital"
+}
+
+### Admin – User loan history
+GET {{base}}/admin/loans/user/USER_ID
+Authorization: Bearer {{token}}
+
+### Admin – User repayment history
+GET {{base}}/admin/loans/user/USER_ID/repayments
+Authorization: Bearer {{token}}
+
+### Admin – User wallet (balance, currency)
+GET {{base}}/admin/loans/user/USER_ID/wallet
+Authorization: Bearer {{token}}
+
+### Admin – Repayments for a specific loan
+GET {{base}}/admin/loans/LOAN_ID/repayments
+Authorization: Bearer {{token}}
+
 ### ---------------------------------------------------------------------------
 ### Providers (funding; all require Authorization: Bearer &lt;token&gt;)
 ### ---------------------------------------------------------------------------
