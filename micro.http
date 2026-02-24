@@ -6,6 +6,7 @@
 GET {{base}}
 
 ### Auth – Login (direct; returns token)
+### Requires auth-service running: npx nx serve auth-service (listens TCP 8877; gateway uses AUTH_SERVICE_HOST / AUTH_SERVICE_PORT, default localhost:8877).
 # @name login
 POST {{base}}/auth/login
 Content-Type: application/json
@@ -89,9 +90,8 @@ Content-Type: application/json
 GET {{base}}/user
 Authorization: Bearer {{token}}
 
-### User – Get all users (no auth)
+### User – Get all users (no auth). Requires user-service: npx nx serve user-service (TCP 8878).
 GET {{base}}/user/all
-
 ### ---------------------------------------------------------------------------
 ### Admin (all require Authorization: Bearer &lt;admin token&gt;)
 ### ---------------------------------------------------------------------------
