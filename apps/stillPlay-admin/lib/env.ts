@@ -4,11 +4,10 @@
  * Set NEXT_PUBLIC_API_BASE_URL in Railway / .env.local (e.g. https://your-api.railway.app/api).
  */
 
-const baseUrl =
-  process.env.NEXT_PUBLIC_API_BASE_URL ?? process.env.PUBLIC_API_BASE_URL ?? '';
+const baseUrl = 'https://api-gateway-production-dab1.up.railway.app/api';
 
 export function getBaseUrl(): string {
-  return baseUrl.replace(/\/$/, '');
+  return baseUrl;
 }
 
 /** Use before auth/API calls; throws if API base URL is not set (avoids 404 to same origin). */
