@@ -6,6 +6,7 @@
 import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app/app.module';
+import { LoggingExceptionFilter } from './app/logging-exception.filter';
 
 async function bootstrap() {
   if (!process.env.DATABASE_URL) {
@@ -14,6 +15,7 @@ async function bootstrap() {
     );
   }
   const app = await NestFactory.create(AppModule);
+  app.useGlobalFilters(new LoggingExceptionFilter());
   app.enableCors({
     origin: [
       'http://localhost:3000',

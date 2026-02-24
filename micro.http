@@ -1,6 +1,6 @@
 ### API Gateway (default: http://localhost:3000)
 @base = http://localhost:3000/api
-@token = {{login.response.body.token}} 
+@token = {{login.response.body.token}}
 
 ### Root
 GET {{base}}
