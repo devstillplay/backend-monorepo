@@ -24,8 +24,15 @@ function isConnectionError(err: unknown): boolean {
  */
 export function throwIfServiceUnavailable(err: unknown, serviceLabel: string): void {
   if (isConnectionError(err)) {
+    const localHints: Record<string, string> = {
+      Auth: ' For local dev, start auth-service: npx nx serve auth-service (TCP 8877).',
+      User: ' For local dev, start user-service: npx nx serve user-service (TCP 8878).',
+    };
+    const envHint =
+      localHints[serviceLabel] ??
+      ` If deployed, set ${serviceLabel.toUpperCase().replace(/\s/g, '_')}_SERVICE_HOST and PORT.`;
     throw new ServiceUnavailableException(
-      `${serviceLabel} is unavailable. If deployed, set ${serviceLabel.toUpperCase().replace(/\s/g, '_')}_SERVICE_HOST and PORT (see README).`,
+      `Service temporarily unavailable. Please try again.${envHint}`,
     );
   }
 }

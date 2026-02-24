@@ -8,8 +8,7 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { randomBytes } from 'crypto';
-// eslint-disable-next-line @nx/enforce-module-boundaries -- Prisma generated types
-import type { Prisma } from '../../../../libs/prisma/generated';
+import type { Prisma } from '@my-workspace/prisma';
 import { PrismaService, generateSpNumber } from '@my-workspace/prisma';
 import { Role } from './enums/role.enum';
 import { LoginDto } from './dto/login.dto';
