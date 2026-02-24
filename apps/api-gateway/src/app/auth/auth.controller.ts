@@ -19,7 +19,7 @@ function handleAuthError(err: unknown): never {
   const o = err && typeof err === 'object' ? (err as Record<string, unknown>) : {};
   const payload = (o.error ?? o.response ?? o) as Record<string, unknown> | undefined;
   const statusCode = Number(
-    o.statusCode ?? payload?.statusCode ?? payload?.status ?? 500
+    o.statusCode ?? payload?.statusCode ?? (payload?.status === 'error' ? 500 : undefined) ?? 500
   );
   let message: string =
     typeof o.message === 'string'
