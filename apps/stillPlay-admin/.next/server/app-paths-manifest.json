@@ -1,7 +1,7 @@
 {
-  "/dashboard/loan-repayment/page": "app/dashboard/loan-repayment/page.js",
   "/dashboard/loan-request/page": "app/dashboard/loan-request/page.js",
   "/dashboard/settings/page": "app/dashboard/settings/page.js",
+  "/dashboard/loan-repayment/page": "app/dashboard/loan-repayment/page.js",
   "/dashboard/staff/page": "app/dashboard/staff/page.js",
   "/dashboard/providers/page": "app/dashboard/providers/page.js"
 }
