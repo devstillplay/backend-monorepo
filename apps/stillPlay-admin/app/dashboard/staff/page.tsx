@@ -131,12 +131,12 @@ export default function StaffPage() {
               justifyContent="space-between"
               flexWrap="wrap"
               gap={1}
-              sx={{ marginBottom: 2, paddingTop: 2, paddingLeft: 2 }}
+              sx={{ marginBottom: 2, paddingTop: 2, paddingLeft: { xs: 1, md: 2 } }}
             >
-              <Typography variant="h6" sx={{ fontWeight: 700 }}>
+              <Typography variant="h6" sx={{ fontWeight: 700, fontSize: { xs: "1rem", md: "1.25rem" } }}>
                 STAFF
               </Typography>
-              <Stack direction="row" spacing={1}>
+              <Stack direction="row" spacing={1} flexWrap="wrap">
                 <IconButton
                   size="small"
                   onClick={() => refetch()}
@@ -179,7 +179,15 @@ export default function StaffPage() {
               <Box>Status</Box>
             </Box>
 
-            <Box sx={{ marginTop: 1 }}>
+            <Box
+              sx={{
+                marginTop: 1,
+                overflowX: { xs: "auto", md: "visible" },
+                overflowY: { xs: "auto", md: "visible" },
+                maxHeight: { xs: "70vh", md: "none" },
+                WebkitOverflowScrolling: "touch",
+              }}
+            >
               {isLoading ? (
                 <Stack alignItems="center" py={4}>
                   <CircularProgress sx={{ color: "#0b7b4c" }} />
@@ -199,45 +207,91 @@ export default function StaffPage() {
                   No staff yet. Create an admin account to get started.
                 </Typography>
               ) : (
-                <Stack spacing={0}>
+                <Stack spacing={{ xs: 1.5, md: 0 }}>
                   {filtered.map((e: Employee) => (
                     <Box
                       key={e.id}
                       sx={{
-                        paddingY: 2,
+                        paddingY: { xs: 1.5, md: 2 },
                         paddingX: { xs: 2, md: 3 },
-                        borderBottom: "1px solid #fff",
-                        display: { xs: "flex", md: "grid" },
-                        flexDirection: { xs: "column", md: "unset" },
+                        borderBottom: { xs: "none", md: "1px solid #fff" },
+                        display: { xs: "block", md: "grid" },
                         gridTemplateColumns: { md: "1.5fr 1.2fr 0.9fr 1.2fr 0.6fr" },
-                        alignItems: "center",
-                        gap: { xs: 1, md: 1 },
+                        alignItems: { md: "center" },
+                        gap: { md: 1 },
                         backgroundColor: "#ffffff",
-                        borderRadius: 1,
+                        borderRadius: { xs: 2, md: 1 },
+                        border: { xs: "1px solid", md: "none" },
+                        borderColor: { xs: "divider", md: "transparent" },
                         "&:hover": { backgroundColor: "#fafafa" },
                       }}
                     >
-                      <Typography variant="body2" fontWeight={600}>
-                        {[e.firstName, e.lastName].filter(Boolean).join(" ") || "—"}
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary">
-                        {e.email ?? "—"}
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary">
-                        {e.employeeNumber ?? "—"}
-                      </Typography>
-                      <Typography variant="body2">
-                        {e.role ?? "—"}
-                      </Typography>
-                      <Typography
-                        variant="body2"
+                      {/* Mobile: label-value card rows */}
+                      <Box
                         sx={{
-                          color: e.active ? "#0b7b4c" : "text.secondary",
-                          fontWeight: 500,
+                          display: { xs: "grid", md: "none" },
+                          gridTemplateColumns: "100px 1fr",
+                          gap: "4px 12px",
+                          alignItems: "baseline",
+                          "& > .label": { color: "text.secondary", fontSize: "0.75rem" },
+                          "& > .value": { fontSize: "0.875rem", wordBreak: "break-word" },
                         }}
                       >
-                        {e.active ? "Active" : "Inactive"}
-                      </Typography>
+                        <span className="label">Name</span>
+                        <span className="value" style={{ fontWeight: 600 }}>
+                          {[e.firstName, e.lastName].filter(Boolean).join(" ") || "—"}
+                        </span>
+                        <span className="label">Email</span>
+                        <span className="value">{e.email ?? "—"}</span>
+                        <span className="label">Employee #</span>
+                        <span className="value">{e.employeeNumber ?? "—"}</span>
+                        <span className="label">Role</span>
+                        <span className="value">{e.role ?? "—"}</span>
+                        <span className="label">Status</span>
+                        <span
+                          className="value"
+                          style={{
+                            color: e.active ? "#0b7b4c" : undefined,
+                            fontWeight: 500,
+                          }}
+                        >
+                          {e.active ? "Active" : "Inactive"}
+                        </span>
+                      </Box>
+                      {/* Desktop: table row */}
+                      <>
+                        <Box sx={{ display: { xs: "none", md: "block" } }}>
+                          <Typography variant="body2" fontWeight={600}>
+                            {[e.firstName, e.lastName].filter(Boolean).join(" ") || "—"}
+                          </Typography>
+                        </Box>
+                        <Box sx={{ display: { xs: "none", md: "block" } }}>
+                          <Typography variant="body2" color="text.secondary">
+                            {e.email ?? "—"}
+                          </Typography>
+                        </Box>
+                        <Box sx={{ display: { xs: "none", md: "block" } }}>
+                          <Typography variant="body2" color="text.secondary">
+                            {e.employeeNumber ?? "—"}
+                          </Typography>
+                        </Box>
+                        <Box sx={{ display: { xs: "none", md: "block" } }}>
+                          <Typography variant="body2">
+                            {e.role ?? "—"}
+                          </Typography>
+                        </Box>
+                        <Box sx={{ display: { xs: "none", md: "block" } }}>
+                          <Typography
+                            variant="body2"
+                            sx={{
+                              color: e.active ? "#0b7b4c" : "text.secondary",
+                              fontWeight: 500,
+                            }}
+                          >
+                            {e.active ? "Active" : "Inactive"}
+                          </Typography>
+                        </Box>
+                      </>
                     </Box>
                   ))}
                 </Stack>

@@ -1,6 +1,6 @@
 "use client";
 
-import { CssBaseline, ThemeProvider } from "@mui/material";
+import { Box, CssBaseline, ThemeProvider } from "@mui/material";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactNode, useState } from "react";
 
@@ -27,7 +27,17 @@ export default function Providers({ children }: ProvidersProps) {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider theme={theme}>
         <CssBaseline />
-        {children}
+        <Box
+          sx={{
+            width: "100%",
+            maxWidth: "100vw",
+            minHeight: "100vh",
+            overflowX: "hidden",
+            boxSizing: "border-box",
+          }}
+        >
+          {children}
+        </Box>
       </ThemeProvider>
     </QueryClientProvider>
   );
