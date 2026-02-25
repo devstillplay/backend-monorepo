@@ -1,32 +1,81 @@
 "use client";
 
 import AccessTimeOutlinedIcon from "@mui/icons-material/AccessTimeOutlined";
+import RefreshIcon from "@mui/icons-material/Refresh";
 import {
   Avatar,
   Box,
   Button,
+  CircularProgress,
+  IconButton,
   Pagination,
   Stack,
   Typography,
 } from "@mui/material";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 import DashboardHeader from "../../../components/dashboard/DashboardHeader";
+import { useAllLoans, useAdminUsers, useApproveLoan, useRejectLoan } from "../../../lib/queries";
+import type { Loan } from "../../../lib/api";
+
+function statusColor(status: string): string {
+  switch (status) {
+    case "REPAID":
+      return "#22c55e";
+    case "REJECTED":
+      return "#ef4444";
+    case "PENDING":
+    case "APPROVED":
+    case "DISBURSED":
+    default:
+      return "#f59e0b";
+  }
+}
 
 export default function LoanRequestPage() {
   const [search, setSearch] = useState("");
-  const rows = Array.from({ length: 25 }, (_, index) => ({
-    status:
-      index % 3 === 0 ? "Approved" : index % 2 === 0 ? "Denied" : "Pending",
-    statusColor:
-      index % 3 === 0 ? "#22c55e" : index % 2 === 0 ? "#ef4444" : "#f9a826",
-    id: index + 1,
-  }));
   const [page, setPage] = useState(1);
+  const [statusFilter, setStatusFilter] = useState<"all" | "PENDING" | "APPROVED" | "REJECTED" | "DISBURSED" | "REPAID">("all");
+
+  const { data: loansData, isLoading, isError, error, refetch, isFetching } = useAllLoans();
+  const { data: users = [] } = useAdminUsers();
+  const approveMutation = useApproveLoan();
+  const rejectMutation = useRejectLoan();
+  const loans = loansData?.loans ?? [];
+
+  const userMap = useMemo(() => {
+    const m = new Map<string, { name: string; code: string; picture?: string | null }>();
+    users.forEach((u) => {
+      const name = [u.firstName, u.lastName].filter(Boolean).join(" ") || u.email || "—";
+      m.set(u.id, { name, code: u.userNumber ?? u.id.slice(-6), picture: u.picture ?? null });
+    });
+    return m;
+  }, [users]);
+
+  const filteredLoans = useMemo(() => {
+    let list = loans;
+    if (statusFilter !== "all") {
+      list = list.filter((l) => l.status === statusFilter);
+    }
+    if (search.trim()) {
+      const q = search.trim().toLowerCase();
+      list = list.filter((l) => {
+        const u = userMap.get(l.userId);
+        return (
+          u?.name.toLowerCase().includes(q) ||
+          u?.code.toLowerCase().includes(q) ||
+          l.amount.toString().includes(q) ||
+          l.id.toLowerCase().includes(q)
+        );
+      });
+    }
+    return list;
+  }, [loans, statusFilter, search, userMap]);
+
   const rowsPerPage = 10;
-  const totalPages = Math.ceil(rows.length / rowsPerPage);
+  const totalPages = Math.max(1, Math.ceil(filteredLoans.length / rowsPerPage));
   const startIndex = (page - 1) * rowsPerPage;
-  const pageRows = rows.slice(startIndex, startIndex + rowsPerPage);
+  const pageRows = filteredLoans.slice(startIndex, startIndex + rowsPerPage);
 
   return (
     <Box>
@@ -58,39 +107,50 @@ export default function LoanRequestPage() {
               spacing={2}
               sx={{ marginBottom: 2, paddingTop: 2, paddingLeft: 2 }}
             >
-              <Typography variant="h6" sx={{ fontWeight: 700 }}>
-                LOAN REQUEST
-              </Typography>
-              <Stack direction="row" spacing={4} alignItems="center">
-                <Typography
-                  variant="body2"
-                  sx={{
-                    color: "#0b7b4c",
-                    fontWeight: 600,
-                    position: "relative",
-                    paddingBottom: 0.5,
-                  }}
+              <Stack direction="row" alignItems="center" spacing={1}>
+                <Typography variant="h6" sx={{ fontWeight: 700 }}>
+                  LOAN REQUEST
+                </Typography>
+                <IconButton
+                  size="small"
+                  onClick={() => refetch()}
+                  disabled={isFetching}
+                  aria-label="Refresh"
                 >
-                  All request
-                  <Box
-                    component="span"
+                  <RefreshIcon fontSize="small" />
+                </IconButton>
+              </Stack>
+              <Stack direction="row" spacing={4} alignItems="center">
+                {(["all", "PENDING", "APPROVED", "REJECTED", "DISBURSED", "REPAID"] as const).map((s) => (
+                  <Typography
+                    key={s}
+                    variant="body2"
+                    onClick={() => setStatusFilter(s)}
                     sx={{
-                      position: "absolute",
-                      left: 0,
-                      right: 0,
-                      bottom: 0,
-                      height: 2,
-                      backgroundColor: "#0b7b4c",
-                      borderRadius: 999,
+                      cursor: "pointer",
+                      color: statusFilter === s ? "#0b7b4c" : "text.secondary",
+                      fontWeight: statusFilter === s ? 600 : 400,
+                      position: "relative",
+                      paddingBottom: 0.5,
                     }}
-                  />
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  Denied
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  Approved
-                </Typography>
+                  >
+                    {s === "all" ? "All request" : s}
+                    {statusFilter === s && (
+                      <Box
+                        component="span"
+                        sx={{
+                          position: "absolute",
+                          left: 0,
+                          right: 0,
+                          bottom: 0,
+                          height: 2,
+                          backgroundColor: "#0b7b4c",
+                          borderRadius: 999,
+                        }}
+                      />
+                    )}
+                  </Typography>
+                ))}
               </Stack>
             </Stack>
 
@@ -103,8 +163,8 @@ export default function LoanRequestPage() {
                 borderRadius: 999,
                 paddingY: 1.2,
                 paddingX: 3,
-                display: "grid",
-                gridTemplateColumns: "1.2fr 1.6fr 1fr 1fr 1fr 160px",
+                display: { xs: "none", md: "grid" },
+                gridTemplateColumns: "1.2fr 1.6fr 1fr 1fr 1fr 1.2fr",
                 alignItems: "center",
                 gap: 1,
               }}
@@ -114,7 +174,7 @@ export default function LoanRequestPage() {
               <Box>Amount</Box>
               <Box>Time</Box>
               <Box>Status</Box>
-              <Box />
+              <Box>Actions</Box>
             </Box>
 
             <Box
@@ -124,85 +184,123 @@ export default function LoanRequestPage() {
                 overflowY: { xs: "auto", sm: "visible" },
               }}
             >
-              <Stack spacing={0}>
-                {pageRows.map((row, index) => (
-                  <Box
-                    key={`loan-${row.id}`}
-                    sx={{
-                      paddingY: 2,
-                      paddingX: 3,
-                      borderBottom:
-                        index === pageRows.length - 1
-                          ? "none"
-                          : "1px solid #fff",
-                      backgroundColor: index === 0 ? "#ffffff" : "transparent",
-                      display: "grid",
-                      gridTemplateColumns: "1.2fr 1.6fr 1fr 1fr 1fr 160px",
-                      alignItems: "center",
-                      gap: 1,
-                      borderRadius: 1,
-                    }}
-                  >
-                    <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                      #1234BF
-                    </Typography>
-                    <Stack direction="row" spacing={1} alignItems="center">
-                      <Avatar sx={{ width: 32, height: 32 }} />
-                      <Typography variant="body2">Chisom Kunle</Typography>
-                    </Stack>
-                    <Typography variant="body2">N2,000</Typography>
-                    <Stack direction="row" spacing={1} alignItems="center">
-                      <AccessTimeOutlinedIcon
-                        sx={{ fontSize: 18, color: "#6b6b6b" }}
-                      />
-                      <Typography variant="body2">10:15 AM</Typography>
-                    </Stack>
-                    <Stack direction="row" spacing={1} alignItems="center">
+              {isLoading ? (
+                <Stack alignItems="center" py={4}>
+                  <CircularProgress sx={{ color: "#0b7b4c" }} />
+                  <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
+                    Loading loans...
+                  </Typography>
+                </Stack>
+              ) : isError ? (
+                <Stack alignItems="center" py={4} spacing={2}>
+                  <Typography color="error">{(error as Error).message}</Typography>
+                  <Button variant="outlined" onClick={() => refetch()} size="small">
+                    Retry
+                  </Button>
+                </Stack>
+              ) : (
+                <Stack spacing={0}>
+                  {pageRows.map((loan: Loan, index: number) => {
+                    const user = userMap.get(loan.userId);
+                    const name = user?.name ?? "—";
+                    const code = user?.code ?? loan.userId.slice(-6);
+                    const createdAt = loan.createdAt
+                      ? new Date(loan.createdAt).toLocaleTimeString("en-NG", {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })
+                      : "—";
+                    const isPending = loan.status === "PENDING";
+                    const approving = approveMutation.isPending && approveMutation.variables === loan.id;
+                    const rejecting = rejectMutation.isPending && rejectMutation.variables === loan.id;
+                    return (
                       <Box
+                        key={loan.id}
                         sx={{
-                          width: 10,
-                          height: 10,
-                          borderRadius: "50%",
-                          backgroundColor: row.statusColor,
+                          paddingY: 2,
+                          paddingX: 3,
+                          borderBottom:
+                            index === pageRows.length - 1
+                              ? "none"
+                              : "1px solid #fff",
+                          backgroundColor: index === 0 ? "#ffffff" : "transparent",
+                          display: "grid",
+                          gridTemplateColumns: { xs: "1fr 1fr", md: "1.2fr 1.6fr 1fr 1fr 1fr 1.2fr" },
+                          alignItems: "center",
+                          gap: 1,
+                          borderRadius: 1,
                         }}
-                      />
-                      <Typography variant="body2">{row.status}</Typography>
-                    </Stack>
-                    <Stack
-                      direction="row"
-                      spacing={1}
-                      justifyContent="flex-end"
-                    >
-                      {index === 0 ? (
-                        <>
-                          <Button
-                            variant="contained"
-                            size="small"
+                      >
+                        <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                          #{code}
+                        </Typography>
+                        <Stack direction="row" spacing={1} alignItems="center">
+                          <Avatar
+                            src={user?.picture || undefined}
+                            sx={{ width: 32, height: 32 }}
+                          >
+                            {(name?.[0] ?? "?").toUpperCase()}
+                          </Avatar>
+                          <Typography variant="body2">{name}</Typography>
+                        </Stack>
+                        <Typography variant="body2">
+                          NGN {Number(loan.amount).toLocaleString()}
+                        </Typography>
+                        <Stack direction="row" spacing={1} alignItems="center">
+                          <AccessTimeOutlinedIcon
+                            sx={{ fontSize: 18, color: "#6b6b6b" }}
+                          />
+                          <Typography variant="body2">{createdAt}</Typography>
+                        </Stack>
+                        <Stack direction="row" spacing={1} alignItems="center">
+                          <Box
                             sx={{
-                              backgroundColor: "#ffd6d6",
-                              color: "#6b3c3c",
-                              boxShadow: "none",
+                              width: 10,
+                              height: 10,
+                              borderRadius: "50%",
+                              backgroundColor: statusColor(loan.status),
+                            }}
+                          />
+                          <Typography variant="body2">{loan.status}</Typography>
+                        </Stack>
+                        <Stack
+                          direction="row"
+                          spacing={1}
+                          alignItems="center"
+                          sx={{ gridColumn: { xs: "1 / -1", md: "auto" } }}
+                        >
+                          <Button
+                            size="small"
+                            variant="contained"
+                            disabled={!isPending || approving || rejecting}
+                            onClick={() => approveMutation.mutate(loan.id)}
+                            sx={{
+                              backgroundColor: "#22c55e",
+                              "&:hover": { backgroundColor: "#16a34a" },
                             }}
                           >
-                            Cancel
+                            {approving ? "..." : "Accept"}
                           </Button>
                           <Button
-                            variant="contained"
                             size="small"
-                            sx={{
-                              backgroundColor: "#d7f6d7",
-                              color: "#1f5a1f",
-                              boxShadow: "none",
-                            }}
+                            variant="outlined"
+                            color="error"
+                            disabled={!isPending || approving || rejecting}
+                            onClick={() => rejectMutation.mutate(loan.id)}
                           >
-                            Approve
+                            {rejecting ? "..." : "Reject"}
                           </Button>
-                        </>
-                      ) : null}
-                    </Stack>
-                  </Box>
-                ))}
-              </Stack>
+                        </Stack>
+                      </Box>
+                    );
+                  })}
+                  {pageRows.length === 0 && (
+                    <Typography variant="body2" color="text.secondary" sx={{ py: 4, textAlign: "center" }}>
+                      No loans match the filter.
+                    </Typography>
+                  )}
+                </Stack>
+              )}
             </Box>
             <Stack alignItems="center" sx={{ marginTop: 2 }}>
               <Pagination

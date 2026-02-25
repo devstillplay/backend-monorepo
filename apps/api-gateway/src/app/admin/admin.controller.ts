@@ -25,18 +25,37 @@ function handleLoanError(err: unknown): never {
   const statusCode = Number(
     o.statusCode ?? payload?.statusCode ?? payload?.status ?? 500
   );
-  const message =
+  const rawMessage =
     typeof o.message === 'string'
       ? o.message
       : typeof payload?.message === 'string'
         ? payload.message
         : err instanceof Error
           ? err.message
-          : 'Internal server error';
-  throw new HttpException(
-    Array.isArray(message) ? message[0] : message,
-    statusCode >= 400 && statusCode < 600 ? statusCode : 500
-  );
+          : '';
+  const msgStr =
+    typeof rawMessage === 'string'
+      ? rawMessage
+      : Array.isArray(rawMessage)
+        ? rawMessage[0]
+        : '';
+  const isConnectionError =
+    typeof msgStr === 'string' &&
+    (msgStr.includes('ECONNREFUSED') ||
+      msgStr.includes('ETIMEDOUT') ||
+      msgStr.includes('connect'));
+  const message =
+    msgStr && msgStr !== 'Internal server error'
+      ? msgStr
+      : isConnectionError
+        ? 'Loan service unavailable. Ensure the loan-service is running.'
+        : 'Internal server error';
+  const code = statusCode >= 400 && statusCode < 600 ? statusCode : 500;
+  const finalCode =
+    code === 500 && typeof message === 'string' && message.includes('unavailable')
+      ? 503
+      : code;
+  throw new HttpException(message, finalCode);
 }
 
 @Controller('admin')
@@ -158,6 +177,29 @@ export class AdminController {
     }
   }
 
+  @Get('loans')
+  async getAllLoans() {
+    try {
+      return await firstValueFrom(this.loanClient.send('loan-list-all', {}));
+    } catch (err) {
+      handleLoanError(err);
+    }
+  }
+
+  @Get('loans/all')
+  async getAllLoansAlt() {
+    return this.getAllLoans();
+  }
+
+  @Get('loans/all/repayments')
+  async getAllRepayments() {
+    try {
+      return await firstValueFrom(this.loanClient.send('loan-repayments-all', {}));
+    } catch (err) {
+      handleLoanError(err);
+    }
+  }
+
   @Get('loans/user/:userId')
   async getUserLoanHistory(@Param('userId') userId: string) {
     try {
@@ -196,6 +238,30 @@ export class AdminController {
     try {
       return await firstValueFrom(
         this.loanClient.send('loan-repayments-by-loan', loanId)
+      );
+    } catch (err) {
+      handleLoanError(err);
+    }
+  }
+
+  @Post('loans/approve')
+  async approveLoan(@Body() body: { loanId: string }) {
+    if (!body?.loanId) throw new BadRequestException('loanId is required');
+    try {
+      return await firstValueFrom(
+        this.loanClient.send('loan-approve', body.loanId)
+      );
+    } catch (err) {
+      handleLoanError(err);
+    }
+  }
+
+  @Post('loans/reject')
+  async rejectLoan(@Body() body: { loanId: string }) {
+    if (!body?.loanId) throw new BadRequestException('loanId is required');
+    try {
+      return await firstValueFrom(
+        this.loanClient.send('loan-reject', body.loanId)
       );
     } catch (err) {
       handleLoanError(err);

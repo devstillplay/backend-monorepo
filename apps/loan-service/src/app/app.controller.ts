@@ -21,6 +21,11 @@ export class AppController {
     return this.appService.listLoans(userId);
   }
 
+  @MessagePattern('loan-list-all')
+  listAllLoans() {
+    return this.appService.listAllLoans();
+  }
+
   @MessagePattern('loan-get')
   getLoan(@Payload() loanId: string) {
     return this.appService.getLoan(loanId);
@@ -66,5 +71,10 @@ export class AppController {
   @MessagePattern('loan-repayments-by-user')
   listRepaymentsByUserId(@Payload() userId: string) {
     return this.appService.listRepaymentsByUserId(userId);
+  }
+
+  @MessagePattern('loan-repayments-all')
+  listAllRepayments() {
+    return this.appService.listAllRepayments();
   }
 }

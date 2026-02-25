@@ -1,25 +1,58 @@
 "use client";
 
 import AccessTimeOutlinedIcon from "@mui/icons-material/AccessTimeOutlined";
-import { Avatar, Box, Pagination, Stack, Typography } from "@mui/material";
-import { useState } from "react";
+import RefreshIcon from "@mui/icons-material/Refresh";
+import {
+  Avatar,
+  Box,
+  Button,
+  CircularProgress,
+  IconButton,
+  Pagination,
+  Stack,
+  Typography,
+} from "@mui/material";
+import { useMemo, useState } from "react";
 
 import DashboardHeader from "../../../components/dashboard/DashboardHeader";
+import { useAllRepayments, useAdminUsers } from "../../../lib/queries";
+import type { LoanRepayment } from "../../../lib/api";
 
 export default function LoanRepaymentPage() {
   const [search, setSearch] = useState("");
-  const rows = Array.from({ length: 25 }, (_, index) => ({
-    name: "Chisom Kunle",
-    amount: "N2,000",
-    time: "10:15 AM",
-    dueDate: "27 AUG 2023",
-    id: index + 1,
-  }));
   const [page, setPage] = useState(1);
+
+  const { data: repaymentsData, isLoading, isError, error, refetch, isFetching } = useAllRepayments();
+  const { data: users = [] } = useAdminUsers();
+  const repayments = repaymentsData?.repayments ?? [];
+
+  const userMap = useMemo(() => {
+    const m = new Map<string, { name: string; picture?: string | null }>();
+    users.forEach((u) => {
+      const name = [u.firstName, u.lastName].filter(Boolean).join(" ") || u.email || "—";
+      m.set(u.id, { name, picture: u.picture ?? null });
+    });
+    return m;
+  }, [users]);
+
+  const filteredRepayments = useMemo(() => {
+    if (!search.trim()) return repayments;
+    const q = search.trim().toLowerCase();
+    return repayments.filter((r: LoanRepayment) => {
+      const u = userMap.get(r.userId);
+      return (
+        u?.name.toLowerCase().includes(q) ||
+        r.amount.toString().includes(q) ||
+        r.id.toLowerCase().includes(q) ||
+        r.loanId.toLowerCase().includes(q)
+      );
+    });
+  }, [repayments, search, userMap]);
+
   const rowsPerPage = 10;
-  const totalPages = Math.ceil(rows.length / rowsPerPage);
+  const totalPages = Math.max(1, Math.ceil(filteredRepayments.length / rowsPerPage));
   const startIndex = (page - 1) * rowsPerPage;
-  const pageRows = rows.slice(startIndex, startIndex + rowsPerPage);
+  const pageRows = filteredRepayments.slice(startIndex, startIndex + rowsPerPage);
 
   return (
     <Box>
@@ -51,9 +84,19 @@ export default function LoanRepaymentPage() {
               spacing={2}
               sx={{ marginBottom: 2, paddingTop: 2, paddingLeft: 2 }}
             >
-              <Typography variant="h6" sx={{ fontWeight: 700 }}>
-                REPAYMENT
-              </Typography>
+              <Stack direction="row" alignItems="center" spacing={1}>
+                <Typography variant="h6" sx={{ fontWeight: 700 }}>
+                  REPAYMENT
+                </Typography>
+                <IconButton
+                  size="small"
+                  onClick={() => refetch()}
+                  disabled={isFetching}
+                  aria-label="Refresh"
+                >
+                  <RefreshIcon fontSize="small" />
+                </IconButton>
+              </Stack>
               <Stack direction="row" spacing={4} alignItems="center">
                 <Typography
                   variant="body2"
@@ -64,7 +107,7 @@ export default function LoanRepaymentPage() {
                     paddingBottom: 0.5,
                   }}
                 >
-                  All loans
+                  All repayments
                   <Box
                     component="span"
                     sx={{
@@ -78,15 +121,6 @@ export default function LoanRepaymentPage() {
                     }}
                   />
                 </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  Paid
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  Unpaid
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  Pending
-                </Typography>
               </Stack>
             </Stack>
             <Box
@@ -98,8 +132,8 @@ export default function LoanRepaymentPage() {
                 borderRadius: 999,
                 paddingY: 1.2,
                 paddingX: 3,
-                display: "grid",
-                gridTemplateColumns: "2fr 1fr 1fr 1fr",
+                display: { xs: "none", md: "grid" },
+                gridTemplateColumns: "2fr 1fr 1fr",
                 alignItems: "center",
                 gap: 1,
               }}
@@ -107,7 +141,6 @@ export default function LoanRepaymentPage() {
               <Box>Name</Box>
               <Box>Amount</Box>
               <Box>Time</Box>
-              <Box>Due date</Box>
             </Box>
 
             <Box
@@ -117,39 +150,76 @@ export default function LoanRepaymentPage() {
                 overflowY: { xs: "auto", sm: "visible" },
               }}
             >
-              <Stack spacing={0}>
-                {pageRows.map((row, index) => (
-                  <Box
-                    key={`${row.id}`}
-                    sx={{
-                      paddingY: 2,
-                      paddingX: 3,
-                      borderBottom:
-                        index === pageRows.length - 1
-                          ? "none"
-                          : "1px solid #fff",
-                      display: "grid",
-                      gridTemplateColumns: "2fr 1fr 1fr 1fr",
-                      alignItems: "center",
-                      gap: 1,
-                      borderRadius: 1,
-                    }}
-                  >
-                    <Stack direction="row" spacing={2} alignItems="center">
-                      <Avatar sx={{ width: 36, height: 36 }} />
-                      <Typography variant="body2">{row.name}</Typography>
-                    </Stack>
-                    <Typography variant="body2">{row.amount}</Typography>
-                    <Stack direction="row" spacing={1} alignItems="center">
-                      <AccessTimeOutlinedIcon
-                        sx={{ fontSize: 18, color: "#6b6b6b" }}
-                      />
-                      <Typography variant="body2">{row.time}</Typography>
-                    </Stack>
-                    <Typography variant="body2">{row.dueDate}</Typography>
-                  </Box>
-                ))}
-              </Stack>
+              {isLoading ? (
+                <Stack alignItems="center" py={4}>
+                  <CircularProgress sx={{ color: "#0b7b4c" }} />
+                  <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
+                    Loading repayments...
+                  </Typography>
+                </Stack>
+              ) : isError ? (
+                <Stack alignItems="center" py={4} spacing={2}>
+                  <Typography color="error">{(error as Error).message}</Typography>
+                  <Button variant="outlined" onClick={() => refetch()} size="small">
+                    Retry
+                  </Button>
+                </Stack>
+              ) : (
+                <Stack spacing={0}>
+                  {pageRows.map((r: LoanRepayment, index: number) => {
+                    const user = userMap.get(r.userId);
+                    const name = user?.name ?? "—";
+                    const repaidAt = r.repaidAt
+                      ? new Date(r.repaidAt).toLocaleString("en-NG", {
+                          dateStyle: "short",
+                          timeStyle: "short",
+                        })
+                      : "—";
+                    return (
+                      <Box
+                        key={r.id}
+                        sx={{
+                          paddingY: 2,
+                          paddingX: 3,
+                          borderBottom:
+                            index === pageRows.length - 1
+                              ? "none"
+                              : "1px solid #fff",
+                          display: "grid",
+                          gridTemplateColumns: { xs: "1fr 1fr", md: "2fr 1fr 1fr" },
+                          alignItems: "center",
+                          gap: 1,
+                          borderRadius: 1,
+                        }}
+                      >
+                        <Stack direction="row" spacing={2} alignItems="center">
+                          <Avatar
+                            src={user?.picture || undefined}
+                            sx={{ width: 36, height: 36 }}
+                          >
+                            {(name?.[0] ?? "?").toUpperCase()}
+                          </Avatar>
+                          <Typography variant="body2">{name}</Typography>
+                        </Stack>
+                        <Typography variant="body2">
+                          NGN {Number(r.amount).toLocaleString()}
+                        </Typography>
+                        <Stack direction="row" spacing={1} alignItems="center">
+                          <AccessTimeOutlinedIcon
+                            sx={{ fontSize: 18, color: "#6b6b6b" }}
+                          />
+                          <Typography variant="body2">{repaidAt}</Typography>
+                        </Stack>
+                      </Box>
+                    );
+                  })}
+                  {pageRows.length === 0 && (
+                    <Typography variant="body2" color="text.secondary" sx={{ py: 4, textAlign: "center" }}>
+                      No repayments yet.
+                    </Typography>
+                  )}
+                </Stack>
+              )}
             </Box>
             <Stack alignItems="center" sx={{ marginTop: 2 }}>
               <Pagination
