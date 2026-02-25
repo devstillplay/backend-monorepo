@@ -82,10 +82,10 @@ export default function LoanRepaymentPage() {
           >
             <Stack
               spacing={2}
-              sx={{ marginBottom: 2, paddingTop: 2, paddingLeft: 2 }}
+              sx={{ marginBottom: 2, paddingTop: 2, paddingLeft: { xs: 1, md: 2 } }}
             >
-              <Stack direction="row" alignItems="center" spacing={1}>
-                <Typography variant="h6" sx={{ fontWeight: 700 }}>
+              <Stack direction="row" alignItems="center" spacing={1} flexWrap="wrap">
+                <Typography variant="h6" sx={{ fontWeight: 700, fontSize: { xs: "1rem", md: "1.25rem" } }}>
                   REPAYMENT
                 </Typography>
                 <IconButton
@@ -148,6 +148,7 @@ export default function LoanRepaymentPage() {
                 marginTop: 1,
                 maxHeight: { xs: 420, sm: "none" },
                 overflowY: { xs: "auto", sm: "visible" },
+                overflowX: { xs: "auto", md: "visible" },
               }}
             >
               {isLoading ? (
@@ -179,8 +180,8 @@ export default function LoanRepaymentPage() {
                       <Box
                         key={r.id}
                         sx={{
-                          paddingY: 2,
-                          paddingX: 3,
+                          paddingY: { xs: 1.5, md: 2 },
+                          paddingX: { xs: 2, md: 3 },
                           borderBottom:
                             index === pageRows.length - 1
                               ? "none"
@@ -188,28 +189,37 @@ export default function LoanRepaymentPage() {
                           display: "grid",
                           gridTemplateColumns: { xs: "1fr 1fr", md: "2fr 1fr 1fr" },
                           alignItems: "center",
-                          gap: 1,
+                          gap: { xs: 1, md: 1 },
                           borderRadius: 1,
                         }}
                       >
-                        <Stack direction="row" spacing={2} alignItems="center">
-                          <Avatar
-                            src={user?.picture || undefined}
-                            sx={{ width: 36, height: 36 }}
-                          >
-                            {(name?.[0] ?? "?").toUpperCase()}
-                          </Avatar>
-                          <Typography variant="body2">{name}</Typography>
-                        </Stack>
-                        <Typography variant="body2">
-                          NGN {Number(r.amount).toLocaleString()}
-                        </Typography>
-                        <Stack direction="row" spacing={1} alignItems="center">
-                          <AccessTimeOutlinedIcon
-                            sx={{ fontSize: 18, color: "#6b6b6b" }}
-                          />
-                          <Typography variant="body2">{repaidAt}</Typography>
-                        </Stack>
+                        <Box sx={{ gridColumn: { xs: "1 / -1", md: "auto" } }}>
+                          <Typography variant="caption" color="text.secondary" sx={{ display: { xs: "block", md: "none" } }}>Name</Typography>
+                          <Stack direction="row" spacing={2} alignItems="center">
+                            <Avatar
+                              src={user?.picture || undefined}
+                              sx={{ width: 36, height: 36 }}
+                            >
+                              {(name?.[0] ?? "?").toUpperCase()}
+                            </Avatar>
+                            <Typography variant="body2">{name}</Typography>
+                          </Stack>
+                        </Box>
+                        <Box>
+                          <Typography variant="caption" color="text.secondary" sx={{ display: { xs: "block", md: "none" } }}>Amount</Typography>
+                          <Typography variant="body2">
+                            NGN {Number(r.amount).toLocaleString()}
+                          </Typography>
+                        </Box>
+                        <Box sx={{ gridColumn: { xs: "2", md: "auto" } }}>
+                          <Typography variant="caption" color="text.secondary" sx={{ display: { xs: "block", md: "none" } }}>Time</Typography>
+                          <Stack direction="row" spacing={1} alignItems="center">
+                            <AccessTimeOutlinedIcon
+                              sx={{ fontSize: 18, color: "#6b6b6b" }}
+                            />
+                            <Typography variant="body2">{repaidAt}</Typography>
+                          </Stack>
+                        </Box>
                       </Box>
                     );
                   })}

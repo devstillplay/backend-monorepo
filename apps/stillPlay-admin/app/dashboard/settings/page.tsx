@@ -64,8 +64,8 @@ export default function SettingsPage() {
   }, [lastLoginIp, fetchIp]);
 
   return (
-    <Box>
-      <Typography variant="h5" fontWeight={700} sx={{ mb: 3 }}>
+    <Box sx={{ width: "100%", maxWidth: "100%", overflowX: "hidden" }}>
+      <Typography variant="h5" fontWeight={700} sx={{ mb: 3, fontSize: { xs: "1.25rem", md: "1.5rem" } }}>
         Settings
       </Typography>
 
@@ -77,6 +77,7 @@ export default function SettingsPage() {
           borderColor: "divider",
           mb: 3,
           "& .MuiTab-root": { textTransform: "none", fontWeight: 600 },
+          "& .MuiTabs-flexContainer": { flexWrap: "wrap" },
         }}
       >
         <Tab label="Activity" />
@@ -88,41 +89,42 @@ export default function SettingsPage() {
           <Paper
             variant="outlined"
             sx={{
-              p: 3,
+              p: { xs: 2, md: 3 },
               borderRadius: 3,
               maxWidth: 560,
+              width: "100%",
             }}
           >
             <Stack spacing={3}>
-              <Stack direction="row" alignItems="center" spacing={2}>
-                <AccessTimeIcon sx={{ color: "primary.main", fontSize: 28 }} />
-                <Box>
+              <Stack direction="row" alignItems="center" spacing={2} flexWrap="wrap">
+                <AccessTimeIcon sx={{ color: "primary.main", fontSize: { xs: 24, md: 28 } }} />
+                <Box minWidth={0}>
                   <Typography variant="caption" color="text.secondary">
                     Last logged in
                   </Typography>
-                  <Typography variant="body1" fontWeight={600}>
+                  <Typography variant="body1" fontWeight={600} sx={{ fontSize: { xs: "0.875rem", md: "1rem" } }}>
                     {formatLoginTime(lastLoginAt)}
                   </Typography>
                 </Box>
               </Stack>
-              <Stack direction="row" alignItems="center" spacing={2}>
-                <PublicIcon sx={{ color: "primary.main", fontSize: 28 }} />
-                <Box>
+              <Stack direction="row" alignItems="center" spacing={2} flexWrap="wrap">
+                <PublicIcon sx={{ color: "primary.main", fontSize: { xs: 24, md: 28 } }} />
+                <Box minWidth={0}>
                   <Typography variant="caption" color="text.secondary">
                     IP address
                   </Typography>
-                  <Typography variant="body1" fontWeight={600}>
+                  <Typography variant="body1" fontWeight={600} sx={{ fontSize: { xs: "0.875rem", md: "1rem" } }}>
                     {lastLoginIp || "—"}
                   </Typography>
                 </Box>
               </Stack>
-              <Stack direction="row" alignItems="center" spacing={2}>
-                <TouchAppIcon sx={{ color: "primary.main", fontSize: 28 }} />
-                <Box>
+              <Stack direction="row" alignItems="center" spacing={2} flexWrap="wrap">
+                <TouchAppIcon sx={{ color: "primary.main", fontSize: { xs: 24, md: 28 } }} />
+                <Box minWidth={0}>
                   <Typography variant="caption" color="text.secondary">
                     Last action
                   </Typography>
-                  <Typography variant="body1" fontWeight={600}>
+                  <Typography variant="body1" fontWeight={600} sx={{ fontSize: { xs: "0.875rem", md: "1rem" } }}>
                     {lastAction || "—"}
                   </Typography>
                 </Box>
@@ -133,14 +135,22 @@ export default function SettingsPage() {
           <Typography variant="subtitle1" fontWeight={600} sx={{ mt: 4, mb: 2 }}>
             Activity history
           </Typography>
-          <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: 2 }}>
-            <Table size="small">
+          <TableContainer
+            component={Paper}
+            variant="outlined"
+            sx={{
+              borderRadius: 2,
+              overflowX: "auto",
+              maxWidth: "100%",
+            }}
+          >
+            <Table size="small" sx={{ minWidth: 320 }}>
               <TableHead>
                 <TableRow sx={{ bgcolor: "grey.50" }}>
-                  <TableCell sx={{ fontWeight: 700 }}>Activity ID</TableCell>
-                  <TableCell sx={{ fontWeight: 700 }}>Action</TableCell>
-                  <TableCell sx={{ fontWeight: 700 }}>IP</TableCell>
-                  <TableCell sx={{ fontWeight: 700 }}>Time</TableCell>
+                  <TableCell sx={{ fontWeight: 700, fontSize: { xs: "0.75rem", md: "0.875rem" } }}>Activity ID</TableCell>
+                  <TableCell sx={{ fontWeight: 700, fontSize: { xs: "0.75rem", md: "0.875rem" } }}>Action</TableCell>
+                  <TableCell sx={{ fontWeight: 700, fontSize: { xs: "0.75rem", md: "0.875rem" } }}>IP</TableCell>
+                  <TableCell sx={{ fontWeight: 700, fontSize: { xs: "0.75rem", md: "0.875rem" } }}>Time</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -159,12 +169,21 @@ export default function SettingsPage() {
                 ) : (
                   activities.map((row) => (
                     <TableRow key={row.id}>
-                      <TableCell sx={{ fontFamily: "monospace", fontSize: "0.8rem" }}>
+                      <TableCell
+                        sx={{
+                          fontFamily: "monospace",
+                          fontSize: { xs: "0.7rem", md: "0.8rem" },
+                          maxWidth: { xs: 80, md: "none" },
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                        }}
+                        title={row.id}
+                      >
                         {row.id}
                       </TableCell>
-                      <TableCell>{row.action}</TableCell>
-                      <TableCell>{row.ip ?? "—"}</TableCell>
-                      <TableCell>{formatActivityTime(row.createdAt)}</TableCell>
+                      <TableCell sx={{ fontSize: { xs: "0.75rem", md: "0.875rem" } }}>{row.action}</TableCell>
+                      <TableCell sx={{ fontSize: { xs: "0.75rem", md: "0.875rem" } }}>{row.ip ?? "—"}</TableCell>
+                      <TableCell sx={{ fontSize: { xs: "0.75rem", md: "0.875rem" }, whiteSpace: "nowrap" }}>{formatActivityTime(row.createdAt)}</TableCell>
                     </TableRow>
                   ))
                 )}

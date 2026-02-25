@@ -105,10 +105,10 @@ export default function LoanRequestPage() {
           >
             <Stack
               spacing={2}
-              sx={{ marginBottom: 2, paddingTop: 2, paddingLeft: 2 }}
+              sx={{ marginBottom: 2, paddingTop: 2, paddingLeft: { xs: 1, md: 2 } }}
             >
-              <Stack direction="row" alignItems="center" spacing={1}>
-                <Typography variant="h6" sx={{ fontWeight: 700 }}>
+              <Stack direction="row" alignItems="center" spacing={1} flexWrap="wrap">
+                <Typography variant="h6" sx={{ fontWeight: 700, fontSize: { xs: "1rem", md: "1.25rem" } }}>
                   LOAN REQUEST
                 </Typography>
                 <IconButton
@@ -120,7 +120,7 @@ export default function LoanRequestPage() {
                   <RefreshIcon fontSize="small" />
                 </IconButton>
               </Stack>
-              <Stack direction="row" spacing={4} alignItems="center">
+              <Stack direction="row" spacing={{ xs: 1, md: 4 }} alignItems="center" flexWrap="wrap" sx={{ gap: { xs: 0.5, md: 0 } }}>
                 {(["all", "PENDING", "APPROVED", "REJECTED", "DISBURSED", "REPAID"] as const).map((s) => (
                   <Typography
                     key={s}
@@ -217,8 +217,8 @@ export default function LoanRequestPage() {
                       <Box
                         key={loan.id}
                         sx={{
-                          paddingY: 2,
-                          paddingX: 3,
+                          paddingY: { xs: 1.5, md: 2 },
+                          paddingX: { xs: 2, md: 3 },
                           borderBottom:
                             index === pageRows.length - 1
                               ? "none"
@@ -227,42 +227,57 @@ export default function LoanRequestPage() {
                           display: "grid",
                           gridTemplateColumns: { xs: "1fr 1fr", md: "1.2fr 1.6fr 1fr 1fr 1fr 1.2fr" },
                           alignItems: "center",
-                          gap: 1,
+                          gap: { xs: 1, md: 1 },
                           borderRadius: 1,
                         }}
                       >
-                        <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                          #{code}
-                        </Typography>
-                        <Stack direction="row" spacing={1} alignItems="center">
-                          <Avatar
-                            src={user?.picture || undefined}
-                            sx={{ width: 32, height: 32 }}
-                          >
-                            {(name?.[0] ?? "?").toUpperCase()}
-                          </Avatar>
-                          <Typography variant="body2">{name}</Typography>
-                        </Stack>
-                        <Typography variant="body2">
-                          NGN {Number(loan.amount).toLocaleString()}
-                        </Typography>
-                        <Stack direction="row" spacing={1} alignItems="center">
-                          <AccessTimeOutlinedIcon
-                            sx={{ fontSize: 18, color: "#6b6b6b" }}
-                          />
-                          <Typography variant="body2">{createdAt}</Typography>
-                        </Stack>
-                        <Stack direction="row" spacing={1} alignItems="center">
-                          <Box
-                            sx={{
-                              width: 10,
-                              height: 10,
-                              borderRadius: "50%",
-                              backgroundColor: statusColor(loan.status),
-                            }}
-                          />
-                          <Typography variant="body2">{loan.status}</Typography>
-                        </Stack>
+                        <Box>
+                          <Typography variant="caption" color="text.secondary" sx={{ display: { xs: "block", md: "none" } }}>Code</Typography>
+                          <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                            #{code}
+                          </Typography>
+                        </Box>
+                        <Box>
+                          <Typography variant="caption" color="text.secondary" sx={{ display: { xs: "block", md: "none" } }}>Name</Typography>
+                          <Stack direction="row" spacing={1} alignItems="center">
+                            <Avatar
+                              src={user?.picture || undefined}
+                              sx={{ width: 32, height: 32 }}
+                            >
+                              {(name?.[0] ?? "?").toUpperCase()}
+                            </Avatar>
+                            <Typography variant="body2">{name}</Typography>
+                          </Stack>
+                        </Box>
+                        <Box sx={{ gridColumn: { xs: "1", md: "auto" } }}>
+                          <Typography variant="caption" color="text.secondary" sx={{ display: { xs: "block", md: "none" } }}>Amount</Typography>
+                          <Typography variant="body2">
+                            NGN {Number(loan.amount).toLocaleString()}
+                          </Typography>
+                        </Box>
+                        <Box>
+                          <Typography variant="caption" color="text.secondary" sx={{ display: { xs: "block", md: "none" } }}>Time</Typography>
+                          <Stack direction="row" spacing={1} alignItems="center">
+                            <AccessTimeOutlinedIcon
+                              sx={{ fontSize: 18, color: "#6b6b6b" }}
+                            />
+                            <Typography variant="body2">{createdAt}</Typography>
+                          </Stack>
+                        </Box>
+                        <Box sx={{ gridColumn: { xs: "2", md: "auto" } }}>
+                          <Typography variant="caption" color="text.secondary" sx={{ display: { xs: "block", md: "none" } }}>Status</Typography>
+                          <Stack direction="row" spacing={1} alignItems="center">
+                            <Box
+                              sx={{
+                                width: 10,
+                                height: 10,
+                                borderRadius: "50%",
+                                backgroundColor: statusColor(loan.status),
+                              }}
+                            />
+                            <Typography variant="body2">{loan.status}</Typography>
+                          </Stack>
+                        </Box>
                         <Stack
                           direction="row"
                           spacing={1}
