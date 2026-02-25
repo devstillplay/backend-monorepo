@@ -1,5 +1,6 @@
 "use client";
 
+import AccountBalanceOutlinedIcon from "@mui/icons-material/AccountBalanceOutlined";
 import BlockIcon from "@mui/icons-material/Block";
 import ChatBubbleOutlineIcon from "@mui/icons-material/ChatBubbleOutline";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
@@ -12,6 +13,7 @@ type RowActionsProps = {
   suspended?: boolean;
   onChatClick?: () => void;
   onEditClick?: () => void;
+  onLoansClick?: () => void;
   onDeleteClick?: () => void;
   onSuspendClick?: () => void;
 };
@@ -21,6 +23,7 @@ export default function RowActions({
   suspended,
   onChatClick,
   onEditClick,
+  onLoansClick,
   onDeleteClick,
   onSuspendClick,
 }: RowActionsProps) {
@@ -38,6 +41,9 @@ export default function RowActions({
     >
       <IconButton size="small" onClick={onChatClick} aria-label="Open chat">
         <ChatBubbleOutlineIcon fontSize="small" />
+      </IconButton>
+      <IconButton size="small" onClick={onLoansClick} aria-label="View loans & wallet">
+        <AccountBalanceOutlinedIcon fontSize="small" />
       </IconButton>
       <IconButton size="small" onClick={onEditClick} aria-label="Edit user">
         <EditOutlinedIcon fontSize="small" />

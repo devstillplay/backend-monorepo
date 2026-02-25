@@ -4,7 +4,9 @@
  * Set NEXT_PUBLIC_API_BASE_URL in Railway / .env.local (e.g. https://your-api.railway.app/api).
  */
 
-const baseUrl = 'https://api-gateway-production-dab1.up.railway.app/api';
+const baseUrl =
+  process.env.NEXT_PUBLIC_API_BASE_URL ||
+  'https://api-gateway-production-dab1.up.railway.app/api';
 
 export function getBaseUrl(): string {
   return baseUrl;
@@ -38,6 +40,21 @@ export const endpoints = {
     employees: () => `${getBaseUrl()}/admin/employees`,
     employeeById: (id: string) => `${getBaseUrl()}/admin/employees/${id}`,
     activity: () => `${getBaseUrl()}/admin/activity`,
+    loans: {
+      request: () => `${getBaseUrl()}/admin/loans/request`,
+      all: () => `${getBaseUrl()}/admin/loans`,
+      allRepayments: () => `${getBaseUrl()}/admin/loans/all/repayments`,
+      userLoans: (userId: string) =>
+        `${getBaseUrl()}/admin/loans/user/${userId}`,
+      userRepayments: (userId: string) =>
+        `${getBaseUrl()}/admin/loans/user/${userId}/repayments`,
+      loanRepayments: (loanId: string) =>
+        `${getBaseUrl()}/admin/loans/${loanId}/repayments`,
+      userWallet: (userId: string) =>
+        `${getBaseUrl()}/admin/loans/user/${userId}/wallet`,
+      approve: () => `${getBaseUrl()}/admin/loans/approve`,
+      reject: () => `${getBaseUrl()}/admin/loans/reject`,
+    },
   },
   providers: {
     list: () => `${getBaseUrl()}/providers`,

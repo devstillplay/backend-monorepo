@@ -1,6 +1,8 @@
 "use client";
 
+import BlockIcon from "@mui/icons-material/Block";
 import CloseIcon from "@mui/icons-material/Close";
+import LockOpenIcon from "@mui/icons-material/LockOpen";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import SendIcon from "@mui/icons-material/Send";
 import {
@@ -27,9 +29,17 @@ import { motion } from "framer-motion";
 
 import DashboardHeader from "../../components/dashboard/DashboardHeader";
 import RowActions from "../../components/dashboard/RowActions";
-import { useAdminUsers, useUpdateAdminUser, useDeleteAdminUser } from "../../lib/queries";
+import {
+  useAdminUsers,
+  useUpdateAdminUser,
+  useDeleteAdminUser,
+  useUserLoanHistory,
+  useUserWallet,
+  useUserRepayments,
+  useRequestLoanForUser,
+} from "../../lib/queries";
 import { useAuthStore } from "../../store/auth";
-import { uploadImage, type AdminUser } from "../../lib/api";
+import { uploadImage, type AdminUser, type Loan } from "../../lib/api";
 
 function toTableRow(u: AdminUser): {
   id: string;
@@ -81,10 +91,23 @@ export default function DashboardPage() {
   });
   const [uploadingImage, setUploadingImage] = useState(false);
   const [imageInputKey, setImageInputKey] = useState(0);
+  const [loansUser, setLoansUser] = useState<{ id: string; name: string } | null>(null);
+  const [requestLoanAmount, setRequestLoanAmount] = useState("");
+  const [requestLoanPurpose, setRequestLoanPurpose] = useState("");
 
   const { data: users = [], isLoading, isError, error, refetch, isFetching } = useAdminUsers();
   const updateUserMutation = useUpdateAdminUser();
   const deleteUserMutation = useDeleteAdminUser();
+  const { data: loansData } = useUserLoanHistory(loansUser?.id ?? null);
+  const { data: walletData } = useUserWallet(loansUser?.id ?? null);
+  const { data: repaymentsData } = useUserRepayments(loansUser?.id ?? null);
+  const requestLoanMutation = useRequestLoanForUser();
+  const loans = loansData?.loans ?? [];
+  const wallet = walletData;
+  const repayments = repaymentsData?.repayments ?? [];
+  const hasActiveLoan = loans.some((l: Loan) =>
+    ["PENDING", "APPROVED", "DISBURSED"].includes(l.status)
+  );
 
   // If users request failed due to invalid token (401), auth store was reset — lock out to login
   useEffect(() => {
@@ -234,7 +257,7 @@ export default function DashboardPage() {
                 paddingY: 1.2,
                 paddingX: 3,
                 display: { xs: "none", md: "grid" },
-                gridTemplateColumns: { md: "2fr 1fr 1fr 0.9fr 80px" },
+                gridTemplateColumns: { md: "2fr 1fr 1fr 0.9fr 1fr" },
                 alignItems: "center",
                 gap: 1,
               }}
@@ -243,7 +266,7 @@ export default function DashboardPage() {
               <Box>Offline code</Box>
               <Box>Behaviour</Box>
               <Box>Status</Box>
-              <Box />
+              <Box>Action</Box>
             </Box>
             <Box
               sx={{
@@ -289,7 +312,7 @@ export default function DashboardPage() {
                             : "transparent",
                         display: { xs: "flex", md: "grid" },
                         flexDirection: { xs: "column", md: "unset" },
-                        gridTemplateColumns: { md: "2fr 1fr 1fr 0.9fr 80px" },
+                        gridTemplateColumns: { md: "2fr 1fr 1fr 0.9fr 1fr" },
                         alignItems: "center",
                         gap: { xs: 1.5, md: 1 },
                         cursor: "pointer",
@@ -362,6 +385,11 @@ export default function DashboardPage() {
                                 });
                                 setIsChatOpen(true);
                               }}
+                              onLoansClick={() => {
+                                setLoansUser({ id: row.id, name: row.name });
+                                setRequestLoanAmount("");
+                                setRequestLoanPurpose("");
+                              }}
                               onEditClick={() => {
                                 const user = users.find((u) => u.id === row.id);
                                 if (user) {
@@ -378,12 +406,6 @@ export default function DashboardPage() {
                                   id: row.id,
                                   name: row.name,
                                   code: row.code,
-                                });
-                              }}
-                              onSuspendClick={() => {
-                                updateUserMutation.mutate({
-                                  id: row.id,
-                                  payload: { suspended: !row.suspended },
                                 });
                               }}
                             />
@@ -410,7 +432,38 @@ export default function DashboardPage() {
                           {row.suspended ? "Suspended" : "Active"}
                         </Typography>
                       </Box>
-                      <Box sx={{ display: { xs: "none", md: "block" } }} />
+                      <Box
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          gridColumn: { xs: "1 / -1", md: "auto" },
+                          justifyContent: { xs: "flex-start", md: "center" },
+                        }}
+                      >
+                        <Button
+                          size="small"
+                          variant="outlined"
+                          color={row.suspended ? "success" : "warning"}
+                          startIcon={
+                            row.suspended ? (
+                              <LockOpenIcon sx={{ fontSize: 18 }} />
+                            ) : (
+                              <BlockIcon sx={{ fontSize: 18 }} />
+                            )
+                          }
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            updateUserMutation.mutate({
+                              id: row.id,
+                              payload: { suspended: !row.suspended },
+                            });
+                          }}
+                          disabled={updateUserMutation.isPending}
+                          sx={{ minWidth: 0, px: 1 }}
+                        >
+                          {row.suspended ? "Unsuspend" : "Suspend"}
+                        </Button>
+                      </Box>
                     </Box>
                   );
                 })}
@@ -548,6 +601,212 @@ export default function DashboardPage() {
               <SendIcon />
             </IconButton>
           </Stack>
+        </Stack>
+      </Drawer>
+
+      <Drawer
+        anchor="right"
+        open={!!loansUser}
+        onClose={() => setLoansUser(null)}
+        PaperProps={{
+          sx: {
+            width: { xs: "100%", sm: 420 },
+            padding: 2,
+          },
+        }}
+      >
+        <Stack spacing={2} sx={{ height: "100%", overflow: "hidden" }}>
+          <Stack direction="row" alignItems="center" justifyContent="space-between">
+            <Typography variant="h6" fontWeight={700}>
+              {loansUser?.name ?? "User"} – Loans & wallet
+            </Typography>
+            <IconButton aria-label="Close" onClick={() => setLoansUser(null)}>
+              <CloseIcon />
+            </IconButton>
+          </Stack>
+          <Box sx={{ flex: 1, overflowY: "auto" }}>
+            {loansUser && (
+              <Stack spacing={2}>
+                {wallet != null && (
+                  <Box
+                    sx={{
+                      p: 2,
+                      borderRadius: 2,
+                      backgroundColor: "#f3f3f3",
+                    }}
+                  >
+                    <Typography variant="subtitle2" color="text.secondary">
+                      Wallet
+                    </Typography>
+                    <Typography variant="h6" sx={{ color: "#0b7b4c" }}>
+                      {wallet.currency} {Number(wallet.balance).toLocaleString()}
+                    </Typography>
+                  </Box>
+                )}
+                <Box>
+                  <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>
+                    Loan history
+                  </Typography>
+                  {loans.length === 0 ? (
+                    <Typography variant="body2">No loans yet.</Typography>
+                  ) : (
+                    <Stack spacing={1}>
+                      {loans.map((loan: Loan) => (
+                        <Box
+                          key={loan.id}
+                          sx={{
+                            p: 1.5,
+                            borderRadius: 1,
+                            border: "1px solid",
+                            borderColor: "divider",
+                          }}
+                        >
+                          <Stack direction="row" justifyContent="space-between" alignItems="center">
+                            <Typography variant="body2" fontWeight={600}>
+                              NGN {Number(loan.amount).toLocaleString()}
+                            </Typography>
+                            <Typography
+                              variant="caption"
+                              sx={{
+                                color:
+                                  loan.status === "REPAID"
+                                    ? "#22c55e"
+                                    : loan.status === "PENDING" || loan.status === "APPROVED"
+                                      ? "#f59e0b"
+                                      : "#6b7280",
+                                fontWeight: 600,
+                              }}
+                            >
+                              {loan.status}
+                            </Typography>
+                          </Stack>
+                          {loan.purpose && (
+                            <Typography variant="caption" color="text.secondary" display="block">
+                              {loan.purpose}
+                            </Typography>
+                          )}
+                          <Typography variant="caption" color="text.secondary">
+                            Repaid: {Number(loan.amountRepaid).toLocaleString()} · Created{" "}
+                            {loan.createdAt ? new Date(loan.createdAt).toLocaleDateString() : "—"}
+                          </Typography>
+                        </Box>
+                      ))}
+                    </Stack>
+                  )}
+                </Box>
+                <Box>
+                  <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>
+                    Repayment history
+                  </Typography>
+                  {repayments.length === 0 ? (
+                    <Typography variant="body2">No repayments yet.</Typography>
+                  ) : (
+                    <Stack spacing={1}>
+                      {repayments.slice(0, 10).map((r: { id: string; amount: number; repaidAt: string }) => (
+                        <Box
+                          key={r.id}
+                          sx={{
+                            py: 0.5,
+                            px: 1,
+                            borderRadius: 1,
+                            backgroundColor: "#f9fafb",
+                          }}
+                        >
+                          <Typography variant="body2">
+                            {Number(r.amount).toLocaleString()} ·{" "}
+                            {new Date(r.repaidAt).toLocaleString()}
+                          </Typography>
+                        </Box>
+                      ))}
+                      {repayments.length > 10 && (
+                        <Typography variant="caption" color="text.secondary">
+                          +{repayments.length - 10} more
+                        </Typography>
+                      )}
+                    </Stack>
+                  )}
+                </Box>
+                <Box
+                  sx={{
+                    p: 2,
+                    borderRadius: 2,
+                    border: "1px solid",
+                    borderColor: "divider",
+                  }}
+                >
+                  <Typography variant="subtitle2" sx={{ mb: 2 }}>
+                    Request loan for user
+                  </Typography>
+                  {hasActiveLoan && (
+                    <Typography
+                      variant="body2"
+                      color="text.secondary"
+                      sx={{ mb: 2, p: 1.5, bgcolor: "action.hover", borderRadius: 1 }}
+                    >
+                      This user already has a pending or active loan. Complete or
+                      reject it before requesting another.
+                    </Typography>
+                  )}
+                  <Stack spacing={1.5}>
+                    <TextField
+                      label="Amount"
+                      type="number"
+                      size="small"
+                      fullWidth
+                      value={requestLoanAmount}
+                      onChange={(e) => setRequestLoanAmount(e.target.value)}
+                      placeholder="e.g. 50000"
+                      inputProps={{ min: 1 }}
+                      disabled={hasActiveLoan}
+                    />
+                    <TextField
+                      label="Purpose (optional)"
+                      size="small"
+                      fullWidth
+                      value={requestLoanPurpose}
+                      onChange={(e) => setRequestLoanPurpose(e.target.value)}
+                      placeholder="e.g. Working capital"
+                      disabled={hasActiveLoan}
+                    />
+                    {requestLoanMutation.isError && (
+                      <Typography variant="body2" color="error">
+                        {(requestLoanMutation.error as Error).message}
+                      </Typography>
+                    )}
+                    <Button
+                      variant="contained"
+                      disabled={
+                        hasActiveLoan ||
+                        requestLoanMutation.isPending ||
+                        !requestLoanAmount ||
+                        Number(requestLoanAmount) <= 0
+                      }
+                      onClick={() => {
+                        if (!loansUser || !requestLoanAmount || Number(requestLoanAmount) <= 0)
+                          return;
+                        requestLoanMutation.mutate(
+                          {
+                            userId: loansUser.id,
+                            amount: Number(requestLoanAmount),
+                            purpose: requestLoanPurpose.trim() || undefined,
+                          },
+                          {
+                            onSuccess: () => {
+                              setRequestLoanAmount("");
+                              setRequestLoanPurpose("");
+                            },
+                          }
+                        );
+                      }}
+                      sx={{ backgroundColor: "#0b7b4c" }}
+                    >
+                      {requestLoanMutation.isPending ? "Submitting..." : "Request loan"}
+                    </Button>
+                  </Stack>
+                </Box>
+              </Stack>
+            )}
+          </Box>
         </Stack>
       </Drawer>
 

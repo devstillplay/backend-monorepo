@@ -3,7 +3,9 @@
 import AccountBalanceOutlinedIcon from "@mui/icons-material/AccountBalanceOutlined";
 import BadgeOutlinedIcon from "@mui/icons-material/BadgeOutlined";
 import LogoutIcon from "@mui/icons-material/Logout";
+import PaymentsOutlinedIcon from "@mui/icons-material/PaymentsOutlined";
 import PeopleAltOutlinedIcon from "@mui/icons-material/PeopleAltOutlined";
+import RequestQuoteOutlinedIcon from "@mui/icons-material/RequestQuoteOutlined";
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 import SupportAgentOutlinedIcon from "@mui/icons-material/SupportAgentOutlined";
 import {
@@ -38,8 +40,16 @@ const navItems = [
     href: "/dashboard/staff",
     icon: <BadgeOutlinedIcon />,
   },
-  { label: "Loan Request", href: "/dashboard/loan-request" },
-  { label: "Loan Repayment", href: "/dashboard/loan-repayment" },
+  {
+    label: "Loan Request",
+    href: "/dashboard/loan-request",
+    icon: <RequestQuoteOutlinedIcon />,
+  },
+  {
+    label: "Loan Repayment",
+    href: "/dashboard/loan-repayment",
+    icon: <PaymentsOutlinedIcon />,
+  },
   {
     label: "Support",
     href: "/dashboard/support",

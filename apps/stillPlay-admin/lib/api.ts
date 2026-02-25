@@ -181,6 +181,221 @@ export async function listAdminActivity(
   return data;
 }
 
+// ---------- Admin: loans (user wallet, loan history, repayments, request loan) ----------
+
+export type Loan = {
+  id: string;
+  userId: string;
+  amount: number;
+  purpose?: string | null;
+  status: string;
+  dueDate?: string | null;
+  disbursedAt?: string | null;
+  amountRepaid: number;
+  repaidAt?: string | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type LoanRepayment = {
+  id: string;
+  loanId: string;
+  userId: string;
+  amount: number;
+  repaidAt: string;
+};
+
+export type UserWallet = {
+  id: string;
+  userId: string;
+  balance: number;
+  currency: string;
+  createdAt?: string;
+  updatedAt?: string;
+};
+
+/** Request a loan for a user (admin). */
+export async function requestLoanForUser(
+  token: string,
+  payload: { userId: string; amount: number; purpose?: string }
+): Promise<{ message: string; loan: Loan }> {
+  const res = await fetch(endpoints.admin.loans.request(), {
+    method: "POST",
+    headers: getAuthHeaders(token),
+    body: JSON.stringify(payload),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    handleAuthError(res);
+    throw new Error(
+      typeof data.message === "string"
+        ? data.message
+        : Array.isArray(data.message)
+          ? data.message[0]
+          : "Failed to request loan"
+    );
+  }
+  return data;
+}
+
+/** Approve a loan (admin). */
+export async function approveLoan(
+  token: string,
+  loanId: string
+): Promise<{ message: string }> {
+  const res = await fetch(endpoints.admin.loans.approve(), {
+    method: "POST",
+    headers: getAuthHeaders(token),
+    body: JSON.stringify({ loanId }),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    handleAuthError(res);
+    throw new Error(
+      typeof data.message === "string" ? data.message : "Failed to approve loan"
+    );
+  }
+  return data;
+}
+
+/** Reject a loan (admin). */
+export async function rejectLoan(
+  token: string,
+  loanId: string
+): Promise<{ message: string }> {
+  const res = await fetch(endpoints.admin.loans.reject(), {
+    method: "POST",
+    headers: getAuthHeaders(token),
+    body: JSON.stringify({ loanId }),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    handleAuthError(res);
+    throw new Error(
+      typeof data.message === "string" ? data.message : "Failed to reject loan"
+    );
+  }
+  return data;
+}
+
+/** Get a user's loan history (admin). */
+export async function getUserLoanHistory(
+  token: string,
+  userId: string
+): Promise<{ loans: Loan[] }> {
+  const res = await fetch(endpoints.admin.loans.userLoans(userId), {
+    headers: getAuthHeaders(token),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    handleAuthError(res);
+    throw new Error(
+      typeof data.message === "string" ? data.message : "Failed to load loans"
+    );
+  }
+  return { loans: Array.isArray(data.loans) ? data.loans : [] };
+}
+
+/** Get a user's repayment history (admin). */
+export async function getUserRepayments(
+  token: string,
+  userId: string
+): Promise<{ userId: string; repayments: LoanRepayment[] }> {
+  const res = await fetch(endpoints.admin.loans.userRepayments(userId), {
+    headers: getAuthHeaders(token),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    handleAuthError(res);
+    throw new Error(
+      typeof data.message === "string"
+        ? data.message
+        : "Failed to load repayments"
+    );
+  }
+  return {
+    userId: data.userId ?? userId,
+    repayments: Array.isArray(data.repayments) ? data.repayments : [],
+  };
+}
+
+/** Get repayments for a specific loan (admin). */
+export async function getLoanRepayments(
+  token: string,
+  loanId: string
+): Promise<{ loanId: string; repayments: LoanRepayment[] }> {
+  const res = await fetch(endpoints.admin.loans.loanRepayments(loanId), {
+    headers: getAuthHeaders(token),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    handleAuthError(res);
+    throw new Error(
+      typeof data.message === "string"
+        ? data.message
+        : "Failed to load repayments"
+    );
+  }
+  return {
+    loanId: data.loanId ?? loanId,
+    repayments: Array.isArray(data.repayments) ? data.repayments : [],
+  };
+}
+
+/** Get a user's wallet (admin). */
+export async function getUserWallet(
+  token: string,
+  userId: string
+): Promise<UserWallet> {
+  const res = await fetch(endpoints.admin.loans.userWallet(userId), {
+    headers: getAuthHeaders(token),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    handleAuthError(res);
+    throw new Error(
+      typeof data.message === "string"
+        ? data.message
+        : "Failed to load wallet"
+    );
+  }
+  return data;
+}
+
+/** List all loans (admin). */
+export async function listAllLoans(token: string): Promise<{ loans: Loan[] }> {
+  const res = await fetch(endpoints.admin.loans.all(), {
+    headers: getAuthHeaders(token),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    handleAuthError(res);
+    throw new Error(
+      typeof data.message === "string" ? data.message : "Failed to load loans"
+    );
+  }
+  return { loans: Array.isArray(data.loans) ? data.loans : [] };
+}
+
+/** List all repayments (admin). */
+export async function listAllRepayments(
+  token: string
+): Promise<{ repayments: LoanRepayment[] }> {
+  const res = await fetch(endpoints.admin.loans.allRepayments(), {
+    headers: getAuthHeaders(token),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    handleAuthError(res);
+    throw new Error(
+      typeof data.message === "string"
+        ? data.message
+        : "Failed to load repayments"
+    );
+  }
+  return { repayments: Array.isArray(data.repayments) ? data.repayments : [] };
+}
+
 /** Staff / admin employee (dashboard user) */
 export type Employee = {
   id: string;

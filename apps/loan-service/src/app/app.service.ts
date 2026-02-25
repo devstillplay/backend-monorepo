@@ -44,9 +44,11 @@ export class AppService {
       },
     });
     if (existingActive) {
-      throw new BadRequestException(
-        `User already has a loan that is ${existingActive.status}. Complete or reject it before requesting a new loan.`
-      );
+      const message =
+        existingActive.status === LoanStatus.PENDING
+          ? 'User already has a pending loan request. Wait for it to be approved or rejected before requesting another.'
+          : `User already has a loan that is ${existingActive.status}. Complete or reject it before requesting a new loan.`;
+      throw new BadRequestException(message);
     }
     const loan = await this.prisma.loan.create({
       data: {
@@ -81,11 +83,29 @@ export class AppService {
     if (loan.status !== LoanStatus.PENDING) {
       throw new BadRequestException('Only PENDING loans can be approved');
     }
-    const updated = await this.prisma.loan.update({
-      where: { id: loanId },
-      data: { status: LoanStatus.APPROVED },
+    const wallet = await this.prisma.wallet.findUnique({
+      where: { userId: loan.userId },
     });
-    return { message: 'Loan approved', loan: updated };
+    if (!wallet) throw new NotFoundException('Wallet not found');
+    await this.prisma.$transaction(async (tx) => {
+      const result = await tx.loan.updateMany({
+        where: { id: loanId, status: LoanStatus.PENDING },
+        data: { status: LoanStatus.APPROVED },
+      });
+      if (result.count === 0) {
+        throw new BadRequestException(
+          'Loan not found or already approved (prevents double disbursement to wallet)',
+        );
+      }
+      await tx.wallet.update({
+        where: { id: wallet.id },
+        data: { balance: { increment: loan.amount } },
+      });
+    });
+    const updated = await this.prisma.loan.findUnique({
+      where: { id: loanId },
+    });
+    return { message: 'Loan approved and amount added to wallet', loan: updated };
   }
 
   async rejectLoan(loanId: string) {
@@ -108,6 +128,12 @@ export class AppService {
   ) {
     const loan = await this.prisma.loan.findUnique({ where: { id: loanId } });
     if (!loan) throw new NotFoundException('Loan not found');
+    if (loan.status === LoanStatus.DISBURSED) {
+      return {
+        message: 'Loan already disbursed (no double disbursement)',
+        loan,
+      };
+    }
     if (loan.status !== LoanStatus.APPROVED) {
       throw new BadRequestException('Only APPROVED loans can be disbursed');
     }
@@ -119,16 +145,9 @@ export class AppService {
         );
       }
     }
-    const wallet = await this.prisma.wallet.findUnique({
-      where: { userId: loan.userId },
-    });
-    if (!wallet) throw new NotFoundException('Wallet not found');
     const now = new Date();
+    // Wallet was already credited when loan was approved
     const updates: PrismaPromise<unknown>[] = [
-      this.prisma.wallet.update({
-        where: { id: wallet.id },
-        data: { balance: { increment: loan.amount } },
-      }),
       this.prisma.loan.update({
         where: { id: loanId },
         data: {
@@ -198,7 +217,7 @@ export class AppService {
           ...(fullRepaid ? { status: LoanStatus.REPAID, repaidAt: now } : {}),
         },
       });
-      await (tx as unknown as { loanRepayment: { create: (args: { data: { loanId: string; userId: string; amount: number; repaidAt: Date } }) => Promise<unknown> } }).loanRepayment.create({
+      await tx.loanRepayment.create({
         data: { loanId, userId: loan.userId, amount, repaidAt: now },
       });
     });
@@ -245,10 +264,7 @@ export class AppService {
       where: { id: loanId },
     });
     if (!loan) throw new NotFoundException('Loan not found');
-    const prisma = this.prisma as unknown as {
-      loanRepayment: { findMany: (args: { where: { loanId: string }; orderBy: { repaidAt: 'desc' } }) => Promise<{ id: string; loanId: string; userId: string; amount: number; repaidAt: Date }[]> };
-    };
-    const repayments = await prisma.loanRepayment.findMany({
+    const repayments = await this.prisma.loanRepayment.findMany({
       where: { loanId },
       orderBy: { repaidAt: 'desc' },
     });
@@ -256,13 +272,24 @@ export class AppService {
   }
 
   async listRepaymentsByUserId(userId: string) {
-    const prisma = this.prisma as unknown as {
-      loanRepayment: { findMany: (args: { where: { userId: string }; orderBy: { repaidAt: 'desc' } }) => Promise<{ id: string; loanId: string; userId: string; amount: number; repaidAt: Date }[]> };
-    };
-    const repayments = await prisma.loanRepayment.findMany({
+    const repayments = await this.prisma.loanRepayment.findMany({
       where: { userId },
       orderBy: { repaidAt: 'desc' },
     });
     return { userId, repayments };
+  }
+
+  async listAllLoans() {
+    const loans = await this.prisma.loan.findMany({
+      orderBy: { createdAt: 'desc' },
+    });
+    return { loans };
+  }
+
+  async listAllRepayments() {
+    const repayments = await this.prisma.loanRepayment.findMany({
+      orderBy: { repaidAt: 'desc' },
+    });
+    return { repayments };
   }
 }
