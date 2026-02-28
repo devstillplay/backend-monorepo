@@ -1,0 +1,6 @@
+# Railway / Nixpacks: use npm install so lock file stays valid (npm ci fails if lock is out of sync).
+[phases.install]
+cmds = ["npm install"]
+
+[variables]
+NIXPACKS_INSTALL_CMD = "npm install"
