@@ -50,8 +50,11 @@ export class ProviderController {
     body: {
       name: string;
       email?: string;
+      accountNumber?: string;
+      bankName?: string;
       agreedAmount?: number;
       percentageToAdd?: number;
+      providerCutPercentage?: number;
       agreedAt?: string;
       agreedTerms?: string;
     },
@@ -62,8 +65,11 @@ export class ProviderController {
         this.providerClient.send('provider-create', {
           name: body.name.trim(),
           email: body.email,
+          accountNumber: body.accountNumber,
+          bankName: body.bankName,
           agreedAmount: body.agreedAmount,
           percentageToAdd: body.percentageToAdd,
+          providerCutPercentage: body.providerCutPercentage,
           agreedAt: body.agreedAt,
           agreedTerms: body.agreedTerms,
         })
@@ -102,8 +108,11 @@ export class ProviderController {
     body: {
       name?: string;
       email?: string;
+      accountNumber?: string | null;
+      bankName?: string | null;
       agreedAmount?: number | null;
       percentageToAdd?: number;
+      providerCutPercentage?: number;
       agreedAt?: string | null;
       agreedTerms?: string | null;
     },
@@ -114,8 +123,11 @@ export class ProviderController {
           providerId,
           name: body?.name,
           email: body?.email,
+          accountNumber: body?.accountNumber,
+          bankName: body?.bankName,
           agreedAmount: body?.agreedAmount,
           percentageToAdd: body?.percentageToAdd,
+          providerCutPercentage: body?.providerCutPercentage,
           agreedAt: body?.agreedAt,
           agreedTerms: body?.agreedTerms,
         })

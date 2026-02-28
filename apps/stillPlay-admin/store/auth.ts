@@ -126,11 +126,10 @@ export const useAuthStore = create<AuthState>()(
   )
 );
 
-/** Access control: whether current user has admin access (for dashboard). */
+/** Access control: any logged-in staff member (non-Customer role) can access the dashboard. */
 export function useHasAdminAccess(): boolean {
   const user = useAuthStore((s) => s.user);
   const token = useAuthStore((s) => s.token);
-  if (!token) return false;
-  const role = (user?.role ?? "").toLowerCase();
-  return role === "admin" || role === "operations" || role === "superadmin";
+  if (!token || !user?.role) return false;
+  return user.role.toLowerCase() !== "customer";
 }

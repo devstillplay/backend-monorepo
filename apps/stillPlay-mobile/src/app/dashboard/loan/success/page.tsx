@@ -67,9 +67,14 @@ export default function LoanSuccessPage() {
           </Box>
         </Box>
 
-        <Typography variant="h6" fontWeight={700} textAlign="center">
-          Your loan request has been granted successfully!
-        </Typography>
+        <Stack spacing={0.5} alignItems="center">
+          <Typography variant="h6" fontWeight={700} textAlign="center">
+            Your loan will be approved shortly.
+          </Typography>
+          <Typography variant="body2" color="text.secondary" textAlign="center">
+            Once approved, the amount will be credited to your wallet.
+          </Typography>
+        </Stack>
 
         <Box sx={{ mt: "auto", width: "100%" }}>
           <Button

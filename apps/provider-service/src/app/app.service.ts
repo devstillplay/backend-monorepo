@@ -8,11 +8,18 @@ export class AppService {
   async createProvider(payload: {
     name: string;
     email?: string;
+    accountNumber?: string;
+    bankName?: string;
     agreedAmount?: number;
     percentageToAdd?: number;
+    providerCutPercentage?: number;
     agreedAt?: string; // ISO date
     agreedTerms?: string;
   }) {
+    // providerCutPercentage must not exceed percentageToAdd
+    const totalPct = payload.percentageToAdd ?? 0;
+    const providerCut = Math.min(payload.providerCutPercentage ?? 0, totalPct);
+
     let providerNumber: string;
     let exists: { id: string } | null;
     do {
@@ -27,8 +34,11 @@ export class AppService {
         providerNumber,
         name: payload.name,
         email: payload.email ?? null,
+        accountNumber: payload.accountNumber ?? null,
+        bankName: payload.bankName ?? null,
         agreedAmount: payload.agreedAmount ?? null,
-        percentageToAdd: payload.percentageToAdd ?? 0,
+        percentageToAdd: totalPct,
+        providerCutPercentage: providerCut,
         agreedAt: payload.agreedAt ? new Date(payload.agreedAt) : null,
         agreedTerms: payload.agreedTerms ?? null,
       },
@@ -67,8 +77,11 @@ export class AppService {
     payload: {
       name?: string;
       email?: string;
+      accountNumber?: string | null;
+      bankName?: string | null;
       agreedAmount?: number | null;
       percentageToAdd?: number;
+      providerCutPercentage?: number;
       agreedAt?: string | null;
       agreedTerms?: string | null;
     }
@@ -77,13 +90,26 @@ export class AppService {
       where: { id: providerId },
     });
     if (!provider) throw new NotFoundException('Provider not found');
+
+    // Recalculate providerCut ceiling against the new (or existing) total %
+    const newTotal = payload.percentageToAdd ?? provider.percentageToAdd;
+    const newCut =
+      payload.providerCutPercentage !== undefined
+        ? Math.min(payload.providerCutPercentage, newTotal)
+        : provider.providerCutPercentage > newTotal
+          ? newTotal // clamp if total reduced
+          : undefined; // leave unchanged
+
     const updated = await this.prisma.provider.update({
       where: { id: providerId },
       data: {
         ...(payload.name != null && { name: payload.name }),
         ...(payload.email !== undefined && { email: payload.email ?? null }),
+        ...(payload.accountNumber !== undefined && { accountNumber: payload.accountNumber ?? null }),
+        ...(payload.bankName !== undefined && { bankName: payload.bankName ?? null }),
         ...(payload.agreedAmount !== undefined && { agreedAmount: payload.agreedAmount ?? null }),
         ...(payload.percentageToAdd != null && { percentageToAdd: payload.percentageToAdd }),
+        ...(newCut !== undefined && { providerCutPercentage: newCut }),
         ...(payload.agreedAt !== undefined && {
           agreedAt: payload.agreedAt ? new Date(payload.agreedAt) : null,
         }),

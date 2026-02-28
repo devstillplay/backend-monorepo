@@ -63,6 +63,25 @@ export class AppController {
     return this.appService.repayLoan(payload.loanId, payload.amount);
   }
 
+  /**
+   * Apply a BudPay transaction as a loan repayment.
+   * Payload is forwarded from notification-service and should contain:
+   * { reference, amount, currency, customer, raw }
+   */
+  @MessagePattern('loan-budpay-transaction')
+  handleBudpayTransaction(
+    @Payload()
+    payload: {
+      reference?: string;
+      amount: number;
+      currency?: string;
+      customer?: { email?: string };
+      raw?: unknown;
+    },
+  ) {
+    return this.appService.handleBudpayTransaction(payload);
+  }
+
   @MessagePattern('loan-repayments-by-loan')
   listRepaymentsByLoanId(@Payload() loanId: string) {
     return this.appService.listRepaymentsByLoanId(loanId);
@@ -76,5 +95,24 @@ export class AppController {
   @MessagePattern('loan-repayments-all')
   listAllRepayments() {
     return this.appService.listAllRepayments();
+  }
+
+  // ─── App Settings ──────────────────────────────────────────────────────────
+
+  @MessagePattern('app-settings-get-all')
+  getAllSettings() {
+    return this.appService.getAllSettings();
+  }
+
+  @MessagePattern('app-settings-set')
+  setAppSetting(@Payload() payload: { key: string; value: string }) {
+    return this.appService.setAppSetting(payload.key, payload.value);
+  }
+
+  // ─── Loan Eligibility ──────────────────────────────────────────────────────
+
+  @MessagePattern('loan-eligibility')
+  getLoanEligibility(@Payload() userId: string) {
+    return this.appService.getLoanEligibility(userId);
   }
 }

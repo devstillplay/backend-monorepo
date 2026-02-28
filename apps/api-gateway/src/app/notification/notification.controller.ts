@@ -27,4 +27,16 @@ export class NotificationController {
       this.notificationClient.send('notification-render-webhook', body)
     );
   }
+
+  /**
+   * BudPay payment webhook endpoint.
+   * Configure this URL in BudPay Dashboard > Webhooks.
+   * No auth – BudPay cannot send bearer tokens; rely on BudPay's signing/verification instead.
+   */
+  @Post('webhooks/budpay')
+  budpayWebhook(@Body() body: unknown) {
+    return firstValueFrom(
+      this.notificationClient.send('notification-budpay-webhook', body)
+    );
+  }
 }

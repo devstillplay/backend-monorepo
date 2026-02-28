@@ -123,9 +123,11 @@ exports.Prisma.UserScalarFieldEnum = {
   lastName: 'lastName',
   nin: 'nin',
   picture: 'picture',
+  ninSlip: 'ninSlip',
   role: 'role',
   verified: 'verified',
   suspended: 'suspended',
+  creditLimit: 'creditLimit',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -157,6 +159,7 @@ exports.Prisma.PendingRegistrationScalarFieldEnum = {
   lastName: 'lastName',
   nin: 'nin',
   picture: 'picture',
+  ninSlip: 'ninSlip',
   createdAt: 'createdAt'
 };
 
@@ -176,6 +179,7 @@ exports.Prisma.LoanScalarFieldEnum = {
   purpose: 'purpose',
   status: 'status',
   dueDate: 'dueDate',
+  approvedAt: 'approvedAt',
   disbursedAt: 'disbursedAt',
   amountRepaid: 'amountRepaid',
   repaidAt: 'repaidAt',
@@ -196,8 +200,11 @@ exports.Prisma.ProviderScalarFieldEnum = {
   providerNumber: 'providerNumber',
   name: 'name',
   email: 'email',
+  accountNumber: 'accountNumber',
+  bankName: 'bankName',
   agreedAmount: 'agreedAmount',
   percentageToAdd: 'percentageToAdd',
+  providerCutPercentage: 'providerCutPercentage',
   agreedAt: 'agreedAt',
   agreedTerms: 'agreedTerms',
   createdAt: 'createdAt',
@@ -251,6 +258,13 @@ exports.Prisma.AdminActivityScalarFieldEnum = {
   createdAt: 'createdAt'
 };
 
+exports.Prisma.AppSettingScalarFieldEnum = {
+  id: 'id',
+  key: 'key',
+  value: 'value',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -275,7 +289,8 @@ exports.Prisma.ModelName = {
   LoanFunding: 'LoanFunding',
   ProviderCredit: 'ProviderCredit',
   Employee: 'Employee',
-  AdminActivity: 'AdminActivity'
+  AdminActivity: 'AdminActivity',
+  AppSetting: 'AppSetting'
 };
 
 /**

@@ -39,33 +39,54 @@ export class AppService {
     if (!loginDto?.email || !loginDto?.password) {
       throw new UnauthorizedException('Invalid email or password');
     }
-    let user;
+    const normalizedEmail = loginDto.email.trim().toLowerCase();
+
+    // ── Try User table first ────────────────────────────────────────────────
+    let user: { id: string; email: string; password: string; role: string; firstName: string; lastName: string; verified: boolean; suspended: boolean } | null = null;
     try {
-      user = await this.prisma.user.findUnique({
-        where: { email: loginDto.email },
-      });
+      user = await this.prisma.user.findUnique({ where: { email: normalizedEmail } });
     } catch (_err) {
       throw new ServiceUnavailableException('Service temporarily unavailable. Please try again.');
     }
-    if (!user || !(await bcrypt.compare(loginDto.password, user.password))) {
+
+    if (user) {
+      if (!(await bcrypt.compare(loginDto.password, user.password))) {
+        throw new UnauthorizedException('Invalid email or password');
+      }
+      if (user.suspended) {
+        throw new UnauthorizedException('Account suspended. Please contact support.');
+      }
+      const token = this.jwtService.sign({ userId: user.id, role: user.role, email: normalizedEmail, verified: user.verified });
+      return {
+        message: 'Login successful',
+        token,
+        user: { id: user.id, email: normalizedEmail, role: user.role, firstName: user.firstName, lastName: user.lastName } as User,
+      };
+    }
+
+    // ── Fall back to Employee table (admin staff) ───────────────────────────
+    let employee: { id: string; email: string; password: string; role: string; firstName: string; lastName: string; active: boolean } | null = null;
+    try {
+      employee = await this.prisma.employee.findUnique({ where: { email: normalizedEmail } });
+    } catch (_err) {
+      throw new ServiceUnavailableException('Service temporarily unavailable. Please try again.');
+    }
+    if (!employee || !(await bcrypt.compare(loginDto.password, employee.password))) {
       throw new UnauthorizedException('Invalid email or password');
     }
-    if (user.suspended) {
-      throw new UnauthorizedException('Account suspended. Please contact support.');
+    if (!employee.active) {
+      throw new UnauthorizedException('Account deactivated. Please contact support.');
     }
-    const token = this.jwtService.sign({
-      userId: user.id,
-      role: user.role,
-      email: user.email,
-      verified: user.verified,
-    });
+    const token = this.jwtService.sign({ userId: employee.id, role: employee.role, email: normalizedEmail, verified: true });
     return {
       message: 'Login successful',
       token,
+      user: { id: employee.id, email: normalizedEmail, role: employee.role, firstName: employee.firstName, lastName: employee.lastName } as User,
     };
   }
 
-  /** Step 1: verify email+password. Super Admin: return token and skip OTP. Others: send 4-digit code. */
+  /** Step 1: verify email+password. Super Admin: return token and skip OTP. Others: send 4-digit code.
+   *  Checks User table first, then Employee table, always stores LoginCode with normalized email. */
   async requestLoginCode(payload: {
     email: string;
     password: string;
@@ -77,47 +98,56 @@ export class AppService {
     if (!email?.trim() || !password) {
       throw new UnauthorizedException('Invalid email or password');
     }
-    let user;
+    const normalizedEmail = email.trim().toLowerCase();
+
+    // ── Try User table ──────────────────────────────────────────────────────
+    let user: { id: string; email: string; password: string; role: string; firstName: string; lastName: string; suspended: boolean; verified: boolean } | null = null;
     try {
-      user = await this.prisma.user.findUnique({
-        where: { email: email.trim().toLowerCase() },
-      });
+      user = await this.prisma.user.findUnique({ where: { email: normalizedEmail } });
     } catch (_err) {
       throw new ServiceUnavailableException('Service temporarily unavailable. Please try again.');
     }
-    if (!user || !(await bcrypt.compare(password, user.password))) {
-      throw new UnauthorizedException('Invalid email or password');
+
+    if (user) {
+      if (!(await bcrypt.compare(password, user.password))) {
+        throw new UnauthorizedException('Invalid email or password');
+      }
+      if (user.suspended) {
+        throw new UnauthorizedException('Account suspended. Please contact support.');
+      }
+      // SuperAdmin bypasses OTP
+      if (user.role === Role.SuperAdmin) {
+        const token = this.jwtService.sign({ userId: user.id, role: user.role, email: normalizedEmail, verified: user.verified });
+        return { message: 'Login successful', token, user: { id: user.id, email: normalizedEmail, role: user.role, firstName: user.firstName, lastName: user.lastName } };
+      }
+    } else {
+      // ── Try Employee table ───────────────────────────────────────────────
+      let employee: { id: string; email: string; password: string; role: string; firstName: string; lastName: string; active: boolean } | null = null;
+      try {
+        employee = await this.prisma.employee.findUnique({ where: { email: normalizedEmail } });
+      } catch (_err) {
+        throw new ServiceUnavailableException('Service temporarily unavailable. Please try again.');
+      }
+      if (!employee || !(await bcrypt.compare(password, employee.password))) {
+        throw new UnauthorizedException('Invalid email or password');
+      }
+      if (!employee.active) {
+        throw new UnauthorizedException('Account deactivated. Please contact support.');
+      }
+      // SuperAdmin employee bypasses OTP
+      if (employee.role === Role.SuperAdmin) {
+        const token = this.jwtService.sign({ userId: employee.id, role: employee.role, email: normalizedEmail, verified: true });
+        return { message: 'Login successful', token, user: { id: employee.id, email: normalizedEmail, role: employee.role, firstName: employee.firstName, lastName: employee.lastName } };
+      }
+      // Non-SuperAdmin employee → send OTP (fall through to code generation below)
     }
-    if (user.suspended) {
-      throw new UnauthorizedException('Account suspended. Please contact support.');
-    }
-    const isSuperAdmin = user.role === Role.SuperAdmin;
-    if (isSuperAdmin) {
-      const token = this.jwtService.sign({
-        userId: user.id,
-        role: user.role,
-        email: user.email,
-        verified: user.verified,
-      });
-      return {
-        message: 'Login successful',
-        token,
-        user: {
-          id: user.id,
-          email: user.email,
-          role: user.role,
-          firstName: user.firstName,
-          lastName: user.lastName,
-        },
-      };
-    }
+
+    // Always store LoginCode with the NORMALIZED email to avoid case-mismatch on verify
     const code = generate4DigitCode();
     const expiresAt = new Date(Date.now() + CODE_EXPIRY_MINUTES * 60 * 1000);
-    await this.prisma.loginCode.deleteMany({ where: { email: user.email } });
-    await this.prisma.loginCode.create({
-      data: { email: user.email, code, expiresAt },
-    });
-    await this.emailService.sendLoginCode(user.email, code);
+    await this.prisma.loginCode.deleteMany({ where: { email: normalizedEmail } });
+    await this.prisma.loginCode.create({ data: { email: normalizedEmail, code, expiresAt } });
+    await this.emailService.sendLoginCode(normalizedEmail, code);
     return { message: 'Verification code sent to your email' };
   }
 
@@ -141,7 +171,7 @@ export class AppService {
       return this.requestLoginCode({ email, password });
     }
     if (type === 'register') {
-      const { firstName, lastName, nin, picture } = payload;
+      const { firstName, lastName, nin, picture, ninSlip } = payload;
       if (!firstName?.trim() || !lastName?.trim() || !nin?.trim()) {
         throw new UnauthorizedException('firstName, lastName and nin are required for registration');
       }
@@ -176,6 +206,7 @@ export class AppService {
             lastName: lastName.trim(),
             nin: nin.trim(),
             picture: picture?.trim() || null,
+            ninSlip: ninSlip?.trim() || null,
           },
         });
       } catch (_err) {
@@ -242,6 +273,7 @@ export class AppService {
             lastName: pending.lastName,
             nin: pending.nin,
             picture: pending.picture,
+            ninSlip: pending.ninSlip,
             role: Role.Customer,
           },
         });
@@ -270,7 +302,7 @@ export class AppService {
     throw new UnauthorizedException('type must be "login" or "register"');
   }
 
-  /** Step 2: verify 4-digit code, then issue JWT */
+  /** Step 2: verify 4-digit code, then issue JWT. Checks User table then Employee table. */
   async verifyLoginCode(payload: { email: string; code: string }): Promise<LoginResponse> {
     const { email, code } = payload ?? {};
     if (!email?.trim() || !code?.trim()) {
@@ -288,35 +320,37 @@ export class AppService {
       await this.prisma.loginCode.deleteMany({ where: { email: normalizedEmail } });
       throw new UnauthorizedException('Code expired. Please request a new one.');
     }
-    const user = await this.prisma.user.findUnique({
-      where: { email: normalizedEmail },
-    });
-    if (!user) {
-      throw new UnauthorizedException('User not found');
-    }
-    if (user.suspended) {
-      await this.prisma.loginCode.deleteMany({ where: { email: normalizedEmail } });
-      throw new UnauthorizedException('Account suspended. Please contact support.');
-    }
     await this.prisma.loginCode.deleteMany({ where: { email: normalizedEmail } });
-    const token = this.jwtService.sign({
-      userId: user.id,
-      role: user.role,
-      email: user.email,
-      verified: user.verified,
-    });
-    return {
-      message: 'Login successful',
-      token,
-      user: {
-        id: user.id,
-        email: user.email,
-        role: user.role as Role,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        picture: user.picture ?? undefined,
-      } as User,
-    };
+
+    // Check User table first
+    const user = await this.prisma.user.findUnique({ where: { email: normalizedEmail } });
+    if (user) {
+      if (user.suspended) {
+        throw new UnauthorizedException('Account suspended. Please contact support.');
+      }
+      const token = this.jwtService.sign({ userId: user.id, role: user.role, email: normalizedEmail, verified: user.verified });
+      return {
+        message: 'Login successful',
+        token,
+        user: { id: user.id, email: normalizedEmail, role: user.role as Role, firstName: user.firstName, lastName: user.lastName, picture: user.picture ?? undefined } as User,
+      };
+    }
+
+    // Check Employee table
+    const employee = await this.prisma.employee.findUnique({ where: { email: normalizedEmail } });
+    if (employee) {
+      if (!employee.active) {
+        throw new UnauthorizedException('Account deactivated. Please contact support.');
+      }
+      const token = this.jwtService.sign({ userId: employee.id, role: employee.role, email: normalizedEmail, verified: true });
+      return {
+        message: 'Login successful',
+        token,
+        user: { id: employee.id, email: normalizedEmail, role: employee.role as Role, firstName: employee.firstName, lastName: employee.lastName } as User,
+      };
+    }
+
+    throw new UnauthorizedException('Account not found');
   }
 
   async validateToken(token: string) {
@@ -449,6 +483,7 @@ export class AppService {
         lastName: registerDto.lastName,
         nin: registerDto.nin,
         picture: registerDto.picture ?? null,
+        ninSlip: registerDto.ninSlip ?? null,
         role: Role.Customer,
       },
     });

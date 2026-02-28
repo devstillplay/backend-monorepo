@@ -18,68 +18,54 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 
 import AuthShell from "../components/AuthShell";
-import { requestCode } from "../lib/api";
+import { adminLogin } from "../lib/api";
 import { recordActivity } from "../lib/queries";
 import { useAuthStore } from "../store/auth";
 import { useUserStore } from "../store/user";
-
-const OTP_EXPIRY_MS = 10 * 60 * 1000; // 10 min for UI timer (backend has its own expiry)
 
 function LoginPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const resetSuccess = searchParams.get("reset") === "success";
+
   const status = useAuthStore((state) => state.status);
   const token = useAuthStore((state) => state.token);
-  const hasRehydrated = useAuthStore((state) => state._hasRehydrated);
-  const setPendingOtp = useAuthStore((state) => state.setPendingOtp);
   const setAuthenticated = useAuthStore((state) => state.setAuthenticated);
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
+  // isMounted prevents React hydration mismatch (same pattern as mobile app).
+  // Zustand reads localStorage synchronously, so auth state is ready by the
+  // time this effect fires — no need for a setTimeout hack.
+  const [isMounted, setIsMounted] = useState(false);
   useEffect(() => {
-    const t = setTimeout(() => {
-      if (!useAuthStore.getState()._hasRehydrated) {
-        useAuthStore.getState().setRehydrated();
-      }
-    }, 150);
-    return () => clearTimeout(t);
+    setIsMounted(true);
   }, []);
 
   useEffect(() => {
-    if (!hasRehydrated) return;
+    if (!isMounted) return;
     if (status === "authenticated" && token) {
       router.replace("/dashboard");
     }
-  }, [hasRehydrated, status, token, router]);
+  }, [isMounted, status, token, router]);
 
   const mutation = useMutation({
-    mutationFn: () =>
-      requestCode({
-        type: "login",
-        email: email.trim(),
-        password,
-      }),
+    mutationFn: () => adminLogin({ email: email.trim(), password }),
     onSuccess: (data) => {
-      if (data.token) {
-        setAuthenticated(data.token, data.user ?? null);
-        if (data.user) {
-          useUserStore.getState().setProfile({
-            id: data.user.id,
-            email: data.user.email,
-            role: data.user.role,
-            firstName: data.user.firstName,
-            lastName: data.user.lastName,
-          });
-        }
-        recordActivity({ action: "Logged in" });
-        router.replace("/dashboard");
-        return;
+      setAuthenticated(data.token, data.user ?? null);
+      if (data.user) {
+        useUserStore.getState().setProfile({
+          id: data.user.id,
+          email: data.user.email,
+          role: data.user.role,
+          firstName: data.user.firstName,
+          lastName: data.user.lastName,
+        });
       }
-      const displayName = email.includes("@") ? email.split("@")[0] : email;
-      setPendingOtp(email.trim(), Date.now() + OTP_EXPIRY_MS, displayName);
-      router.push("/otp?flow=login");
+      recordActivity({ action: "Logged in" });
+      router.replace("/dashboard");
     },
   });
 
@@ -121,6 +107,7 @@ function LoginPageContent() {
                 }}
               />
             </Stack>
+
             <Stack spacing={1}>
               <Typography variant="body2" sx={{ fontWeight: 600 }}>
                 Password
@@ -141,11 +128,7 @@ function LoginPageContent() {
                         edge="end"
                         size="small"
                       >
-                        {showPassword ? (
-                          <VisibilityOffIcon />
-                        ) : (
-                          <VisibilityIcon />
-                        )}
+                        {showPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
                       </IconButton>
                     </InputAdornment>
                   ),
@@ -163,6 +146,7 @@ function LoginPageContent() {
                 }}
               />
             </Stack>
+
             <Typography variant="body2" sx={{ textAlign: "right" }}>
               <Link
                 href="/forgot-password"
@@ -171,16 +155,19 @@ function LoginPageContent() {
                 Forgot Password?
               </Link>
             </Typography>
+
             {resetSuccess ? (
               <Alert severity="success">
                 Password reset successfully. You can now log in.
               </Alert>
             ) : null}
+
             {mutation.isError ? (
               <Alert severity="error">
                 {(mutation.error as Error).message}
               </Alert>
             ) : null}
+
             <Button
               type="submit"
               variant="contained"
@@ -189,7 +176,7 @@ function LoginPageContent() {
               fullWidth
               sx={{ backgroundColor: "#0b7b4c" }}
             >
-              {mutation.isPending ? "Sending code..." : "Log in"}
+              {mutation.isPending ? "Logging in…" : "Log in"}
             </Button>
           </Stack>
         </Box>
@@ -204,7 +191,7 @@ export default function LoginPage() {
       fallback={
         <AuthShell>
           <Box sx={{ py: 4, textAlign: "center" }}>
-            <Typography color="text.secondary">Loading...</Typography>
+            <Typography color="text.secondary">Loading…</Typography>
           </Box>
         </AuthShell>
       }
