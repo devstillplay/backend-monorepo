@@ -1,5 +1,8 @@
-[00:00:01.234] Server  LOG     ✓ Ready in 663ms
-[00:00:07.758] Browser ERROR   A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+[00:00:03.620] Server  LOG     ✓ Ready in 3.3s
+[00:00:09.096] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:00:13.166] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:00:49.657] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:00:49.800] Browser ERROR   uncaughtError: Error: Hydration failed because the server rendered HTML didn't match the client. As a result this tree will be regenerated on the client. This can happen if a SSR-ed Client Component used:
 
 - A server/client branch `if (typeof window !== 'undefined')`.
 - Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
@@ -9,239 +12,28 @@
 
 It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
 
-%s%s https://react.dev/link/hydration-mismatch 
+https://react.dev/link/hydration-mismatch
 
   ...
-    <HotReload globalError={[...]} webSocket={WebSocket} staticIndicatorState={{pathname:null, ...}}>
-      <AppDevOverlayErrorBoundary globalError={[...]}>
-        <ReplaySsrOnlyErrors>
-        <DevRootHTTPAccessFallbackBoundary>
-          <HTTPAccessFallbackBoundary notFound={<NotAllowedRootHTTPFallbackError>}>
-            <HTTPAccessFallbackErrorBoundary pathname="/login" notFound={<NotAllowedRootHTTPFallbackError>} ...>
+    <InnerScrollAndFocusHandler segmentPath={[...]} focusAndScrollRef={{apply:false, ...}}>
+      <ErrorBoundary errorComponent={undefined} errorStyles={undefined} errorScripts={undefined}>
+        <LoadingBoundary name="/" loading={null}>
+          <HTTPAccessFallbackBoundary notFound={<SegmentViewNode>} forbidden={undefined} unauthorized={undefined}>
+            <HTTPAccessFallbackErrorBoundary pathname="/dashboard" notFound={<SegmentViewNode>} forbidden={undefined} ...>
               <RedirectBoundary>
                 <RedirectErrorBoundary router={{...}}>
-                  <Head>
-                  <__next_root_layout_boundary__>
+                  <InnerLayoutRouter url="/dashboard" tree={[...]} params={{}} cacheNode={{...}} segmentPath={[...]} ...>
                     <SegmentViewNode type="layout" pagePath="/apps/stil...">
                       <SegmentTrieNode>
-                      <link>
                       <script>
                       <script>
                       <script>
-                      <RootLayout>
-                        <html lang="en">
-                          <body
--                           cz-shortcut-listen="true"
-                          >
-                  ...
-
-[00:00:07.938] Browser ERROR   A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
-
-- A server/client branch `if (typeof window !== 'undefined')`.
-- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
-- Date formatting in a user's locale which doesn't match the server.
-- External changing data without sending a snapshot of it along with the HTML.
-- Invalid HTML tag nesting.
-
-It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
-
-%s%s https://react.dev/link/hydration-mismatch 
-
-  ...
-    <ErrorBoundary errorComponent={undefined} errorStyles={undefined} errorScripts={undefined}>
-      <LoadingBoundary name="login/" loading={null}>
-        <HTTPAccessFallbackBoundary notFound={undefined} forbidden={undefined} unauthorized={undefined}>
-          <RedirectBoundary>
-            <RedirectErrorBoundary router={{...}}>
-              <InnerLayoutRouter url="/login" tree={[...]} params={{}} cacheNode={{rsc:<Fragment>, ...}} ...>
-                <SegmentViewNode type="page" pagePath="/apps/stil...">
-                  <SegmentTrieNode>
-                  <ClientPageRoot Component={function LoginPage} serverProvidedParams={{...}}>
-                    <LoginPage params={Promise} searchParams={Promise}>
-                      <Suspense fallback={<MobileFrame>}>
-                        <LoginPageContent>
+                      <ClientSegmentRoot Component={function DashboardLayout} slots={{...}} ...>
+                        <DashboardLayout params={Promise}>
                           <MobileFrame>
-                            <div
-                              className="app-root"
--                             aria-hidden="true"
-                            >
-                ...
-              ...
++                           <div className="app-root">
+-                           <style data-emotion="css-global 8msijc" data-s="">
+                  ...
+      ...
 
-[00:00:14.102] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:00:44.438] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:18:27.531] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:23:30.119] Server  LOG     ✓ Compiled in 30ms
-[00:24:57.599] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:27:26.137] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:27:41.695] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:36:28.425] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:36:35.308] Server  LOG     ✓ Compiled in 268ms
-[00:36:35.403] Browser ERROR   ./apps/stillPlay-mobile/src/app/dashboard/page.tsx:77:10
-Ecmascript file had an error
-  75 | };
-  76 |
-> 77 | function buildActivity(
-     |          ^^^^^^^^^^^^^
-  78 |   loans: LoanItem[],
-  79 |   repayments: RepaymentItem[]
-  80 | ): ActivityItem[] {
-
-the name `buildActivity` is defined multiple times
-
-Import traces:
-  Client Component Browser:
-    ./apps/stillPlay-mobile/src/app/dashboard/page.tsx [Client Component Browser]
-    ./apps/stillPlay-mobile/src/app/dashboard/page.tsx [Server Component]
-
-  Client Component SSR:
-    ./apps/stillPlay-mobile/src/app/dashboard/page.tsx [Client Component SSR]
-    ./apps/stillPlay-mobile/src/app/dashboard/page.tsx [Server Component]
-[00:36:35.407] Browser ERROR   ./apps/stillPlay-mobile/src/app/dashboard/page.tsx:77:10
-Ecmascript file had an error
-  75 | };
-  76 |
-> 77 | function buildActivity(
-     |          ^^^^^^^^^^^^^
-  78 |   loans: LoanItem[],
-  79 |   repayments: RepaymentItem[]
-  80 | ): ActivityItem[] {
-
-the name `buildActivity` is defined multiple times
-
-Import traces:
-  Client Component Browser:
-    ./apps/stillPlay-mobile/src/app/dashboard/page.tsx [Client Component Browser]
-    ./apps/stillPlay-mobile/src/app/dashboard/page.tsx [Server Component]
-
-  Client Component SSR:
-    ./apps/stillPlay-mobile/src/app/dashboard/page.tsx [Client Component SSR]
-    ./apps/stillPlay-mobile/src/app/dashboard/page.tsx [Server Component]
-[00:36:35.755] Browser ERROR   ./apps/stillPlay-mobile/src/app/dashboard/page.tsx:77:10
-Ecmascript file had an error
-  75 | };
-  76 |
-> 77 | function buildActivity(
-     |          ^^^^^^^^^^^^^
-  78 |   loans: LoanItem[],
-  79 |   repayments: RepaymentItem[]
-  80 | ): ActivityItem[] {
-
-the name `buildActivity` is defined multiple times
-
-Import traces:
-  Client Component Browser:
-    ./apps/stillPlay-mobile/src/app/dashboard/page.tsx [Client Component Browser]
-    ./apps/stillPlay-mobile/src/app/dashboard/page.tsx [Server Component]
-
-  Client Component SSR:
-    ./apps/stillPlay-mobile/src/app/dashboard/page.tsx [Client Component SSR]
-    ./apps/stillPlay-mobile/src/app/dashboard/page.tsx [Server Component]
-[00:36:35.755] Browser ERROR   ./apps/stillPlay-mobile/src/app/dashboard/page.tsx:77:10
-Ecmascript file had an error
-  75 | };
-  76 |
-> 77 | function buildActivity(
-     |          ^^^^^^^^^^^^^
-  78 |   loans: LoanItem[],
-  79 |   repayments: RepaymentItem[]
-  80 | ): ActivityItem[] {
-
-the name `buildActivity` is defined multiple times
-
-Import traces:
-  Client Component Browser:
-    ./apps/stillPlay-mobile/src/app/dashboard/page.tsx [Client Component Browser]
-    ./apps/stillPlay-mobile/src/app/dashboard/page.tsx [Server Component]
-
-  Client Component SSR:
-    ./apps/stillPlay-mobile/src/app/dashboard/page.tsx [Client Component SSR]
-    ./apps/stillPlay-mobile/src/app/dashboard/page.tsx [Server Component]
-[00:36:35.755] Browser ERROR   ./apps/stillPlay-mobile/src/app/dashboard/page.tsx:77:10
-Ecmascript file had an error
-  75 | };
-  76 |
-> 77 | function buildActivity(
-     |          ^^^^^^^^^^^^^
-  78 |   loans: LoanItem[],
-  79 |   repayments: RepaymentItem[]
-  80 | ): ActivityItem[] {
-
-the name `buildActivity` is defined multiple times
-
-Import traces:
-  Client Component Browser:
-    ./apps/stillPlay-mobile/src/app/dashboard/page.tsx [Client Component Browser]
-    ./apps/stillPlay-mobile/src/app/dashboard/page.tsx [Server Component]
-
-  Client Component SSR:
-    ./apps/stillPlay-mobile/src/app/dashboard/page.tsx [Client Component SSR]
-    ./apps/stillPlay-mobile/src/app/dashboard/page.tsx [Server Component]
-[00:36:35.755] Browser ERROR   ./apps/stillPlay-mobile/src/app/dashboard/page.tsx:77:10
-Ecmascript file had an error
-  75 | };
-  76 |
-> 77 | function buildActivity(
-     |          ^^^^^^^^^^^^^
-  78 |   loans: LoanItem[],
-  79 |   repayments: RepaymentItem[]
-  80 | ): ActivityItem[] {
-
-the name `buildActivity` is defined multiple times
-
-Import traces:
-  Client Component Browser:
-    ./apps/stillPlay-mobile/src/app/dashboard/page.tsx [Client Component Browser]
-    ./apps/stillPlay-mobile/src/app/dashboard/page.tsx [Server Component]
-
-  Client Component SSR:
-    ./apps/stillPlay-mobile/src/app/dashboard/page.tsx [Client Component SSR]
-    ./apps/stillPlay-mobile/src/app/dashboard/page.tsx [Server Component]
-[00:36:35.755] Browser ERROR   ./apps/stillPlay-mobile/src/app/dashboard/page.tsx:77:10
-Ecmascript file had an error
-  75 | };
-  76 |
-> 77 | function buildActivity(
-     |          ^^^^^^^^^^^^^
-  78 |   loans: LoanItem[],
-  79 |   repayments: RepaymentItem[]
-  80 | ): ActivityItem[] {
-
-the name `buildActivity` is defined multiple times
-
-Import traces:
-  Client Component Browser:
-    ./apps/stillPlay-mobile/src/app/dashboard/page.tsx [Client Component Browser]
-    ./apps/stillPlay-mobile/src/app/dashboard/page.tsx [Server Component]
-
-  Client Component SSR:
-    ./apps/stillPlay-mobile/src/app/dashboard/page.tsx [Client Component SSR]
-    ./apps/stillPlay-mobile/src/app/dashboard/page.tsx [Server Component]
-[00:36:35.755] Browser ERROR   ./apps/stillPlay-mobile/src/app/dashboard/page.tsx:77:10
-Ecmascript file had an error
-  75 | };
-  76 |
-> 77 | function buildActivity(
-     |          ^^^^^^^^^^^^^
-  78 |   loans: LoanItem[],
-  79 |   repayments: RepaymentItem[]
-  80 | ): ActivityItem[] {
-
-the name `buildActivity` is defined multiple times
-
-Import traces:
-  Client Component Browser:
-    ./apps/stillPlay-mobile/src/app/dashboard/page.tsx [Client Component Browser]
-    ./apps/stillPlay-mobile/src/app/dashboard/page.tsx [Server Component]
-
-  Client Component SSR:
-    ./apps/stillPlay-mobile/src/app/dashboard/page.tsx [Client Component SSR]
-    ./apps/stillPlay-mobile/src/app/dashboard/page.tsx [Server Component]
-[00:36:35.969] Server  LOG     ✓ Compiled in 243ms
-[00:37:06.651] Server  LOG     ✓ Compiled in 116ms
-[00:42:20.707] Server  LOG     ✓ Compiled in 126ms
-[00:42:23.517] Server  LOG     ✓ Compiled in 30ms
-[00:43:08.490] Server  LOG     ✓ Compiled in 141ms
-[00:43:18.391] Server  LOG     ✓ Compiled in 13ms
-[00:43:21.406] Server  LOG     ✓ Compiled in 7ms
-[00:54:50.005] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:01:36.169] Server  LOG     ✓ Compiled in 71ms

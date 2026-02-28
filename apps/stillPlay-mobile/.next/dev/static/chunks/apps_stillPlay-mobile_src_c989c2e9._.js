@@ -11,11 +11,12 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$stillPlay$2d$mobile$
 function MobileFrame({ children }) {
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$stillPlay$2d$mobile$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
         className: "app-root",
+        suppressHydrationWarning: true,
         children: children
     }, void 0, false, {
         fileName: "[project]/apps/stillPlay-mobile/src/components/MobileFrame.tsx",
-        lineNumber: 4,
-        columnNumber: 10
+        lineNumber: 5,
+        columnNumber: 5
     }, this);
 }
 _c = MobileFrame;
