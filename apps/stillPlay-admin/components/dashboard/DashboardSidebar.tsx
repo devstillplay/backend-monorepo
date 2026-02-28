@@ -1,6 +1,7 @@
 "use client";
 
 import AccountBalanceOutlinedIcon from "@mui/icons-material/AccountBalanceOutlined";
+import DashboardOutlinedIcon from "@mui/icons-material/DashboardOutlined";
 import BadgeOutlinedIcon from "@mui/icons-material/BadgeOutlined";
 import LogoutIcon from "@mui/icons-material/Logout";
 import PaymentsOutlinedIcon from "@mui/icons-material/PaymentsOutlined";
@@ -9,6 +10,7 @@ import RequestQuoteOutlinedIcon from "@mui/icons-material/RequestQuoteOutlined";
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 import SupportAgentOutlinedIcon from "@mui/icons-material/SupportAgentOutlined";
 import {
+  Badge,
   Box,
   Button,
   Divider,
@@ -21,15 +23,16 @@ import {
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { useRef, useState } from "react";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { uploadImage } from "../../lib/api";
-import { useUpdateAdminUser } from "../../lib/queries";
+import { useAllLoans, useUpdateAdminUser } from "../../lib/queries";
 import { useAuthStore } from "../../store/auth";
 import { useUserStore } from "../../store/user";
 
 const navItems = [
-  { label: "Users", href: "/dashboard", icon: <PeopleAltOutlinedIcon /> },
+  { label: "Overview", href: "/dashboard", icon: <DashboardOutlinedIcon /> },
+  { label: "Users", href: "/dashboard?tab=users", icon: <PeopleAltOutlinedIcon /> },
   {
     label: "Providers",
     href: "/dashboard/providers",
@@ -71,6 +74,8 @@ export default function DashboardSidebar({
 }: DashboardSidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const tab = searchParams.get("tab");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [successSnackOpen, setSuccessSnackOpen] = useState(false);
@@ -85,6 +90,9 @@ export default function DashboardSidebar({
   const setProfile = useUserStore((state) => state.setProfile);
   const resetUser = useUserStore((state) => state.reset);
   const updateUserMutation = useUpdateAdminUser();
+  const { data: loansData } = useAllLoans();
+  const pendingLoanCount =
+    loansData?.loans?.filter((l) => l.status === "PENDING").length ?? 0;
 
   const displayName =
     profile?.firstName && profile?.lastName
@@ -230,7 +238,15 @@ export default function DashboardSidebar({
         <Divider sx={{ opacity: 0.5 }} />
         <Stack spacing={1}>
           {navItems.map((item) => {
-            const isActive = pathname === item.href;
+            const isOverview = item.href === "/dashboard" && !item.href.includes("?");
+            const isUsers = item.href.includes("tab=users");
+            const isActive = isOverview
+              ? pathname === "/dashboard" && tab !== "users"
+              : isUsers
+                ? pathname === "/dashboard" && tab === "users"
+                : pathname === item.href.split("?")[0];
+            const showBadge =
+              item.href === "/dashboard/loan-request" && pendingLoanCount > 0;
             return (
               <Link
                 key={item.href}
@@ -240,7 +256,26 @@ export default function DashboardSidebar({
                 <Button
                   fullWidth
                   variant="text"
-                  startIcon={item.icon}
+                  startIcon={
+                    showBadge ? (
+                      <Badge
+                        badgeContent={pendingLoanCount}
+                        color="error"
+                        sx={{
+                          "& .MuiBadge-badge": {
+                            fontSize: 11,
+                            fontWeight: 700,
+                            minWidth: 18,
+                            height: 18,
+                          },
+                        }}
+                      >
+                        {item.icon}
+                      </Badge>
+                    ) : (
+                      item.icon
+                    )
+                  }
                   onClick={onNavigate}
                   sx={{
                     justifyContent: "flex-start",

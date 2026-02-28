@@ -11,19 +11,21 @@ datasource db {
 }
 
 model User {
-  id         String   @id @default(auto()) @map("_id") @db.ObjectId
-  userNumber String   @unique // SP-XXXXX (5 chars after SP-)
-  email      String   @unique
-  password   String
-  firstName  String
-  lastName   String
-  nin        String   @unique
-  picture    String?
-  role       String   @default("Customer")
-  verified   Boolean  @default(false)
-  suspended  Boolean  @default(false) // when true, user cannot log in
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  userNumber  String   @unique // SP-XXXXX (5 chars after SP-)
+  email       String   @unique
+  password    String
+  firstName   String
+  lastName    String
+  nin         String   @unique
+  picture     String?
+  ninSlip     String?
+  role        String   @default("Customer")
+  verified    Boolean  @default(false)
+  suspended   Boolean  @default(false) // when true, user cannot log in
+  creditLimit Float?   // max total outstanding (naira); null = use AppSetting default
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 // 4-digit login codes sent to email; verify before issuing JWT
@@ -56,6 +58,7 @@ model PendingRegistration {
   lastName      String
   nin           String
   picture       String?
+  ninSlip       String?
   createdAt     DateTime @default(now())
 }
 
@@ -75,6 +78,7 @@ model Loan {
   purpose       String?
   status        String          // PENDING | APPROVED | REJECTED | DISBURSED | REPAID
   dueDate       DateTime?
+  approvedAt    DateTime?       // when admin approved (for activity timeline)
   disbursedAt   DateTime?
   amountRepaid  Float           @default(0)
   repaidAt      DateTime?
@@ -95,17 +99,20 @@ model LoanRepayment {
 
 // Funding providers – supply capital for loans; have wallet and credit history
 model Provider {
-  id               String        @id @default(auto()) @map("_id") @db.ObjectId
-  providerNumber   String        @unique // SP-XXXXX
-  name             String
-  email            String?
-  agreedAmount     Float?        // agreed capital amount (e.g. NGN) they provide
-  percentageToAdd  Float         @default(0) // agreed % added on their share of repayments
-  agreedAt         DateTime?     // when the agreement was made
-  agreedTerms      String?       // optional agreed terms / notes
-  createdAt        DateTime      @default(now())
-  updatedAt        DateTime      @updatedAt
-  loanFundings     LoanFunding[]
+  id                   String        @id @default(auto()) @map("_id") @db.ObjectId
+  providerNumber       String        @unique // SP-XXXXX
+  name                 String
+  email                String?
+  accountNumber        String?       // bank account number for payouts
+  bankName             String?       // bank name for payouts
+  agreedAmount         Float?        // agreed capital amount (e.g. NGN) they provide
+  percentageToAdd      Float         @default(0) // total % interest charged on their funded loans
+  providerCutPercentage Float        @default(0) // % that goes to the provider; remainder goes to company
+  agreedAt             DateTime?     // when the agreement was made
+  agreedTerms          String?       // optional agreed terms / notes
+  createdAt            DateTime      @default(now())
+  updatedAt            DateTime      @updatedAt
+  loanFundings         LoanFunding[]
 }
 
 model ProviderWallet {
@@ -157,4 +164,13 @@ model AdminActivity {
   action    String
   ip        String?
   createdAt DateTime @default(now())
+}
+
+// Global application settings (key-value store)
+// e.g. key="loan_max_amount" value="5000"
+model AppSetting {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  key       String   @unique
+  value     String
+  updatedAt DateTime @updatedAt
 }

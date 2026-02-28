@@ -89,6 +89,7 @@ export class AuthController {
       lastName?: string;
       nin?: string;
       picture?: string;
+      ninSlip?: string;
     },
   ) {
     try {

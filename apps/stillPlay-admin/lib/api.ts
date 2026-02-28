@@ -73,18 +73,35 @@ export type AdminUser = {
   lastName?: string;
   userNumber?: string;
   nin?: string;
+  ninSlip?: string | null;
   role?: string;
   verified?: boolean;
   suspended?: boolean;
   picture?: string | null;
+  creditLimit?: number | null;
   createdAt?: string;
+};
+
+export type LoanEligibility = {
+  canRequest: boolean;
+  maxAmount: number;
+  availableAmount: number;
+  totalOutstanding?: number;
+  reason?: string;
+  activeLoan?: {
+    id: string;
+    status: string;
+    amount: number;
+    amountRepaid: number;
+    remaining: number;
+  } | null;
 };
 
 /** Update admin user (partial). */
 export async function updateAdminUser(
   token: string,
   id: string,
-  payload: Partial<Pick<AdminUser, "firstName" | "lastName" | "picture" | "verified" | "suspended">>
+  payload: Partial<Pick<AdminUser, "firstName" | "lastName" | "picture" | "verified" | "suspended" | "creditLimit">>
 ): Promise<{ message: string; user: AdminUser }> {
   const res = await fetch(endpoints.admin.userById(id), {
     method: "PATCH",
@@ -278,6 +295,26 @@ export async function rejectLoan(
   return data;
 }
 
+/** Get loan eligibility for a user (admin). */
+export async function getLoanEligibility(
+  token: string,
+  userId: string
+): Promise<LoanEligibility> {
+  const res = await fetch(endpoints.admin.loans.eligibility(userId), {
+    headers: getAuthHeaders(token),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    handleAuthError(res);
+    throw new Error(
+      typeof data.message === "string"
+        ? data.message
+        : "Failed to load eligibility"
+    );
+  }
+  return data as LoanEligibility;
+}
+
 /** Get a user's loan history (admin). */
 export async function getUserLoanHistory(
   token: string,
@@ -433,8 +470,12 @@ export type Provider = {
   providerNumber: string;
   name: string;
   email?: string | null;
+  accountNumber?: string | null;
+  bankName?: string | null;
   agreedAmount?: number | null;
   percentageToAdd: number;
+  /** Portion of percentageToAdd credited to the provider; company keeps the rest. */
+  providerCutPercentage: number;
   agreedAt?: string | null;
   agreedTerms?: string | null;
   createdAt?: string;
@@ -444,18 +485,59 @@ export type Provider = {
 export type CreateProviderPayload = {
   name: string;
   email?: string;
+  accountNumber?: string;
+  bankName?: string;
   agreedAmount?: number;
   percentageToAdd?: number;
+  providerCutPercentage?: number;
   agreedAt?: string;
   agreedTerms?: string;
 };
 
-/** Final amount = agreedAmount * (1 + percentageToAdd/100) */
+/** Amount returned to provider = agreedAmount × (1 + providerCutPercentage / 100) */
 export function getProviderFinalAmount(p: Provider): number | null {
   const amount = p.agreedAmount ?? null;
   if (amount == null || amount <= 0) return null;
-  const pct = p.percentageToAdd ?? 0;
-  return Math.round(amount * (1 + pct / 100) * 100) / 100;
+  const cut = p.providerCutPercentage ?? 0;
+  return Math.round(amount * (1 + cut / 100) * 100) / 100;
+}
+
+/** Amount kept by the company = agreedAmount × (percentageToAdd - providerCutPercentage) / 100 */
+export function getCompanyCutAmount(p: Provider): number | null {
+  const amount = p.agreedAmount ?? null;
+  if (amount == null || amount <= 0) return null;
+  const spread = (p.percentageToAdd ?? 0) - (p.providerCutPercentage ?? 0);
+  if (spread <= 0) return 0;
+  return Math.round(amount * (spread / 100) * 100) / 100;
+}
+
+/** Direct email + password login for admin staff (no OTP). Works for both User and Employee accounts. */
+export type AdminLoginResponse = {
+  message: string;
+  token: string;
+  user?: { id: string; email: string; role: string; firstName?: string; lastName?: string };
+};
+
+export async function adminLogin(payload: {
+  email: string;
+  password: string;
+}): Promise<AdminLoginResponse> {
+  const res = await fetch(endpoints.auth.login(), {
+    method: "POST",
+    headers: getAuthHeaders(),
+    body: JSON.stringify({ email: payload.email.trim(), password: payload.password }),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    throw new Error(
+      typeof data.message === "string"
+        ? data.message
+        : Array.isArray(data.message)
+          ? data.message[0]
+          : "Invalid email or password"
+    );
+  }
+  return data as AdminLoginResponse;
 }
 
 /** Request OTP (login or register). Uses type to determine flow. */
@@ -744,4 +826,42 @@ export async function createProvider(
     );
   }
   return data;
+}
+
+/** Get all app settings (key-value). */
+export async function getAppSettings(
+  token: string
+): Promise<Record<string, string>> {
+  const res = await fetch(endpoints.settings.get(), {
+    headers: getAuthHeaders(token),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    handleAuthError(res);
+    throw new Error(
+      typeof data.message === "string" ? data.message : "Failed to load settings"
+    );
+  }
+  return data as Record<string, string>;
+}
+
+/** Set a single app setting. */
+export async function setAppSetting(
+  token: string,
+  key: string,
+  value: string
+): Promise<{ key: string; value: string }> {
+  const res = await fetch(endpoints.settings.set(), {
+    method: "POST",
+    headers: getAuthHeaders(token),
+    body: JSON.stringify({ key, value }),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    handleAuthError(res);
+    throw new Error(
+      typeof data.message === "string" ? data.message : "Failed to save setting"
+    );
+  }
+  return data as { key: string; value: string };
 }

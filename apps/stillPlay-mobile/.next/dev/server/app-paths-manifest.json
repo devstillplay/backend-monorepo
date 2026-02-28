@@ -1,0 +1,13 @@
+{
+  "/dashboard/explore/page": "app/dashboard/explore/page.js",
+  "/dashboard/loan/page": "app/dashboard/loan/page.js",
+  "/dashboard/loan/success/page": "app/dashboard/loan/success/page.js",
+  "/dashboard/notifications/page": "app/dashboard/notifications/page.js",
+  "/dashboard/page": "app/dashboard/page.js",
+  "/dashboard/profile/page": "app/dashboard/profile/page.js",
+  "/dashboard/repayment/page": "app/dashboard/repayment/page.js",
+  "/login/page": "app/login/page.js",
+  "/page": "app/page.js",
+  "/signup/page": "app/signup/page.js",
+  "/signup/personal-details/page": "app/signup/personal-details/page.js"
+}

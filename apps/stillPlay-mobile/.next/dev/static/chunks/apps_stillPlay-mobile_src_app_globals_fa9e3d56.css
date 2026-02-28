@@ -1,0 +1,77 @@
+/* [project]/apps/stillPlay-mobile/src/app/globals.css [app-client] (css) */
+*, :before, :after {
+  box-sizing: border-box;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  color: #101828;
+  background: #fff;
+  font-family: Inter, Helvetica, Arial, sans-serif;
+}
+
+.app-root {
+  background: #fff;
+  flex-direction: column;
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  overflow: hidden;
+}
+
+.screen-content {
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+}
+
+.splash-frame {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+}
+
+.splash-gradient {
+  background: linear-gradient(135deg, #f2b400, #1f8b4c, #f2b400) 0 0 / 200% 200%;
+  animation: 6s ease-in-out infinite splashGradient;
+  position: absolute;
+  inset: 0;
+}
+
+.splash-logo {
+  justify-content: center;
+  align-items: center;
+  display: flex;
+  position: absolute;
+  inset: 0;
+}
+
+@keyframes splashGradient {
+  0% {
+    background-position: 0%;
+  }
+
+  50% {
+    background-position: 100%;
+  }
+
+  100% {
+    background-position: 0%;
+  }
+}
+
+.onboarding-image {
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: 0 16px 30px #0f172a33;
+}
+
+/*# sourceMappingURL=apps_stillPlay-mobile_src_app_globals_fa9e3d56.css.map*/

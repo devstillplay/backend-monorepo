@@ -42,6 +42,7 @@ export const endpoints = {
     employeeById: (id: string) => `${getBaseUrl()}/admin/employees/${id}`,
     activity: () => `${getBaseUrl()}/admin/activity`,
     loans: {
+      eligibility: (userId: string) => `${getBaseUrl()}/loans/eligibility/${userId}`,
       request: () => `${getBaseUrl()}/admin/loans/request`,
       all: () => `${getBaseUrl()}/admin/loans`,
       allRepayments: () => `${getBaseUrl()}/admin/loans/all/repayments`,
@@ -56,6 +57,10 @@ export const endpoints = {
       approve: () => `${getBaseUrl()}/admin/loans/approve`,
       reject: () => `${getBaseUrl()}/admin/loans/reject`,
     },
+  },
+  settings: {
+    get: () => `${getBaseUrl()}/admin/settings`,
+    set: () => `${getBaseUrl()}/admin/settings`,
   },
   providers: {
     list: () => `${getBaseUrl()}/providers`,

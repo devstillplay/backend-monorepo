@@ -12,8 +12,11 @@ export class AppController {
     payload: {
       name: string;
       email?: string;
+      accountNumber?: string;
+      bankName?: string;
       agreedAmount?: number;
       percentageToAdd?: number;
+      providerCutPercentage?: number;
       agreedAt?: string;
       agreedTerms?: string;
     }
@@ -37,8 +40,11 @@ export class AppController {
       providerId: string;
       name?: string;
       email?: string;
+      accountNumber?: string | null;
+      bankName?: string | null;
       agreedAmount?: number | null;
       percentageToAdd?: number;
+      providerCutPercentage?: number;
       agreedAt?: string | null;
       agreedTerms?: string | null;
     }
@@ -46,8 +52,11 @@ export class AppController {
     return this.appService.updateProvider(payload.providerId, {
       name: payload.name,
       email: payload.email,
+      accountNumber: payload.accountNumber,
+      bankName: payload.bankName,
       agreedAmount: payload.agreedAmount,
       percentageToAdd: payload.percentageToAdd,
+      providerCutPercentage: payload.providerCutPercentage,
       agreedAt: payload.agreedAt,
       agreedTerms: payload.agreedTerms,
     });

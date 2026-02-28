@@ -5,4 +5,5 @@ export class RegisterDto {
   email: string;
   password: string;
   picture: string;
+  ninSlip?: string;
 }

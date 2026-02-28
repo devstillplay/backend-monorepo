@@ -6,12 +6,50 @@ import CreditCardIcon from "@mui/icons-material/CreditCard";
 import GroupAddIcon from "@mui/icons-material/GroupAdd";
 import ChatBubbleIcon from "@mui/icons-material/ChatBubble";
 import LogoutIcon from "@mui/icons-material/Logout";
+import BadgeIcon from "@mui/icons-material/Badge";
+import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import useAuthStore from "@/store/useAuthStore";
+import { getProfile } from "@/lib/api";
 
 export default function ProfilePage() {
   const router = useRouter();
-  const logout = useAuthStore((state) => state.logout);
+  const logout = useAuthStore((state) => state.reset);
+  const user = useAuthStore((state) => state.user);
+  const setUser = useAuthStore((state) => state.setUser);
+  const token = useAuthStore((state) => state.token);
+
+  const { data: profile } = useQuery({
+    queryKey: ["user-profile"],
+    queryFn: async () => {
+      const p = await getProfile(token!);
+      setUser({
+        id: p.id,
+        email: p.email,
+        role: p.role,
+        firstName: p.firstName,
+        lastName: p.lastName,
+        picture: p.picture ?? null,
+        verified: p.verified,
+        userNumber: p.userNumber,
+        createdAt: p.createdAt,
+      });
+      return p;
+    },
+    enabled: !!token,
+    staleTime: 5 * 60 * 1000,
+  });
+
+  const ninSlip = profile?.ninSlip ?? null;
+  const userNumber = profile?.userNumber ?? user?.userNumber ?? "—";
+  const createdAt = profile?.createdAt ?? user?.createdAt;
+  const onboardingDate = createdAt
+    ? new Date(createdAt).toLocaleDateString("en-NG", {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+      })
+    : "—";
 
   const handleLogout = () => {
     logout();
@@ -44,7 +82,7 @@ export default function ProfilePage() {
               Account
             </Typography>
             <Avatar
-              src="https://i.pravatar.cc/120?img=12"
+              src={user?.picture ?? "https://i.pravatar.cc/120?img=12"}
               sx={{
                 width: 68,
                 height: 68,
@@ -66,9 +104,13 @@ export default function ProfilePage() {
               }}
             >
               <Stack spacing={0.5} alignItems="center">
-                <Typography fontWeight={700}>Ene Jacob</Typography>
+                <Typography fontWeight={700}>
+                  {user?.firstName && user?.lastName
+                    ? `${user.firstName} ${user.lastName}`
+                    : user?.firstName ?? user?.email?.split("@")[0] ?? "User"}
+                </Typography>
                 <Typography variant="body2" color="text.secondary">
-                  enehjacobs@gmail.com
+                  {user?.email ?? ""}
                 </Typography>
               </Stack>
 
@@ -94,7 +136,7 @@ export default function ProfilePage() {
                   <Typography variant="caption" color="text.secondary">
                     Offline Key
                   </Typography>
-                  <Typography fontWeight={700}>#55460ba</Typography>
+                  <Typography fontWeight={700}>{userNumber}</Typography>
                 </Box>
                 <Box
                   sx={{
@@ -113,11 +155,56 @@ export default function ProfilePage() {
                   }}
                 >
                   <Typography variant="caption" color="text.secondary">
-                    Calender
+                    Onboarding Date
                   </Typography>
-                  <Typography fontWeight={700}>3rd May</Typography>
+                  <Typography fontWeight={700}>{onboardingDate}</Typography>
                 </Box>
               </Stack>
+
+              {ninSlip && (
+                <>
+                  <Divider sx={{ my: 2 }} />
+                  <Stack spacing={1}>
+                    <Stack direction="row" alignItems="center" spacing={0.5}>
+                      <BadgeIcon sx={{ fontSize: 18, color: "text.secondary" }} />
+                      <Typography variant="caption" fontWeight={700} color="text.secondary">
+                        NIN SLIP
+                      </Typography>
+                    </Stack>
+                    <Box
+                      component="a"
+                      href={ninSlip}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      sx={{
+                        display: "block",
+                        borderRadius: 2,
+                        overflow: "hidden",
+                        border: "1px solid #e4e7ec",
+                        cursor: "pointer",
+                        "&:hover": { opacity: 0.9 },
+                        maxHeight: 180,
+                      }}
+                    >
+                      <Box
+                        component="img"
+                        src={ninSlip}
+                        alt="NIN slip"
+                        sx={{
+                          width: "100%",
+                          height: "auto",
+                          display: "block",
+                          maxHeight: 180,
+                          objectFit: "cover",
+                        }}
+                      />
+                    </Box>
+                    <Typography variant="caption" color="text.secondary">
+                      Tap to open full size
+                    </Typography>
+                  </Stack>
+                </>
+              )}
             </Box>
           </Stack>
         </Box>

@@ -32,23 +32,16 @@ export class AppService {
   }) {
     if (payload.amount <= 0)
       throw new BadRequestException('Amount must be positive');
-    const activeStatuses = [
-      LoanStatus.PENDING,
-      LoanStatus.APPROVED,
-      LoanStatus.DISBURSED,
-    ];
-    const existingActive = await this.prisma.loan.findFirst({
-      where: {
-        userId: payload.userId,
-        status: { in: activeStatuses },
-      },
-    });
-    if (existingActive) {
-      const message =
-        existingActive.status === LoanStatus.PENDING
-          ? 'User already has a pending loan request. Wait for it to be approved or rejected before requesting another.'
-          : `User already has a loan that is ${existingActive.status}. Complete or reject it before requesting a new loan.`;
-      throw new BadRequestException(message);
+    const eligibility = await this.getLoanEligibility(payload.userId);
+    if (!eligibility.canRequest) {
+      throw new BadRequestException(
+        eligibility.reason ?? 'You cannot request a loan at this time.',
+      );
+    }
+    if (payload.amount > eligibility.availableAmount) {
+      throw new BadRequestException(
+        `You can borrow up to ₦${eligibility.availableAmount.toFixed(2)}. Your total outstanding limit is ₦${eligibility.maxAmount.toFixed(2)}.`,
+      );
     }
     const loan = await this.prisma.loan.create({
       data: {
@@ -87,10 +80,11 @@ export class AppService {
       where: { userId: loan.userId },
     });
     if (!wallet) throw new NotFoundException('Wallet not found');
+    const now = new Date();
     await this.prisma.$transaction(async (tx) => {
       const result = await tx.loan.updateMany({
         where: { id: loanId, status: LoanStatus.PENDING },
-        data: { status: LoanStatus.APPROVED },
+        data: { status: LoanStatus.APPROVED, approvedAt: now },
       });
       if (result.count === 0) {
         throw new BadRequestException(
@@ -189,8 +183,9 @@ export class AppService {
       throw new BadRequestException('Repayment amount must be positive');
     const loan = await this.prisma.loan.findUnique({ where: { id: loanId } });
     if (!loan) throw new NotFoundException('Loan not found');
-    if (loan.status !== LoanStatus.DISBURSED) {
-      throw new BadRequestException('Only DISBURSED loans can be repaid');
+    // APPROVED and DISBURSED both mean customer has received funds (wallet credited at approval)
+    if (loan.status !== LoanStatus.DISBURSED && loan.status !== LoanStatus.APPROVED) {
+      throw new BadRequestException('Only approved or disbursed loans can be repaid');
     }
     const currentRepaid = loan.amountRepaid;
     const newRepaid = currentRepaid + amount;
@@ -214,6 +209,13 @@ export class AppService {
         where: { id: loanId },
         data: {
           amountRepaid: newRepaid,
+          // Transition APPROVED → DISBURSED on first repayment (for consistency)
+          ...(loan.status === LoanStatus.APPROVED
+            ? {
+                status: LoanStatus.DISBURSED,
+                disbursedAt: loan.approvedAt ?? now,
+              }
+            : {}),
           ...(fullRepaid ? { status: LoanStatus.REPAID, repaidAt: now } : {}),
         },
       });
@@ -221,15 +223,39 @@ export class AppService {
         data: { loanId, userId: loan.userId, amount, repaidAt: now },
       });
     });
-    // Credit providers: each gets (their share of loan) * repayment * (1 + percentageToAdd/100)
+
+    // On-time repayment bonus: increase credit limit by 5% when loan is fully repaid on or before due date
+    if (fullRepaid && loan.dueDate) {
+      const repaidAt = now;
+      const dueDate = new Date(loan.dueDate);
+      if (repaidAt <= dueDate) {
+        const defaultLimitStr = await this.getAppSetting('loan_max_amount', '5000');
+        const defaultLimit = Number(defaultLimitStr ?? 5000);
+        const user = await this.prisma.user.findUnique({
+          where: { id: loan.userId },
+          select: { creditLimit: true },
+        });
+        const currentLimit =
+          user?.creditLimit != null && !Number.isNaN(user.creditLimit)
+            ? user.creditLimit
+            : defaultLimit;
+        const newLimit = Math.round(currentLimit * 1.05 * 100) / 100;
+        await this.prisma.user.update({
+          where: { id: loan.userId },
+          data: { creditLimit: newLimit },
+        });
+      }
+    }
+    // Credit providers: each gets (their funded share) * repayment * (1 + providerCutPercentage/100)
+    // The difference between percentageToAdd and providerCutPercentage remains with the company.
     const fundings = await this.prisma.loanFunding.findMany({
       where: { loanId },
       include: { provider: true },
     });
     for (const f of fundings) {
       const share = f.amount / loan.amount;
-      const creditAmount =
-        share * amount * (1 + (f.provider.percentageToAdd ?? 0) / 100);
+      const providerCut = f.provider.providerCutPercentage ?? f.provider.percentageToAdd ?? 0;
+      const creditAmount = share * amount * (1 + providerCut / 100);
       if (creditAmount <= 0) continue;
       const providerWallet = await this.prisma.providerWallet.findUnique({
         where: { providerId: f.providerId },
@@ -286,10 +312,180 @@ export class AppService {
     return { loans };
   }
 
+  // ─── App Settings ──────────────────────────────────────────────────────────
+
+  async getAppSetting(key: string, defaultValue?: string): Promise<string | undefined> {
+    const setting = await this.prisma.appSetting.findUnique({ where: { key } });
+    return setting?.value ?? defaultValue;
+  }
+
+  async setAppSetting(key: string, value: string) {
+    await this.prisma.appSetting.upsert({
+      where: { key },
+      update: { value },
+      create: { key, value },
+    });
+    return { key, value };
+  }
+
+  async getAllSettings() {
+    const settings = await this.prisma.appSetting.findMany();
+    return settings.reduce<Record<string, string>>((acc, s) => {
+      acc[s.key] = s.value;
+      return acc;
+    }, {});
+  }
+
+  // ─── Loan Eligibility ──────────────────────────────────────────────────────
+
+  /**
+   * Returns whether a user can request a loan, how much, and why if blocked.
+   *
+   * Credit limit: per-user creditLimit or AppSetting loan_max_amount (default 5000).
+   * Total outstanding: sum of (amount - amountRepaid) for all PENDING, APPROVED, DISBURSED loans.
+   * Available: creditLimit - totalOutstanding. User can borrow more without repaying first.
+   * When user repays, capacity is freed and they can borrow again.
+   */
+  async getLoanEligibility(userId: string) {
+    const defaultLimitStr = await this.getAppSetting('loan_max_amount', '5000');
+    const defaultLimit = Number(defaultLimitStr ?? 5000);
+
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { creditLimit: true },
+    });
+    // Admin-set creditLimit always takes precedence over default; only use default when never set
+    const creditLimit =
+      user?.creditLimit != null && !Number.isNaN(user.creditLimit)
+        ? user.creditLimit
+        : defaultLimit;
+
+    const activeLoans = await this.prisma.loan.findMany({
+      where: {
+        userId,
+        status: { in: [LoanStatus.PENDING, LoanStatus.APPROVED, LoanStatus.DISBURSED] },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    const totalOutstanding = activeLoans.reduce((sum, l) => {
+      const remaining = Math.max(0, l.amount - l.amountRepaid);
+      return sum + remaining;
+    }, 0);
+
+    const availableAmount = Math.max(0, creditLimit - totalOutstanding);
+    const canRequest = availableAmount > 0;
+
+    // For repayment: use the loan with the highest remaining (primary debt)
+    const withRemaining = activeLoans.map((l) => ({
+      loan: l,
+      remaining: Math.max(0, l.amount - l.amountRepaid),
+    }));
+    const primary =
+      withRemaining.length > 0
+        ? withRemaining.reduce((a, b) =>
+            b.remaining > a.remaining ? b : a
+          )
+        : null;
+    const activeLoan = primary
+      ? {
+          id: primary.loan.id,
+          status: primary.loan.status,
+          amount: primary.loan.amount,
+          amountRepaid: primary.loan.amountRepaid,
+          remaining: primary.remaining,
+        }
+      : null;
+
+    if (!canRequest) {
+      return {
+        canRequest: false,
+        maxAmount: creditLimit,
+        availableAmount: 0,
+        totalOutstanding,
+        reason:
+          totalOutstanding > 0
+            ? `You have an outstanding balance of ₦${totalOutstanding.toFixed(2)}. Repay to free up your borrowing capacity.`
+            : 'You have reached your credit limit.',
+        activeLoan,
+      };
+    }
+
+    return {
+      canRequest: true,
+      maxAmount: creditLimit,
+      availableAmount,
+      totalOutstanding,
+      reason:
+        totalOutstanding > 0
+          ? `You have an outstanding balance of ₦${totalOutstanding.toFixed(2)}. You can borrow up to ₦${availableAmount.toFixed(2)}.`
+          : `You can borrow up to ₦${availableAmount.toFixed(2)}.`,
+      activeLoan,
+    };
+  }
+
   async listAllRepayments() {
     const repayments = await this.prisma.loanRepayment.findMany({
       orderBy: { repaidAt: 'desc' },
     });
     return { repayments };
+  }
+
+  /**
+   * Handle a BudPay transaction forwarded from notification-service.
+   * Strategy:
+   * - Find user by customer.email
+   * - Find their most recent DISBURSED loan
+   * - Apply repayLoan with the BudPay amount
+   *
+   * This automatically records the user via LoanRepayment.userId and
+   * updates the wallet / provider credits using existing logic.
+   */
+  async handleBudpayTransaction(payload: {
+    reference?: string;
+    amount: number;
+    currency?: string;
+    customer?: { email?: string };
+    raw?: unknown;
+  }) {
+    const amount = Number(payload.amount ?? 0);
+    if (!amount || Number.isNaN(amount) || amount <= 0) {
+      return { applied: false, reason: 'Invalid amount', reference: payload.reference };
+    }
+
+    const email = payload.customer?.email;
+    if (!email) {
+      return { applied: false, reason: 'Missing customer email', reference: payload.reference };
+    }
+
+    const user = await this.prisma.user.findFirst({
+      where: { email: email.toLowerCase() },
+    });
+    if (!user) {
+      return { applied: false, reason: 'User not found for email', reference: payload.reference };
+    }
+
+    const loan = await this.prisma.loan.findFirst({
+      where: { userId: user.id, status: LoanStatus.DISBURSED },
+      orderBy: { createdAt: 'desc' },
+    });
+    if (!loan) {
+      return {
+        applied: false,
+        reason: 'No DISBURSED loan for user',
+        reference: payload.reference,
+        userId: user.id,
+      };
+    }
+
+    await this.repayLoan(loan.id, amount);
+    return {
+      applied: true,
+      reference: payload.reference,
+      userId: user.id,
+      loanId: loan.id,
+      amount,
+      currency: payload.currency,
+    };
   }
 }

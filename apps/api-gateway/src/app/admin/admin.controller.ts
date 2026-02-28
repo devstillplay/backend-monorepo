@@ -19,6 +19,28 @@ import { AuthGuard } from '../guards/auth/auth.guard';
 import type { RequestWithUser } from '../types/request.types';
 import { LOAN_SERVICE } from '../loan/loan.controller';
 
+function isConnectionOrAggregateError(err: unknown): boolean {
+  if (err instanceof Error) {
+    const msg = (err.message ?? '').toLowerCase();
+    if (
+      msg.includes('econnrefused') ||
+      msg.includes('etimedout') ||
+      msg.includes('connect') ||
+      msg.includes('enotfound') ||
+      msg.includes('econnreset')
+    )
+      return true;
+    // AggregateError from NestJS ClientProxy when microservice is unreachable
+    if (err.name === 'AggregateError') return true;
+  }
+  const o = err && typeof err === 'object' ? (err as Record<string, unknown>) : {};
+  if (o.name === 'AggregateError') return true;
+  const agg = o.errors as unknown[] | undefined;
+  if (Array.isArray(agg) && agg.some((e) => isConnectionOrAggregateError(e)))
+    return true;
+  return false;
+}
+
 function handleLoanError(err: unknown): never {
   const o = err && typeof err === 'object' ? (err as Record<string, unknown>) : {};
   const payload = (o.error ?? o.response ?? o) as Record<string, unknown> | undefined;
@@ -39,16 +61,12 @@ function handleLoanError(err: unknown): never {
       : Array.isArray(rawMessage)
         ? rawMessage[0]
         : '';
-  const isConnectionError =
-    typeof msgStr === 'string' &&
-    (msgStr.includes('ECONNREFUSED') ||
-      msgStr.includes('ETIMEDOUT') ||
-      msgStr.includes('connect'));
+  const isConnectionError = isConnectionOrAggregateError(err);
   const message =
-    msgStr && msgStr !== 'Internal server error'
+    msgStr && msgStr !== 'Internal server error' && !isConnectionError
       ? msgStr
       : isConnectionError
-        ? 'Loan service unavailable. Ensure the loan-service is running.'
+        ? 'Loan service unavailable. For local dev, start: npx nx serve loan-service (TCP 8883).'
         : 'Internal server error';
   const code = statusCode >= 400 && statusCode < 600 ? statusCode : 500;
   const finalCode =
@@ -262,6 +280,31 @@ export class AdminController {
     try {
       return await firstValueFrom(
         this.loanClient.send('loan-reject', body.loanId)
+      );
+    } catch (err) {
+      handleLoanError(err);
+    }
+  }
+
+  // ─── App Settings ──────────────────────────────────────────────────────────
+
+  @Get('settings')
+  async getSettings() {
+    try {
+      return await firstValueFrom(this.loanClient.send('app-settings-get-all', {}));
+    } catch (err) {
+      handleLoanError(err);
+    }
+  }
+
+  @Post('settings')
+  async setSettings(@Body() body: { key: string; value: string }) {
+    if (!body?.key || body?.value === undefined) {
+      throw new BadRequestException('key and value are required');
+    }
+    try {
+      return await firstValueFrom(
+        this.loanClient.send('app-settings-set', { key: body.key, value: String(body.value) })
       );
     } catch (err) {
       handleLoanError(err);

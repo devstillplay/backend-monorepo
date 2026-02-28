@@ -8,6 +8,7 @@ export interface User {
   firstName?: string;
   lastName?: string;
   picture?: string | null;
+   ninSlip?: string | null;
 }
 
 export interface LoginResponse {

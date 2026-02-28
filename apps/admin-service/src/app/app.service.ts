@@ -27,6 +27,7 @@ export class AppService {
         role: true,
         verified: true,
         suspended: true,
+        creditLimit: true,
         createdAt: true,
       },
     });
@@ -81,6 +82,7 @@ export class AppService {
       picture: string;
       verified: boolean;
       suspended: boolean;
+      creditLimit: number | null;
     }>
   ) {
     const user = await this.prisma.user.findUnique({ where: { id } });

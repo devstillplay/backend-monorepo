@@ -23,8 +23,11 @@ export class AppService {
         firstName: user.firstName,
         lastName: user.lastName,
         picture: user.picture,
+        nin: user.nin,
+        ninSlip: user.ninSlip,
         role: user.role,
         verified: user.verified,
+        createdAt: user.createdAt,
       },
     };
   }

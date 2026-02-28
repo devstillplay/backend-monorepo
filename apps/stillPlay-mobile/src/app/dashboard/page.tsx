@@ -4,19 +4,140 @@ import {
   Avatar,
   Box,
   Button,
+  CircularProgress,
   IconButton,
   Paper,
+  Skeleton,
   Stack,
   Typography,
 } from "@mui/material";
 import NotificationsNoneIcon from "@mui/icons-material/NotificationsNone";
 import LockIcon from "@mui/icons-material/Lock";
+import TrendingUpIcon from "@mui/icons-material/TrendingUp";
+import TrendingDownIcon from "@mui/icons-material/TrendingDown";
+import HourglassEmptyIcon from "@mui/icons-material/HourglassEmpty";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import CancelIcon from "@mui/icons-material/Cancel";
+import SendIcon from "@mui/icons-material/Send";
+import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+
+import useAuthStore from "@/store/useAuthStore";
+import { getProfile, getWallet, listLoans, listUserRepayments } from "@/lib/api";
+import {
+  buildActivity,
+  formatCurrency,
+  formatDate,
+} from "@/lib/activity";
+import type { ActivityItem, ActivityStatus } from "@/lib/activity";
+
+const STATUS_META: Record<
+  ActivityStatus,
+  { icon: React.ReactNode; bg: string; color: string; amountPrefix: string }
+> = {
+  pending: {
+    icon: <HourglassEmptyIcon sx={{ fontSize: 20 }} />,
+    bg: "#FFF8E1",
+    color: "#F59E0B",
+    amountPrefix: "",
+  },
+  approved: {
+    icon: <CheckCircleIcon sx={{ fontSize: 20 }} />,
+    bg: "#E8F5EF",
+    color: "#22C55E",
+    amountPrefix: "+",
+  },
+  disbursed: {
+    icon: <TrendingUpIcon sx={{ fontSize: 20 }} />,
+    bg: "#E8F5EF",
+    color: "#22C55E",
+    amountPrefix: "+",
+  },
+  repaid: {
+    icon: <SendIcon sx={{ fontSize: 20 }} />,
+    bg: "#EDE9FE",
+    color: "#7C3AED",
+    amountPrefix: "-",
+  },
+  rejected: {
+    icon: <CancelIcon sx={{ fontSize: 20 }} />,
+    bg: "#FEE2E2",
+    color: "#EF4444",
+    amountPrefix: "",
+  },
+  repayment: {
+    icon: <TrendingDownIcon sx={{ fontSize: 20 }} />,
+    bg: "#FEE2E2",
+    color: "#EF4444",
+    amountPrefix: "-",
+  },
+};
 
 export default function DashboardPage() {
   const router = useRouter();
   const [isExpanded, setIsExpanded] = useState(false);
+
+  const token = useAuthStore((s) => s.token);
+  const storedUser = useAuthStore((s) => s.user);
+  const setUser = useAuthStore((s) => s.setUser);
+
+  // Fetch full profile
+  const { data: profile, isLoading: profileLoading } = useQuery({
+    queryKey: ["user-profile"],
+    queryFn: async () => {
+      const p = await getProfile(token!);
+      // Sync full profile back into the store
+      setUser({
+        id: p.id,
+        email: p.email,
+        role: p.role,
+        firstName: p.firstName,
+        lastName: p.lastName,
+        picture: p.picture ?? null,
+        verified: p.verified,
+        userNumber: p.userNumber,
+        createdAt: p.createdAt,
+      });
+      return p;
+    },
+    enabled: !!token,
+    staleTime: 5 * 60 * 1000,
+  });
+
+  const userId = profile?.id ?? storedUser?.id ?? "";
+
+  // Fetch wallet
+  const { data: wallet, isLoading: walletLoading } = useQuery({
+    queryKey: ["wallet", userId],
+    queryFn: () => getWallet(token!, userId),
+    enabled: !!token && !!userId,
+    staleTime: 60 * 1000,
+  });
+
+  // Fetch loans
+  const { data: loans, isLoading: loansLoading } = useQuery({
+    queryKey: ["loans", userId],
+    queryFn: () => listLoans(token!, userId),
+    enabled: !!token && !!userId,
+    staleTime: 60 * 1000,
+  });
+
+  // Fetch repayment transactions
+  const { data: repayments, isLoading: repaymentsLoading } = useQuery({
+    queryKey: ["repayments", userId],
+    queryFn: () => listUserRepayments(token!, userId),
+    enabled: !!token && !!userId,
+    staleTime: 60 * 1000,
+  });
+
+  const firstName = profile?.firstName ?? storedUser?.firstName ?? null;
+  const displayName = firstName ?? storedUser?.email?.split("@")[0] ?? "there";
+  const avatarSrc = profile?.picture ?? storedUser?.picture ?? undefined;
+
+  const activityLoading = loansLoading || repaymentsLoading;
+  const allActivity = buildActivity(loans ?? [], repayments ?? []);
+  const recentActivity = isExpanded ? allActivity : allActivity.slice(0, 12);
 
   return (
     <Box
@@ -32,16 +153,19 @@ export default function DashboardPage() {
       }}
     >
       <Stack spacing={3} sx={{ p: 3 }}>
-        <Stack
-          direction="row"
-          alignItems="center"
-          justifyContent="space-between"
-        >
-          <Avatar
-            src="https://i.pravatar.cc/100?img=12"
-            alt="User avatar"
-            sx={{ width: 40, height: 40 }}
-          />
+        {/* Header */}
+        <Stack direction="row" alignItems="center" justifyContent="space-between">
+          {profileLoading ? (
+            <Skeleton variant="circular" width={40} height={40} />
+          ) : (
+            <Avatar
+              src={avatarSrc}
+              alt={displayName}
+              sx={{ width: 40, height: 40, bgcolor: "primary.main" }}
+            >
+              {displayName.charAt(0).toUpperCase()}
+            </Avatar>
+          )}
           <IconButton
             aria-label="Notifications"
             onClick={() => router.push("/dashboard/notifications")}
@@ -56,15 +180,32 @@ export default function DashboardPage() {
           </IconButton>
         </Stack>
 
+        {/* Greeting + Balance */}
         <Box>
-          <Typography color="text.secondary" variant="body2">
+          {profileLoading ? (
+            <Skeleton width={160} height={28} />
+          ) : (
+            <Typography variant="h6" fontWeight={700}>
+              Welcome back,{" "}
+              <Box component="span" color="primary.main">
+                {displayName}
+              </Box>{" "}
+              👋
+            </Typography>
+          )}
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
             Available balance
           </Typography>
-          <Typography variant="h4" fontWeight={700} sx={{ mt: 0.5 }}>
-            N421,002.00
-          </Typography>
+          {walletLoading ? (
+            <Skeleton width={180} height={48} />
+          ) : (
+            <Typography variant="h4" fontWeight={700} sx={{ mt: 0.5 }}>
+              {wallet ? formatCurrency(wallet.balance) : "₦0.00"}
+            </Typography>
+          )}
         </Box>
 
+        {/* Action Buttons */}
         <Stack direction="row" spacing={2}>
           <Button
             fullWidth
@@ -93,13 +234,10 @@ export default function DashboardPage() {
           </Button>
         </Stack>
 
+        {/* Lock savings promo */}
         <Paper
           elevation={0}
-          sx={{
-            borderRadius: 3,
-            p: 2,
-            backgroundColor: "#F8FAFC",
-          }}
+          sx={{ borderRadius: 3, p: 2, backgroundColor: "#F8FAFC" }}
         >
           <Stack direction="row" spacing={2} alignItems="center">
             <Box
@@ -124,6 +262,8 @@ export default function DashboardPage() {
           </Stack>
         </Paper>
       </Stack>
+
+      {/* Recent Activity panel */}
       <Paper
         elevation={6}
         sx={{
@@ -166,68 +306,73 @@ export default function DashboardPage() {
           </Button>
         </Stack>
 
-        <Stack
-          spacing={2}
-          sx={{
-            overflowY: "auto",
-            pr: 0.5,
-          }}
-        >
-          {[
-            {
-              title: "Loan received",
-              amount: "N25,000",
-              date: "20 Aug, 2023",
-            },
-            {
-              title: "Loan received",
-              amount: "N5,000",
-              date: "20 Aug, 2023",
-            },
-            {
-              title: "Loan deducted",
-              amount: "N25,000",
-              date: "20 Aug, 2023",
-              isDebit: true,
-            },
-          ].map((item, index) => (
-            <Stack
-              key={`${item.title}-${index}`}
-              direction="row"
-              alignItems="center"
-              justifyContent="space-between"
-            >
-              <Stack direction="row" spacing={2} alignItems="center">
-                <Box
-                  sx={{
-                    width: 44,
-                    height: 44,
-                    borderRadius: "50%",
-                    backgroundColor: "#E8F5EF",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                >
-                  <Typography fontWeight={700} color="#22C55E">
-                    ₦
-                  </Typography>
+        <Stack spacing={2} sx={{ overflowY: "auto", pr: 0.5, height: "calc(100% - 48px)" }}>
+          {activityLoading ? (
+            [1, 2, 3].map((i) => (
+              <Stack key={i} direction="row" alignItems="center" spacing={2}>
+                <Skeleton variant="circular" width={44} height={44} />
+                <Box flex={1}>
+                  <Skeleton width="60%" />
+                  <Skeleton width="40%" />
                 </Box>
-                <Box>
-                  <Typography fontWeight={600}>{item.title}</Typography>
-                  <Typography color="text.secondary" variant="body2">
-                    {item.date}
-                  </Typography>
-                </Box>
+                <Skeleton width={60} />
               </Stack>
-              <Typography
-                fontWeight={700}
-                color={item.isDebit ? "error.main" : "text.primary"}
-              >
-                {item.isDebit ? `-${item.amount}` : item.amount}
+            ))
+          ) : recentActivity.length === 0 ? (
+            <Stack alignItems="center" justifyContent="center" sx={{ py: 4 }}>
+              <Typography color="text.secondary" variant="body2">
+                No activity yet
               </Typography>
             </Stack>
-          ))}
+          ) : (
+            recentActivity.map((item) => {
+              const meta = STATUS_META[item.status];
+              return (
+                <Stack
+                  key={item.key}
+                  direction="row"
+                  alignItems="center"
+                  justifyContent="space-between"
+                >
+                  <Stack direction="row" spacing={2} alignItems="center">
+                    <Box
+                      sx={{
+                        width: 44,
+                        height: 44,
+                        borderRadius: "50%",
+                        backgroundColor: meta.bg,
+                        color: meta.color,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        flexShrink: 0,
+                      }}
+                    >
+                      {meta.icon}
+                    </Box>
+                    <Box>
+                      <Typography fontWeight={600} variant="body2">
+                        {item.label}
+                      </Typography>
+                      <Typography color="text.secondary" variant="caption" display="block">
+                        {item.sublabel}
+                      </Typography>
+                      <Typography color="text.secondary" variant="caption">
+                        {formatDate(item.date)}
+                      </Typography>
+                    </Box>
+                  </Stack>
+                  <Typography
+                    fontWeight={700}
+                    variant="body2"
+                    sx={{ color: meta.color, whiteSpace: "nowrap", ml: 1 }}
+                  >
+                    {meta.amountPrefix}{formatCurrency(item.amount)}
+                  </Typography>
+                </Stack>
+              );
+            })
+          )}
         </Stack>
       </Paper>
     </Box>

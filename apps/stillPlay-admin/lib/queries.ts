@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuthStore } from "../store/auth";
 import {
   listAdminUsers,
+  getAdminUser,
   updateAdminUser,
   deleteAdminUser,
   listAdminActivity,
@@ -10,6 +11,7 @@ import {
   createProvider,
   listEmployees,
   createEmployee,
+  getLoanEligibility,
   getUserLoanHistory,
   getUserRepayments,
   getUserWallet,
@@ -18,6 +20,8 @@ import {
   rejectLoan,
   listAllLoans,
   listAllRepayments,
+  getAppSettings,
+  setAppSetting,
   type AdminUser,
   type CreateProviderPayload,
   type CreateEmployeePayload,
@@ -29,12 +33,14 @@ export const adminKeys = {
   user: (id: string) => [...adminKeys.users(), id] as const,
   employees: () => [...adminKeys.all, "employees"] as const,
   activity: () => [...adminKeys.all, "activity"] as const,
+  settings: () => [...adminKeys.all, "settings"] as const,
   loans: {
     all: () => [...adminKeys.all, "loans", "all"] as const,
     allRepayments: () => [...adminKeys.all, "loans", "repayments", "all"] as const,
     userLoans: (userId: string) => [...adminKeys.all, "loans", "user", userId] as const,
     userRepayments: (userId: string) => [...adminKeys.all, "loans", "repayments", "user", userId] as const,
     userWallet: (userId: string) => [...adminKeys.all, "loans", "wallet", userId] as const,
+    userEligibility: (userId: string) => [...adminKeys.all, "loans", "eligibility", userId] as const,
   },
 };
 
@@ -53,6 +59,17 @@ export function useAdminUsers() {
     enabled: !!token,
     refetchOnWindowFocus: true,
     staleTime: 60 * 1000, // 1 min
+  });
+}
+
+/** Fetch full details for a single user (includes nin, ninSlip, etc.). */
+export function useAdminUserDetail(id: string | null) {
+  const token = useAuthStore((s) => s.token);
+  return useQuery({
+    queryKey: [...adminKeys.users(), "detail", id],
+    queryFn: () => getAdminUser(token!, id!),
+    enabled: !!token && !!id,
+    staleTime: 30 * 1000,
   });
 }
 
@@ -201,6 +218,17 @@ export function useUserWallet(userId: string | null) {
   });
 }
 
+/** Fetch loan eligibility for a user (admin). */
+export function useUserLoanEligibility(userId: string | null) {
+  const token = useAuthStore((s) => s.token);
+  return useQuery({
+    queryKey: adminKeys.loans.userEligibility(userId ?? ""),
+    queryFn: () => getLoanEligibility(token!, userId!),
+    enabled: !!token && !!userId,
+    staleTime: 15 * 1000,
+  });
+}
+
 /** Request a loan for a user (admin); invalidates that user's loans and wallet. */
 export function useRequestLoanForUser() {
   const token = useAuthStore((s) => s.token);
@@ -220,6 +248,9 @@ export function useRequestLoanForUser() {
       });
       queryClient.invalidateQueries({
         queryKey: adminKeys.loans.userRepayments(variables.userId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: adminKeys.loans.userEligibility(variables.userId),
       });
       queryClient.invalidateQueries({ queryKey: adminKeys.loans.all() });
       queryClient.invalidateQueries({ queryKey: adminKeys.loans.allRepayments() });
@@ -275,6 +306,28 @@ export function useRejectLoan() {
       queryClient.invalidateQueries({ queryKey: adminKeys.loans.all() });
       recordActivity({ action: "Loan rejected" });
       queryClient.invalidateQueries({ queryKey: adminKeys.activity() });
+    },
+  });
+}
+
+export function useAppSettings() {
+  const token = useAuthStore((s) => s.token);
+  return useQuery({
+    queryKey: adminKeys.settings(),
+    queryFn: () => getAppSettings(token!),
+    enabled: !!token,
+    staleTime: 60 * 1000,
+  });
+}
+
+export function useSetAppSetting() {
+  const token = useAuthStore((s) => s.token);
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ key, value }: { key: string; value: string }) =>
+      setAppSetting(token!, key, value),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: adminKeys.settings() });
     },
   });
 }

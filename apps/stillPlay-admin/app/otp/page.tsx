@@ -13,11 +13,13 @@ import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import OTPInput from "react-otp-input";
 
 import AuthShell from "../../components/AuthShell";
-import { verifyCode } from "../../lib/api";
+import { verifyCode, requestCode } from "../../lib/api";
 import { recordActivity } from "../../lib/queries";
 import { useAuthStore } from "../../store/auth";
 import { useUserStore } from "../../store/user";
 import type { UserProfile } from "../../store/auth";
+
+const OTP_EXPIRY_MS = 10 * 60 * 1000;
 
 const OTP_LENGTH = 4;
 
@@ -31,6 +33,7 @@ function OtpPageContent() {
     otpExpiresAt,
     status,
     setAuthenticated,
+    setPendingOtp,
     reset: resetAuth,
     fullName,
   } = useAuthStore();
@@ -39,6 +42,7 @@ function OtpPageContent() {
 
   const [otp, setOtp] = useState("");
   const [timeLeft, setTimeLeft] = useState(0);
+  const [resendState, setResendState] = useState<"idle" | "sending" | "sent" | "error">("idle");
 
   useEffect(() => {
     if (status === "authenticated") {
@@ -94,14 +98,34 @@ function OtpPageContent() {
       setAuthenticated(data.token, user);
       setProfile({ ...user });
       recordActivity({ action: "Logged in" });
+      // Clean up stashed credentials now that auth is complete
+      sessionStorage.removeItem("__otp_resend_email");
+      sessionStorage.removeItem("__otp_resend_pw");
       router.push("/dashboard");
     },
   });
 
-  const handleResend = useCallback(() => {
+  const handleResend = useCallback(async () => {
     if (!otpEmail) return;
-    router.push("/");
-  }, [otpEmail, router]);
+    const email = sessionStorage.getItem("__otp_resend_email") ?? otpEmail;
+    const pw = sessionStorage.getItem("__otp_resend_pw") ?? "";
+    if (!pw) {
+      // No stashed password — fall back to login page
+      router.push("/");
+      return;
+    }
+    setResendState("sending");
+    setOtp(""); // clear current input
+    try {
+      await requestCode({ type: flow === "register" ? "register" : "login", email, password: pw });
+      setPendingOtp(email, Date.now() + OTP_EXPIRY_MS);
+      setResendState("sent");
+      setTimeout(() => setResendState("idle"), 4000);
+    } catch {
+      setResendState("error");
+      setTimeout(() => setResendState("idle"), 4000);
+    }
+  }, [otpEmail, flow, setPendingOtp, router]);
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -146,7 +170,7 @@ function OtpPageContent() {
               onChange={setOtp}
               numInputs={OTP_LENGTH}
               renderInput={renderInput}
-              inputType="number"
+              inputType="tel"
               shouldAutoFocus
               containerStyle={{ gap: 12 }}
             />
@@ -155,8 +179,20 @@ function OtpPageContent() {
               <Typography variant="body2" color="text.secondary">
                 Code expires in {formattedTime}
               </Typography>
-              <Button variant="text" color="secondary" size="small" onClick={handleResend}>
-                Send again
+              <Button
+                variant="text"
+                color={resendState === "error" ? "error" : "secondary"}
+                size="small"
+                disabled={resendState === "sending"}
+                onClick={handleResend}
+              >
+                {resendState === "sending"
+                  ? "Sending..."
+                  : resendState === "sent"
+                    ? "Code sent ✓"
+                    : resendState === "error"
+                      ? "Failed — try again"
+                      : "Send again"}
               </Button>
             </Stack>
 

@@ -2,7 +2,7 @@ import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { AppService } from './app.service';
 import type { OneSignalPushOptions } from './onesignal/onesignal.service';
-import type { RenderWebhookPayload } from './app.service';
+import type { BudPayWebhookPayload, RenderWebhookPayload } from './app.service';
 
 @Controller()
 export class AppController {
@@ -16,5 +16,10 @@ export class AppController {
   @MessagePattern('notification-render-webhook')
   async handleRenderWebhook(@Payload() payload: RenderWebhookPayload) {
     return this.appService.handleRenderWebhook(payload);
+  }
+
+  @MessagePattern('notification-budpay-webhook')
+  async handleBudpayWebhook(@Payload() payload: BudPayWebhookPayload) {
+    return this.appService.handleBudpayWebhook(payload);
   }
 }

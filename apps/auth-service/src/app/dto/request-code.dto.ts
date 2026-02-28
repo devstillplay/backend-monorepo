@@ -9,4 +9,6 @@ export class RequestCodeDto {
   lastName?: string;
   nin?: string;
   picture?: string;
+  /** Optional URL to NIN slip image for registration */
+  ninSlip?: string;
 }
