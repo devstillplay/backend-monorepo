@@ -2,7 +2,7 @@
 
 import { Box, Drawer, IconButton, Stack, Typography } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
-import { ReactNode, useEffect, useState } from "react";
+import { ReactNode, Suspense, useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 
 import DashboardSidebar from "../../components/dashboard/DashboardSidebar";
@@ -68,7 +68,9 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       }}
     >
       <Box sx={{ display: { xs: "none", md: "block" } }}>
-        <DashboardSidebar />
+        <Suspense fallback={null}>
+          <DashboardSidebar />
+        </Suspense>
       </Box>
 
       <Stack sx={{ flex: 1 }}>
@@ -100,7 +102,9 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         sx={{ display: { xs: "block", md: "none" } }}
         PaperProps={{ sx: { width: 260 } }}
       >
-        <DashboardSidebar onNavigate={() => setIsMobileOpen(false)} />
+        <Suspense fallback={null}>
+          <DashboardSidebar onNavigate={() => setIsMobileOpen(false)} />
+        </Suspense>
       </Drawer>
     </Box>
   );

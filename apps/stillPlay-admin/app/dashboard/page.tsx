@@ -28,7 +28,7 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 
@@ -70,7 +70,7 @@ function toTableRow(u: AdminUser): {
   };
 }
 
-export default function DashboardPage() {
+function DashboardPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const mainTab = (searchParams.get("tab") as "overview" | "users") ?? "overview";
@@ -1312,5 +1312,13 @@ export default function DashboardPage() {
         </>
       )}
     </Box>
+  );
+}
+
+export default function DashboardPage() {
+  return (
+    <Suspense fallback={<Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: 400 }}><CircularProgress /></Box>}>
+      <DashboardPageContent />
+    </Suspense>
   );
 }
