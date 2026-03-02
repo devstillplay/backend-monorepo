@@ -399,6 +399,28 @@ export async function getUserWallet(
   return data;
 }
 
+/** Get company account balance (admin). */
+export async function getCompanyBalance(
+  token: string
+): Promise<{ balance: number; currency: string }> {
+  const res = await fetch(endpoints.admin.loans.companyBalance(), {
+    headers: getAuthHeaders(token),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    handleAuthError(res);
+    throw new Error(
+      typeof data.message === "string"
+        ? data.message
+        : "Failed to load company balance"
+    );
+  }
+  return {
+    balance: data.balance ?? 0,
+    currency: data.currency ?? "NGN",
+  };
+}
+
 /** List all loans (admin). */
 export async function listAllLoans(token: string): Promise<{ loans: Loan[] }> {
   const res = await fetch(endpoints.admin.loans.all(), {
@@ -472,7 +494,12 @@ export type Provider = {
   email?: string | null;
   accountNumber?: string | null;
   bankName?: string | null;
+  bankCode?: string | null;
   agreedAmount?: number | null;
+  /** Amount owed to provider (from wallet). Present when fetched with wallet info. */
+  balance?: number;
+  /** Total amount paid out to provider. Present when fetched with wallet info. */
+  totalPaid?: number;
   percentageToAdd: number;
   /** Portion of percentageToAdd credited to the provider; company keeps the rest. */
   providerCutPercentage: number;
@@ -487,11 +514,20 @@ export type CreateProviderPayload = {
   email?: string;
   accountNumber?: string;
   bankName?: string;
+  bankCode?: string;
   agreedAmount?: number;
   percentageToAdd?: number;
   providerCutPercentage?: number;
   agreedAt?: string;
   agreedTerms?: string;
+};
+
+/** Provider with balance and payout info (for disbursement page) */
+export type ProviderForDisbursement = Provider & {
+  bankCode?: string | null;
+  balance: number;
+  totalPaid: number;
+  hasBankDetails: boolean;
 };
 
 /** Amount returned to provider = agreedAmount × (1 + providerCutPercentage / 100) */
@@ -784,6 +820,110 @@ export async function createEmployee(
         : Array.isArray(data.message)
           ? data.message[0]
           : "Failed to create staff"
+    );
+  }
+  return data;
+}
+
+/** List providers with balance and total paid (for disbursement page). */
+export async function listProvidersForDisbursement(
+  token: string
+): Promise<{ providers: ProviderForDisbursement[] }> {
+  const res = await fetch(endpoints.providers.disbursement(), {
+    headers: getAuthHeaders(token),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    handleAuthError(res);
+    throw new Error(
+      typeof data.message === "string"
+        ? data.message
+        : "Failed to load providers for disbursement"
+    );
+  }
+  return {
+    providers: Array.isArray(data.providers) ? data.providers : [],
+  };
+}
+
+/** Verify a BudPay transfer by reference (GET /api/v2/payout/:reference). */
+export async function verifyBudpayTransfer(
+  token: string,
+  reference: string
+): Promise<{ status?: boolean; success?: boolean; message?: string; data?: Record<string, unknown> }> {
+  const res = await fetch(endpoints.providers.verifyTransfer(reference), {
+    headers: getAuthHeaders(token),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    handleAuthError(res);
+    throw new Error(
+      typeof data.message === "string" ? data.message : "Failed to verify transfer"
+    );
+  }
+  return data;
+}
+
+/** Execute bulk disbursement via BudPay. simulate=true skips BudPay API and simulates success (dev mode). */
+export async function executeDisbursement(
+  token: string,
+  payload: { transfers: { providerId: string; amount: number }[]; currency?: string; simulate?: boolean }
+): Promise<{ message: string; success: boolean; data: Array<{ reference: string; status: string; providerId: string; amount: number }> }> {
+  const res = await fetch(endpoints.providers.disbursement(), {
+    method: "POST",
+    headers: getAuthHeaders(token),
+    body: JSON.stringify(payload),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    handleAuthError(res);
+    throw new Error(
+      typeof data.message === "string"
+        ? data.message
+        : "Disbursement failed"
+    );
+  }
+  return data;
+}
+
+/** Fetch BudPay bank list for provider account selection */
+export async function getBudpayBanks(
+  token: string,
+  currency = 'NGN'
+): Promise<{ banks: Array<{ bank_name: string; bank_code: string }> }> {
+  const res = await fetch(endpoints.providers.banks(currency), {
+    headers: getAuthHeaders(token),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    handleAuthError(res);
+    throw new Error(
+      typeof data.message === "string"
+        ? data.message
+        : "Failed to load banks"
+    );
+  }
+  return { banks: Array.isArray(data.banks) ? data.banks : [] };
+}
+
+/** Delete provider. payoutFirst: pay full amount owed from company balance, then delete. */
+export async function deleteProvider(
+  token: string,
+  providerId: string,
+  payoutFirst: boolean
+): Promise<{ message: string; payoutAmount: number }> {
+  const url = endpoints.providers.delete(providerId, payoutFirst);
+  const res = await fetch(url, {
+    method: "DELETE",
+    headers: getAuthHeaders(token),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    handleAuthError(res);
+    throw new Error(
+      typeof data.message === "string"
+        ? data.message
+        : "Failed to delete provider"
     );
   }
   return data;

@@ -202,6 +202,7 @@ exports.Prisma.ProviderScalarFieldEnum = {
   email: 'email',
   accountNumber: 'accountNumber',
   bankName: 'bankName',
+  bankCode: 'bankCode',
   agreedAmount: 'agreedAmount',
   percentageToAdd: 'percentageToAdd',
   providerCutPercentage: 'providerCutPercentage',
@@ -237,6 +238,16 @@ exports.Prisma.ProviderCreditScalarFieldEnum = {
   createdAt: 'createdAt'
 };
 
+exports.Prisma.ProviderPayoutScalarFieldEnum = {
+  id: 'id',
+  providerId: 'providerId',
+  amount: 'amount',
+  reference: 'reference',
+  status: 'status',
+  paidAt: 'paidAt',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.EmployeeScalarFieldEnum = {
   id: 'id',
   employeeNumber: 'employeeNumber',
@@ -256,6 +267,14 @@ exports.Prisma.AdminActivityScalarFieldEnum = {
   action: 'action',
   ip: 'ip',
   createdAt: 'createdAt'
+};
+
+exports.Prisma.CompanyWalletScalarFieldEnum = {
+  id: 'id',
+  balance: 'balance',
+  currency: 'currency',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 };
 
 exports.Prisma.AppSettingScalarFieldEnum = {
@@ -288,8 +307,10 @@ exports.Prisma.ModelName = {
   ProviderWallet: 'ProviderWallet',
   LoanFunding: 'LoanFunding',
   ProviderCredit: 'ProviderCredit',
+  ProviderPayout: 'ProviderPayout',
   Employee: 'Employee',
   AdminActivity: 'AdminActivity',
+  CompanyWallet: 'CompanyWallet',
   AppSetting: 'AppSetting'
 };
 

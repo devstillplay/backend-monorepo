@@ -105,6 +105,7 @@ model Provider {
   email                 String?
   accountNumber         String? // bank account number for payouts
   bankName              String? // bank name for payouts
+  bankCode              String? // BudPay bank code (from bank list API)
   agreedAmount          Float? // agreed capital amount (e.g. NGN) they provide
   percentageToAdd       Float         @default(0) // total % interest charged on their funded loans
   providerCutPercentage Float         @default(0) // % that goes to the provider; remainder goes to company
@@ -144,6 +145,17 @@ model ProviderCredit {
   createdAt  DateTime @default(now())
 }
 
+// Record of payouts/disbursements to providers (via BudPay bulk transfer)
+model ProviderPayout {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  providerId String   @db.ObjectId
+  amount     Float
+  reference  String // BudPay transfer reference
+  status     String // pending | success | failed
+  paidAt     DateTime @default(now())
+  createdAt  DateTime @default(now())
+}
+
 model Employee {
   id             String   @id @default(auto()) @map("_id") @db.ObjectId
   employeeNumber String   @unique // SP-XXXXX (5 chars after SP-)
@@ -164,6 +176,16 @@ model AdminActivity {
   action    String
   ip        String?
   createdAt DateTime @default(now())
+}
+
+// Company operating account – total balance available for loans and provider payouts
+// + when providers fund (agreedAmount), - when loans approved, - when provider payouts
+model CompanyWallet {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  balance   Float    @default(0)
+  currency  String   @default("NGN")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 // Global application settings (key-value store)

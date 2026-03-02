@@ -69,6 +69,11 @@ export type LoanFunding = $Result.DefaultSelection<Prisma.$LoanFundingPayload>
  */
 export type ProviderCredit = $Result.DefaultSelection<Prisma.$ProviderCreditPayload>
 /**
+ * Model ProviderPayout
+ * 
+ */
+export type ProviderPayout = $Result.DefaultSelection<Prisma.$ProviderPayoutPayload>
+/**
  * Model Employee
  * 
  */
@@ -78,6 +83,11 @@ export type Employee = $Result.DefaultSelection<Prisma.$EmployeePayload>
  * 
  */
 export type AdminActivity = $Result.DefaultSelection<Prisma.$AdminActivityPayload>
+/**
+ * Model CompanyWallet
+ * 
+ */
+export type CompanyWallet = $Result.DefaultSelection<Prisma.$CompanyWalletPayload>
 /**
  * Model AppSetting
  * 
@@ -280,6 +290,16 @@ export class PrismaClient<
   get providerCredit(): Prisma.ProviderCreditDelegate<ExtArgs, ClientOptions>;
 
   /**
+   * `prisma.providerPayout`: Exposes CRUD operations for the **ProviderPayout** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more ProviderPayouts
+    * const providerPayouts = await prisma.providerPayout.findMany()
+    * ```
+    */
+  get providerPayout(): Prisma.ProviderPayoutDelegate<ExtArgs, ClientOptions>;
+
+  /**
    * `prisma.employee`: Exposes CRUD operations for the **Employee** model.
     * Example usage:
     * ```ts
@@ -298,6 +318,16 @@ export class PrismaClient<
     * ```
     */
   get adminActivity(): Prisma.AdminActivityDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.companyWallet`: Exposes CRUD operations for the **CompanyWallet** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more CompanyWallets
+    * const companyWallets = await prisma.companyWallet.findMany()
+    * ```
+    */
+  get companyWallet(): Prisma.CompanyWalletDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.appSetting`: Exposes CRUD operations for the **AppSetting** model.
@@ -760,8 +790,10 @@ export namespace Prisma {
     ProviderWallet: 'ProviderWallet',
     LoanFunding: 'LoanFunding',
     ProviderCredit: 'ProviderCredit',
+    ProviderPayout: 'ProviderPayout',
     Employee: 'Employee',
     AdminActivity: 'AdminActivity',
+    CompanyWallet: 'CompanyWallet',
     AppSetting: 'AppSetting'
   };
 
@@ -781,7 +813,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "loginCode" | "passwordResetCode" | "pendingRegistration" | "wallet" | "loan" | "loanRepayment" | "provider" | "providerWallet" | "loanFunding" | "providerCredit" | "employee" | "adminActivity" | "appSetting"
+      modelProps: "user" | "loginCode" | "passwordResetCode" | "pendingRegistration" | "wallet" | "loan" | "loanRepayment" | "provider" | "providerWallet" | "loanFunding" | "providerCredit" | "providerPayout" | "employee" | "adminActivity" | "companyWallet" | "appSetting"
       txIsolationLevel: never
     }
     model: {
@@ -1599,6 +1631,80 @@ export namespace Prisma {
           }
         }
       }
+      ProviderPayout: {
+        payload: Prisma.$ProviderPayoutPayload<ExtArgs>
+        fields: Prisma.ProviderPayoutFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.ProviderPayoutFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProviderPayoutPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.ProviderPayoutFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProviderPayoutPayload>
+          }
+          findFirst: {
+            args: Prisma.ProviderPayoutFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProviderPayoutPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.ProviderPayoutFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProviderPayoutPayload>
+          }
+          findMany: {
+            args: Prisma.ProviderPayoutFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProviderPayoutPayload>[]
+          }
+          create: {
+            args: Prisma.ProviderPayoutCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProviderPayoutPayload>
+          }
+          createMany: {
+            args: Prisma.ProviderPayoutCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          delete: {
+            args: Prisma.ProviderPayoutDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProviderPayoutPayload>
+          }
+          update: {
+            args: Prisma.ProviderPayoutUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProviderPayoutPayload>
+          }
+          deleteMany: {
+            args: Prisma.ProviderPayoutDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.ProviderPayoutUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.ProviderPayoutUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ProviderPayoutPayload>
+          }
+          aggregate: {
+            args: Prisma.ProviderPayoutAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateProviderPayout>
+          }
+          groupBy: {
+            args: Prisma.ProviderPayoutGroupByArgs<ExtArgs>
+            result: $Utils.Optional<ProviderPayoutGroupByOutputType>[]
+          }
+          findRaw: {
+            args: Prisma.ProviderPayoutFindRawArgs<ExtArgs>
+            result: JsonObject
+          }
+          aggregateRaw: {
+            args: Prisma.ProviderPayoutAggregateRawArgs<ExtArgs>
+            result: JsonObject
+          }
+          count: {
+            args: Prisma.ProviderPayoutCountArgs<ExtArgs>
+            result: $Utils.Optional<ProviderPayoutCountAggregateOutputType> | number
+          }
+        }
+      }
       Employee: {
         payload: Prisma.$EmployeePayload<ExtArgs>
         fields: Prisma.EmployeeFieldRefs
@@ -1744,6 +1850,80 @@ export namespace Prisma {
           count: {
             args: Prisma.AdminActivityCountArgs<ExtArgs>
             result: $Utils.Optional<AdminActivityCountAggregateOutputType> | number
+          }
+        }
+      }
+      CompanyWallet: {
+        payload: Prisma.$CompanyWalletPayload<ExtArgs>
+        fields: Prisma.CompanyWalletFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.CompanyWalletFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CompanyWalletPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.CompanyWalletFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CompanyWalletPayload>
+          }
+          findFirst: {
+            args: Prisma.CompanyWalletFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CompanyWalletPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.CompanyWalletFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CompanyWalletPayload>
+          }
+          findMany: {
+            args: Prisma.CompanyWalletFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CompanyWalletPayload>[]
+          }
+          create: {
+            args: Prisma.CompanyWalletCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CompanyWalletPayload>
+          }
+          createMany: {
+            args: Prisma.CompanyWalletCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          delete: {
+            args: Prisma.CompanyWalletDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CompanyWalletPayload>
+          }
+          update: {
+            args: Prisma.CompanyWalletUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CompanyWalletPayload>
+          }
+          deleteMany: {
+            args: Prisma.CompanyWalletDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.CompanyWalletUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.CompanyWalletUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CompanyWalletPayload>
+          }
+          aggregate: {
+            args: Prisma.CompanyWalletAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateCompanyWallet>
+          }
+          groupBy: {
+            args: Prisma.CompanyWalletGroupByArgs<ExtArgs>
+            result: $Utils.Optional<CompanyWalletGroupByOutputType>[]
+          }
+          findRaw: {
+            args: Prisma.CompanyWalletFindRawArgs<ExtArgs>
+            result: JsonObject
+          }
+          aggregateRaw: {
+            args: Prisma.CompanyWalletAggregateRawArgs<ExtArgs>
+            result: JsonObject
+          }
+          count: {
+            args: Prisma.CompanyWalletCountArgs<ExtArgs>
+            result: $Utils.Optional<CompanyWalletCountAggregateOutputType> | number
           }
         }
       }
@@ -1911,8 +2091,10 @@ export namespace Prisma {
     providerWallet?: ProviderWalletOmit
     loanFunding?: LoanFundingOmit
     providerCredit?: ProviderCreditOmit
+    providerPayout?: ProviderPayoutOmit
     employee?: EmployeeOmit
     adminActivity?: AdminActivityOmit
+    companyWallet?: CompanyWalletOmit
     appSetting?: AppSettingOmit
   }
 
@@ -9145,6 +9327,7 @@ export namespace Prisma {
     email: string | null
     accountNumber: string | null
     bankName: string | null
+    bankCode: string | null
     agreedAmount: number | null
     percentageToAdd: number | null
     providerCutPercentage: number | null
@@ -9161,6 +9344,7 @@ export namespace Prisma {
     email: string | null
     accountNumber: string | null
     bankName: string | null
+    bankCode: string | null
     agreedAmount: number | null
     percentageToAdd: number | null
     providerCutPercentage: number | null
@@ -9177,6 +9361,7 @@ export namespace Prisma {
     email: number
     accountNumber: number
     bankName: number
+    bankCode: number
     agreedAmount: number
     percentageToAdd: number
     providerCutPercentage: number
@@ -9207,6 +9392,7 @@ export namespace Prisma {
     email?: true
     accountNumber?: true
     bankName?: true
+    bankCode?: true
     agreedAmount?: true
     percentageToAdd?: true
     providerCutPercentage?: true
@@ -9223,6 +9409,7 @@ export namespace Prisma {
     email?: true
     accountNumber?: true
     bankName?: true
+    bankCode?: true
     agreedAmount?: true
     percentageToAdd?: true
     providerCutPercentage?: true
@@ -9239,6 +9426,7 @@ export namespace Prisma {
     email?: true
     accountNumber?: true
     bankName?: true
+    bankCode?: true
     agreedAmount?: true
     percentageToAdd?: true
     providerCutPercentage?: true
@@ -9342,6 +9530,7 @@ export namespace Prisma {
     email: string | null
     accountNumber: string | null
     bankName: string | null
+    bankCode: string | null
     agreedAmount: number | null
     percentageToAdd: number
     providerCutPercentage: number
@@ -9377,6 +9566,7 @@ export namespace Prisma {
     email?: boolean
     accountNumber?: boolean
     bankName?: boolean
+    bankCode?: boolean
     agreedAmount?: boolean
     percentageToAdd?: boolean
     providerCutPercentage?: boolean
@@ -9397,6 +9587,7 @@ export namespace Prisma {
     email?: boolean
     accountNumber?: boolean
     bankName?: boolean
+    bankCode?: boolean
     agreedAmount?: boolean
     percentageToAdd?: boolean
     providerCutPercentage?: boolean
@@ -9406,7 +9597,7 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type ProviderOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "providerNumber" | "name" | "email" | "accountNumber" | "bankName" | "agreedAmount" | "percentageToAdd" | "providerCutPercentage" | "agreedAt" | "agreedTerms" | "createdAt" | "updatedAt", ExtArgs["result"]["provider"]>
+  export type ProviderOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "providerNumber" | "name" | "email" | "accountNumber" | "bankName" | "bankCode" | "agreedAmount" | "percentageToAdd" | "providerCutPercentage" | "agreedAt" | "agreedTerms" | "createdAt" | "updatedAt", ExtArgs["result"]["provider"]>
   export type ProviderInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     loanFundings?: boolean | Provider$loanFundingsArgs<ExtArgs>
     _count?: boolean | ProviderCountOutputTypeDefaultArgs<ExtArgs>
@@ -9424,6 +9615,7 @@ export namespace Prisma {
       email: string | null
       accountNumber: string | null
       bankName: string | null
+      bankCode: string | null
       agreedAmount: number | null
       percentageToAdd: number
       providerCutPercentage: number
@@ -9830,6 +10022,7 @@ export namespace Prisma {
     readonly email: FieldRef<"Provider", 'String'>
     readonly accountNumber: FieldRef<"Provider", 'String'>
     readonly bankName: FieldRef<"Provider", 'String'>
+    readonly bankCode: FieldRef<"Provider", 'String'>
     readonly agreedAmount: FieldRef<"Provider", 'Float'>
     readonly percentageToAdd: FieldRef<"Provider", 'Float'>
     readonly providerCutPercentage: FieldRef<"Provider", 'Float'>
@@ -13221,6 +13414,994 @@ export namespace Prisma {
 
 
   /**
+   * Model ProviderPayout
+   */
+
+  export type AggregateProviderPayout = {
+    _count: ProviderPayoutCountAggregateOutputType | null
+    _avg: ProviderPayoutAvgAggregateOutputType | null
+    _sum: ProviderPayoutSumAggregateOutputType | null
+    _min: ProviderPayoutMinAggregateOutputType | null
+    _max: ProviderPayoutMaxAggregateOutputType | null
+  }
+
+  export type ProviderPayoutAvgAggregateOutputType = {
+    amount: number | null
+  }
+
+  export type ProviderPayoutSumAggregateOutputType = {
+    amount: number | null
+  }
+
+  export type ProviderPayoutMinAggregateOutputType = {
+    id: string | null
+    providerId: string | null
+    amount: number | null
+    reference: string | null
+    status: string | null
+    paidAt: Date | null
+    createdAt: Date | null
+  }
+
+  export type ProviderPayoutMaxAggregateOutputType = {
+    id: string | null
+    providerId: string | null
+    amount: number | null
+    reference: string | null
+    status: string | null
+    paidAt: Date | null
+    createdAt: Date | null
+  }
+
+  export type ProviderPayoutCountAggregateOutputType = {
+    id: number
+    providerId: number
+    amount: number
+    reference: number
+    status: number
+    paidAt: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type ProviderPayoutAvgAggregateInputType = {
+    amount?: true
+  }
+
+  export type ProviderPayoutSumAggregateInputType = {
+    amount?: true
+  }
+
+  export type ProviderPayoutMinAggregateInputType = {
+    id?: true
+    providerId?: true
+    amount?: true
+    reference?: true
+    status?: true
+    paidAt?: true
+    createdAt?: true
+  }
+
+  export type ProviderPayoutMaxAggregateInputType = {
+    id?: true
+    providerId?: true
+    amount?: true
+    reference?: true
+    status?: true
+    paidAt?: true
+    createdAt?: true
+  }
+
+  export type ProviderPayoutCountAggregateInputType = {
+    id?: true
+    providerId?: true
+    amount?: true
+    reference?: true
+    status?: true
+    paidAt?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type ProviderPayoutAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ProviderPayout to aggregate.
+     */
+    where?: ProviderPayoutWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ProviderPayouts to fetch.
+     */
+    orderBy?: ProviderPayoutOrderByWithRelationInput | ProviderPayoutOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: ProviderPayoutWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ProviderPayouts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ProviderPayouts.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned ProviderPayouts
+    **/
+    _count?: true | ProviderPayoutCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: ProviderPayoutAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: ProviderPayoutSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: ProviderPayoutMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: ProviderPayoutMaxAggregateInputType
+  }
+
+  export type GetProviderPayoutAggregateType<T extends ProviderPayoutAggregateArgs> = {
+        [P in keyof T & keyof AggregateProviderPayout]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateProviderPayout[P]>
+      : GetScalarType<T[P], AggregateProviderPayout[P]>
+  }
+
+
+
+
+  export type ProviderPayoutGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ProviderPayoutWhereInput
+    orderBy?: ProviderPayoutOrderByWithAggregationInput | ProviderPayoutOrderByWithAggregationInput[]
+    by: ProviderPayoutScalarFieldEnum[] | ProviderPayoutScalarFieldEnum
+    having?: ProviderPayoutScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: ProviderPayoutCountAggregateInputType | true
+    _avg?: ProviderPayoutAvgAggregateInputType
+    _sum?: ProviderPayoutSumAggregateInputType
+    _min?: ProviderPayoutMinAggregateInputType
+    _max?: ProviderPayoutMaxAggregateInputType
+  }
+
+  export type ProviderPayoutGroupByOutputType = {
+    id: string
+    providerId: string
+    amount: number
+    reference: string
+    status: string
+    paidAt: Date
+    createdAt: Date
+    _count: ProviderPayoutCountAggregateOutputType | null
+    _avg: ProviderPayoutAvgAggregateOutputType | null
+    _sum: ProviderPayoutSumAggregateOutputType | null
+    _min: ProviderPayoutMinAggregateOutputType | null
+    _max: ProviderPayoutMaxAggregateOutputType | null
+  }
+
+  type GetProviderPayoutGroupByPayload<T extends ProviderPayoutGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<ProviderPayoutGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof ProviderPayoutGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], ProviderPayoutGroupByOutputType[P]>
+            : GetScalarType<T[P], ProviderPayoutGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type ProviderPayoutSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    providerId?: boolean
+    amount?: boolean
+    reference?: boolean
+    status?: boolean
+    paidAt?: boolean
+    createdAt?: boolean
+  }, ExtArgs["result"]["providerPayout"]>
+
+
+
+  export type ProviderPayoutSelectScalar = {
+    id?: boolean
+    providerId?: boolean
+    amount?: boolean
+    reference?: boolean
+    status?: boolean
+    paidAt?: boolean
+    createdAt?: boolean
+  }
+
+  export type ProviderPayoutOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "providerId" | "amount" | "reference" | "status" | "paidAt" | "createdAt", ExtArgs["result"]["providerPayout"]>
+
+  export type $ProviderPayoutPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "ProviderPayout"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      providerId: string
+      amount: number
+      reference: string
+      status: string
+      paidAt: Date
+      createdAt: Date
+    }, ExtArgs["result"]["providerPayout"]>
+    composites: {}
+  }
+
+  type ProviderPayoutGetPayload<S extends boolean | null | undefined | ProviderPayoutDefaultArgs> = $Result.GetResult<Prisma.$ProviderPayoutPayload, S>
+
+  type ProviderPayoutCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<ProviderPayoutFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: ProviderPayoutCountAggregateInputType | true
+    }
+
+  export interface ProviderPayoutDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ProviderPayout'], meta: { name: 'ProviderPayout' } }
+    /**
+     * Find zero or one ProviderPayout that matches the filter.
+     * @param {ProviderPayoutFindUniqueArgs} args - Arguments to find a ProviderPayout
+     * @example
+     * // Get one ProviderPayout
+     * const providerPayout = await prisma.providerPayout.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends ProviderPayoutFindUniqueArgs>(args: SelectSubset<T, ProviderPayoutFindUniqueArgs<ExtArgs>>): Prisma__ProviderPayoutClient<$Result.GetResult<Prisma.$ProviderPayoutPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one ProviderPayout that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {ProviderPayoutFindUniqueOrThrowArgs} args - Arguments to find a ProviderPayout
+     * @example
+     * // Get one ProviderPayout
+     * const providerPayout = await prisma.providerPayout.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends ProviderPayoutFindUniqueOrThrowArgs>(args: SelectSubset<T, ProviderPayoutFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ProviderPayoutClient<$Result.GetResult<Prisma.$ProviderPayoutPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ProviderPayout that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProviderPayoutFindFirstArgs} args - Arguments to find a ProviderPayout
+     * @example
+     * // Get one ProviderPayout
+     * const providerPayout = await prisma.providerPayout.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends ProviderPayoutFindFirstArgs>(args?: SelectSubset<T, ProviderPayoutFindFirstArgs<ExtArgs>>): Prisma__ProviderPayoutClient<$Result.GetResult<Prisma.$ProviderPayoutPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ProviderPayout that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProviderPayoutFindFirstOrThrowArgs} args - Arguments to find a ProviderPayout
+     * @example
+     * // Get one ProviderPayout
+     * const providerPayout = await prisma.providerPayout.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends ProviderPayoutFindFirstOrThrowArgs>(args?: SelectSubset<T, ProviderPayoutFindFirstOrThrowArgs<ExtArgs>>): Prisma__ProviderPayoutClient<$Result.GetResult<Prisma.$ProviderPayoutPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more ProviderPayouts that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProviderPayoutFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all ProviderPayouts
+     * const providerPayouts = await prisma.providerPayout.findMany()
+     * 
+     * // Get first 10 ProviderPayouts
+     * const providerPayouts = await prisma.providerPayout.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const providerPayoutWithIdOnly = await prisma.providerPayout.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends ProviderPayoutFindManyArgs>(args?: SelectSubset<T, ProviderPayoutFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProviderPayoutPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a ProviderPayout.
+     * @param {ProviderPayoutCreateArgs} args - Arguments to create a ProviderPayout.
+     * @example
+     * // Create one ProviderPayout
+     * const ProviderPayout = await prisma.providerPayout.create({
+     *   data: {
+     *     // ... data to create a ProviderPayout
+     *   }
+     * })
+     * 
+     */
+    create<T extends ProviderPayoutCreateArgs>(args: SelectSubset<T, ProviderPayoutCreateArgs<ExtArgs>>): Prisma__ProviderPayoutClient<$Result.GetResult<Prisma.$ProviderPayoutPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many ProviderPayouts.
+     * @param {ProviderPayoutCreateManyArgs} args - Arguments to create many ProviderPayouts.
+     * @example
+     * // Create many ProviderPayouts
+     * const providerPayout = await prisma.providerPayout.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends ProviderPayoutCreateManyArgs>(args?: SelectSubset<T, ProviderPayoutCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a ProviderPayout.
+     * @param {ProviderPayoutDeleteArgs} args - Arguments to delete one ProviderPayout.
+     * @example
+     * // Delete one ProviderPayout
+     * const ProviderPayout = await prisma.providerPayout.delete({
+     *   where: {
+     *     // ... filter to delete one ProviderPayout
+     *   }
+     * })
+     * 
+     */
+    delete<T extends ProviderPayoutDeleteArgs>(args: SelectSubset<T, ProviderPayoutDeleteArgs<ExtArgs>>): Prisma__ProviderPayoutClient<$Result.GetResult<Prisma.$ProviderPayoutPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one ProviderPayout.
+     * @param {ProviderPayoutUpdateArgs} args - Arguments to update one ProviderPayout.
+     * @example
+     * // Update one ProviderPayout
+     * const providerPayout = await prisma.providerPayout.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends ProviderPayoutUpdateArgs>(args: SelectSubset<T, ProviderPayoutUpdateArgs<ExtArgs>>): Prisma__ProviderPayoutClient<$Result.GetResult<Prisma.$ProviderPayoutPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more ProviderPayouts.
+     * @param {ProviderPayoutDeleteManyArgs} args - Arguments to filter ProviderPayouts to delete.
+     * @example
+     * // Delete a few ProviderPayouts
+     * const { count } = await prisma.providerPayout.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends ProviderPayoutDeleteManyArgs>(args?: SelectSubset<T, ProviderPayoutDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ProviderPayouts.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProviderPayoutUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many ProviderPayouts
+     * const providerPayout = await prisma.providerPayout.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends ProviderPayoutUpdateManyArgs>(args: SelectSubset<T, ProviderPayoutUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one ProviderPayout.
+     * @param {ProviderPayoutUpsertArgs} args - Arguments to update or create a ProviderPayout.
+     * @example
+     * // Update or create a ProviderPayout
+     * const providerPayout = await prisma.providerPayout.upsert({
+     *   create: {
+     *     // ... data to create a ProviderPayout
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the ProviderPayout we want to update
+     *   }
+     * })
+     */
+    upsert<T extends ProviderPayoutUpsertArgs>(args: SelectSubset<T, ProviderPayoutUpsertArgs<ExtArgs>>): Prisma__ProviderPayoutClient<$Result.GetResult<Prisma.$ProviderPayoutPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more ProviderPayouts that matches the filter.
+     * @param {ProviderPayoutFindRawArgs} args - Select which filters you would like to apply.
+     * @example
+     * const providerPayout = await prisma.providerPayout.findRaw({
+     *   filter: { age: { $gt: 25 } }
+     * })
+     */
+    findRaw(args?: ProviderPayoutFindRawArgs): Prisma.PrismaPromise<JsonObject>
+
+    /**
+     * Perform aggregation operations on a ProviderPayout.
+     * @param {ProviderPayoutAggregateRawArgs} args - Select which aggregations you would like to apply.
+     * @example
+     * const providerPayout = await prisma.providerPayout.aggregateRaw({
+     *   pipeline: [
+     *     { $match: { status: "registered" } },
+     *     { $group: { _id: "$country", total: { $sum: 1 } } }
+     *   ]
+     * })
+     */
+    aggregateRaw(args?: ProviderPayoutAggregateRawArgs): Prisma.PrismaPromise<JsonObject>
+
+
+    /**
+     * Count the number of ProviderPayouts.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProviderPayoutCountArgs} args - Arguments to filter ProviderPayouts to count.
+     * @example
+     * // Count the number of ProviderPayouts
+     * const count = await prisma.providerPayout.count({
+     *   where: {
+     *     // ... the filter for the ProviderPayouts we want to count
+     *   }
+     * })
+    **/
+    count<T extends ProviderPayoutCountArgs>(
+      args?: Subset<T, ProviderPayoutCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], ProviderPayoutCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a ProviderPayout.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProviderPayoutAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends ProviderPayoutAggregateArgs>(args: Subset<T, ProviderPayoutAggregateArgs>): Prisma.PrismaPromise<GetProviderPayoutAggregateType<T>>
+
+    /**
+     * Group by ProviderPayout.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProviderPayoutGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends ProviderPayoutGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: ProviderPayoutGroupByArgs['orderBy'] }
+        : { orderBy?: ProviderPayoutGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, ProviderPayoutGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetProviderPayoutGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the ProviderPayout model
+   */
+  readonly fields: ProviderPayoutFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for ProviderPayout.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__ProviderPayoutClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the ProviderPayout model
+   */
+  interface ProviderPayoutFieldRefs {
+    readonly id: FieldRef<"ProviderPayout", 'String'>
+    readonly providerId: FieldRef<"ProviderPayout", 'String'>
+    readonly amount: FieldRef<"ProviderPayout", 'Float'>
+    readonly reference: FieldRef<"ProviderPayout", 'String'>
+    readonly status: FieldRef<"ProviderPayout", 'String'>
+    readonly paidAt: FieldRef<"ProviderPayout", 'DateTime'>
+    readonly createdAt: FieldRef<"ProviderPayout", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * ProviderPayout findUnique
+   */
+  export type ProviderPayoutFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProviderPayout
+     */
+    select?: ProviderPayoutSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProviderPayout
+     */
+    omit?: ProviderPayoutOmit<ExtArgs> | null
+    /**
+     * Filter, which ProviderPayout to fetch.
+     */
+    where: ProviderPayoutWhereUniqueInput
+  }
+
+  /**
+   * ProviderPayout findUniqueOrThrow
+   */
+  export type ProviderPayoutFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProviderPayout
+     */
+    select?: ProviderPayoutSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProviderPayout
+     */
+    omit?: ProviderPayoutOmit<ExtArgs> | null
+    /**
+     * Filter, which ProviderPayout to fetch.
+     */
+    where: ProviderPayoutWhereUniqueInput
+  }
+
+  /**
+   * ProviderPayout findFirst
+   */
+  export type ProviderPayoutFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProviderPayout
+     */
+    select?: ProviderPayoutSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProviderPayout
+     */
+    omit?: ProviderPayoutOmit<ExtArgs> | null
+    /**
+     * Filter, which ProviderPayout to fetch.
+     */
+    where?: ProviderPayoutWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ProviderPayouts to fetch.
+     */
+    orderBy?: ProviderPayoutOrderByWithRelationInput | ProviderPayoutOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ProviderPayouts.
+     */
+    cursor?: ProviderPayoutWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ProviderPayouts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ProviderPayouts.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ProviderPayouts.
+     */
+    distinct?: ProviderPayoutScalarFieldEnum | ProviderPayoutScalarFieldEnum[]
+  }
+
+  /**
+   * ProviderPayout findFirstOrThrow
+   */
+  export type ProviderPayoutFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProviderPayout
+     */
+    select?: ProviderPayoutSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProviderPayout
+     */
+    omit?: ProviderPayoutOmit<ExtArgs> | null
+    /**
+     * Filter, which ProviderPayout to fetch.
+     */
+    where?: ProviderPayoutWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ProviderPayouts to fetch.
+     */
+    orderBy?: ProviderPayoutOrderByWithRelationInput | ProviderPayoutOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ProviderPayouts.
+     */
+    cursor?: ProviderPayoutWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ProviderPayouts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ProviderPayouts.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ProviderPayouts.
+     */
+    distinct?: ProviderPayoutScalarFieldEnum | ProviderPayoutScalarFieldEnum[]
+  }
+
+  /**
+   * ProviderPayout findMany
+   */
+  export type ProviderPayoutFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProviderPayout
+     */
+    select?: ProviderPayoutSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProviderPayout
+     */
+    omit?: ProviderPayoutOmit<ExtArgs> | null
+    /**
+     * Filter, which ProviderPayouts to fetch.
+     */
+    where?: ProviderPayoutWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ProviderPayouts to fetch.
+     */
+    orderBy?: ProviderPayoutOrderByWithRelationInput | ProviderPayoutOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing ProviderPayouts.
+     */
+    cursor?: ProviderPayoutWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ProviderPayouts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ProviderPayouts.
+     */
+    skip?: number
+    distinct?: ProviderPayoutScalarFieldEnum | ProviderPayoutScalarFieldEnum[]
+  }
+
+  /**
+   * ProviderPayout create
+   */
+  export type ProviderPayoutCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProviderPayout
+     */
+    select?: ProviderPayoutSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProviderPayout
+     */
+    omit?: ProviderPayoutOmit<ExtArgs> | null
+    /**
+     * The data needed to create a ProviderPayout.
+     */
+    data: XOR<ProviderPayoutCreateInput, ProviderPayoutUncheckedCreateInput>
+  }
+
+  /**
+   * ProviderPayout createMany
+   */
+  export type ProviderPayoutCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many ProviderPayouts.
+     */
+    data: ProviderPayoutCreateManyInput | ProviderPayoutCreateManyInput[]
+  }
+
+  /**
+   * ProviderPayout update
+   */
+  export type ProviderPayoutUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProviderPayout
+     */
+    select?: ProviderPayoutSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProviderPayout
+     */
+    omit?: ProviderPayoutOmit<ExtArgs> | null
+    /**
+     * The data needed to update a ProviderPayout.
+     */
+    data: XOR<ProviderPayoutUpdateInput, ProviderPayoutUncheckedUpdateInput>
+    /**
+     * Choose, which ProviderPayout to update.
+     */
+    where: ProviderPayoutWhereUniqueInput
+  }
+
+  /**
+   * ProviderPayout updateMany
+   */
+  export type ProviderPayoutUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update ProviderPayouts.
+     */
+    data: XOR<ProviderPayoutUpdateManyMutationInput, ProviderPayoutUncheckedUpdateManyInput>
+    /**
+     * Filter which ProviderPayouts to update
+     */
+    where?: ProviderPayoutWhereInput
+    /**
+     * Limit how many ProviderPayouts to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * ProviderPayout upsert
+   */
+  export type ProviderPayoutUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProviderPayout
+     */
+    select?: ProviderPayoutSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProviderPayout
+     */
+    omit?: ProviderPayoutOmit<ExtArgs> | null
+    /**
+     * The filter to search for the ProviderPayout to update in case it exists.
+     */
+    where: ProviderPayoutWhereUniqueInput
+    /**
+     * In case the ProviderPayout found by the `where` argument doesn't exist, create a new ProviderPayout with this data.
+     */
+    create: XOR<ProviderPayoutCreateInput, ProviderPayoutUncheckedCreateInput>
+    /**
+     * In case the ProviderPayout was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<ProviderPayoutUpdateInput, ProviderPayoutUncheckedUpdateInput>
+  }
+
+  /**
+   * ProviderPayout delete
+   */
+  export type ProviderPayoutDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProviderPayout
+     */
+    select?: ProviderPayoutSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProviderPayout
+     */
+    omit?: ProviderPayoutOmit<ExtArgs> | null
+    /**
+     * Filter which ProviderPayout to delete.
+     */
+    where: ProviderPayoutWhereUniqueInput
+  }
+
+  /**
+   * ProviderPayout deleteMany
+   */
+  export type ProviderPayoutDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ProviderPayouts to delete
+     */
+    where?: ProviderPayoutWhereInput
+    /**
+     * Limit how many ProviderPayouts to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * ProviderPayout findRaw
+   */
+  export type ProviderPayoutFindRawArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The query predicate filter. If unspecified, then all documents in the collection will match the predicate. ${@link https://docs.mongodb.com/manual/reference/operator/query MongoDB Docs}.
+     */
+    filter?: InputJsonValue
+    /**
+     * Additional options to pass to the `find` command ${@link https://docs.mongodb.com/manual/reference/command/find/#command-fields MongoDB Docs}.
+     */
+    options?: InputJsonValue
+  }
+
+  /**
+   * ProviderPayout aggregateRaw
+   */
+  export type ProviderPayoutAggregateRawArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * An array of aggregation stages to process and transform the document stream via the aggregation pipeline. ${@link https://docs.mongodb.com/manual/reference/operator/aggregation-pipeline MongoDB Docs}.
+     */
+    pipeline?: InputJsonValue[]
+    /**
+     * Additional options to pass to the `aggregate` command ${@link https://docs.mongodb.com/manual/reference/command/aggregate/#command-fields MongoDB Docs}.
+     */
+    options?: InputJsonValue
+  }
+
+  /**
+   * ProviderPayout without action
+   */
+  export type ProviderPayoutDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProviderPayout
+     */
+    select?: ProviderPayoutSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ProviderPayout
+     */
+    omit?: ProviderPayoutOmit<ExtArgs> | null
+  }
+
+
+  /**
    * Model Employee
    */
 
@@ -15140,6 +16321,972 @@ export namespace Prisma {
 
 
   /**
+   * Model CompanyWallet
+   */
+
+  export type AggregateCompanyWallet = {
+    _count: CompanyWalletCountAggregateOutputType | null
+    _avg: CompanyWalletAvgAggregateOutputType | null
+    _sum: CompanyWalletSumAggregateOutputType | null
+    _min: CompanyWalletMinAggregateOutputType | null
+    _max: CompanyWalletMaxAggregateOutputType | null
+  }
+
+  export type CompanyWalletAvgAggregateOutputType = {
+    balance: number | null
+  }
+
+  export type CompanyWalletSumAggregateOutputType = {
+    balance: number | null
+  }
+
+  export type CompanyWalletMinAggregateOutputType = {
+    id: string | null
+    balance: number | null
+    currency: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type CompanyWalletMaxAggregateOutputType = {
+    id: string | null
+    balance: number | null
+    currency: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type CompanyWalletCountAggregateOutputType = {
+    id: number
+    balance: number
+    currency: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type CompanyWalletAvgAggregateInputType = {
+    balance?: true
+  }
+
+  export type CompanyWalletSumAggregateInputType = {
+    balance?: true
+  }
+
+  export type CompanyWalletMinAggregateInputType = {
+    id?: true
+    balance?: true
+    currency?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type CompanyWalletMaxAggregateInputType = {
+    id?: true
+    balance?: true
+    currency?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type CompanyWalletCountAggregateInputType = {
+    id?: true
+    balance?: true
+    currency?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type CompanyWalletAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which CompanyWallet to aggregate.
+     */
+    where?: CompanyWalletWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CompanyWallets to fetch.
+     */
+    orderBy?: CompanyWalletOrderByWithRelationInput | CompanyWalletOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: CompanyWalletWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CompanyWallets from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CompanyWallets.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned CompanyWallets
+    **/
+    _count?: true | CompanyWalletCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: CompanyWalletAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: CompanyWalletSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: CompanyWalletMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: CompanyWalletMaxAggregateInputType
+  }
+
+  export type GetCompanyWalletAggregateType<T extends CompanyWalletAggregateArgs> = {
+        [P in keyof T & keyof AggregateCompanyWallet]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateCompanyWallet[P]>
+      : GetScalarType<T[P], AggregateCompanyWallet[P]>
+  }
+
+
+
+
+  export type CompanyWalletGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: CompanyWalletWhereInput
+    orderBy?: CompanyWalletOrderByWithAggregationInput | CompanyWalletOrderByWithAggregationInput[]
+    by: CompanyWalletScalarFieldEnum[] | CompanyWalletScalarFieldEnum
+    having?: CompanyWalletScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: CompanyWalletCountAggregateInputType | true
+    _avg?: CompanyWalletAvgAggregateInputType
+    _sum?: CompanyWalletSumAggregateInputType
+    _min?: CompanyWalletMinAggregateInputType
+    _max?: CompanyWalletMaxAggregateInputType
+  }
+
+  export type CompanyWalletGroupByOutputType = {
+    id: string
+    balance: number
+    currency: string
+    createdAt: Date
+    updatedAt: Date
+    _count: CompanyWalletCountAggregateOutputType | null
+    _avg: CompanyWalletAvgAggregateOutputType | null
+    _sum: CompanyWalletSumAggregateOutputType | null
+    _min: CompanyWalletMinAggregateOutputType | null
+    _max: CompanyWalletMaxAggregateOutputType | null
+  }
+
+  type GetCompanyWalletGroupByPayload<T extends CompanyWalletGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<CompanyWalletGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof CompanyWalletGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], CompanyWalletGroupByOutputType[P]>
+            : GetScalarType<T[P], CompanyWalletGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type CompanyWalletSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    balance?: boolean
+    currency?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["companyWallet"]>
+
+
+
+  export type CompanyWalletSelectScalar = {
+    id?: boolean
+    balance?: boolean
+    currency?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type CompanyWalletOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "balance" | "currency" | "createdAt" | "updatedAt", ExtArgs["result"]["companyWallet"]>
+
+  export type $CompanyWalletPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "CompanyWallet"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      balance: number
+      currency: string
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["companyWallet"]>
+    composites: {}
+  }
+
+  type CompanyWalletGetPayload<S extends boolean | null | undefined | CompanyWalletDefaultArgs> = $Result.GetResult<Prisma.$CompanyWalletPayload, S>
+
+  type CompanyWalletCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<CompanyWalletFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: CompanyWalletCountAggregateInputType | true
+    }
+
+  export interface CompanyWalletDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['CompanyWallet'], meta: { name: 'CompanyWallet' } }
+    /**
+     * Find zero or one CompanyWallet that matches the filter.
+     * @param {CompanyWalletFindUniqueArgs} args - Arguments to find a CompanyWallet
+     * @example
+     * // Get one CompanyWallet
+     * const companyWallet = await prisma.companyWallet.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends CompanyWalletFindUniqueArgs>(args: SelectSubset<T, CompanyWalletFindUniqueArgs<ExtArgs>>): Prisma__CompanyWalletClient<$Result.GetResult<Prisma.$CompanyWalletPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one CompanyWallet that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {CompanyWalletFindUniqueOrThrowArgs} args - Arguments to find a CompanyWallet
+     * @example
+     * // Get one CompanyWallet
+     * const companyWallet = await prisma.companyWallet.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends CompanyWalletFindUniqueOrThrowArgs>(args: SelectSubset<T, CompanyWalletFindUniqueOrThrowArgs<ExtArgs>>): Prisma__CompanyWalletClient<$Result.GetResult<Prisma.$CompanyWalletPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first CompanyWallet that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CompanyWalletFindFirstArgs} args - Arguments to find a CompanyWallet
+     * @example
+     * // Get one CompanyWallet
+     * const companyWallet = await prisma.companyWallet.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends CompanyWalletFindFirstArgs>(args?: SelectSubset<T, CompanyWalletFindFirstArgs<ExtArgs>>): Prisma__CompanyWalletClient<$Result.GetResult<Prisma.$CompanyWalletPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first CompanyWallet that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CompanyWalletFindFirstOrThrowArgs} args - Arguments to find a CompanyWallet
+     * @example
+     * // Get one CompanyWallet
+     * const companyWallet = await prisma.companyWallet.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends CompanyWalletFindFirstOrThrowArgs>(args?: SelectSubset<T, CompanyWalletFindFirstOrThrowArgs<ExtArgs>>): Prisma__CompanyWalletClient<$Result.GetResult<Prisma.$CompanyWalletPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more CompanyWallets that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CompanyWalletFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all CompanyWallets
+     * const companyWallets = await prisma.companyWallet.findMany()
+     * 
+     * // Get first 10 CompanyWallets
+     * const companyWallets = await prisma.companyWallet.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const companyWalletWithIdOnly = await prisma.companyWallet.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends CompanyWalletFindManyArgs>(args?: SelectSubset<T, CompanyWalletFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CompanyWalletPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a CompanyWallet.
+     * @param {CompanyWalletCreateArgs} args - Arguments to create a CompanyWallet.
+     * @example
+     * // Create one CompanyWallet
+     * const CompanyWallet = await prisma.companyWallet.create({
+     *   data: {
+     *     // ... data to create a CompanyWallet
+     *   }
+     * })
+     * 
+     */
+    create<T extends CompanyWalletCreateArgs>(args: SelectSubset<T, CompanyWalletCreateArgs<ExtArgs>>): Prisma__CompanyWalletClient<$Result.GetResult<Prisma.$CompanyWalletPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many CompanyWallets.
+     * @param {CompanyWalletCreateManyArgs} args - Arguments to create many CompanyWallets.
+     * @example
+     * // Create many CompanyWallets
+     * const companyWallet = await prisma.companyWallet.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends CompanyWalletCreateManyArgs>(args?: SelectSubset<T, CompanyWalletCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a CompanyWallet.
+     * @param {CompanyWalletDeleteArgs} args - Arguments to delete one CompanyWallet.
+     * @example
+     * // Delete one CompanyWallet
+     * const CompanyWallet = await prisma.companyWallet.delete({
+     *   where: {
+     *     // ... filter to delete one CompanyWallet
+     *   }
+     * })
+     * 
+     */
+    delete<T extends CompanyWalletDeleteArgs>(args: SelectSubset<T, CompanyWalletDeleteArgs<ExtArgs>>): Prisma__CompanyWalletClient<$Result.GetResult<Prisma.$CompanyWalletPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one CompanyWallet.
+     * @param {CompanyWalletUpdateArgs} args - Arguments to update one CompanyWallet.
+     * @example
+     * // Update one CompanyWallet
+     * const companyWallet = await prisma.companyWallet.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends CompanyWalletUpdateArgs>(args: SelectSubset<T, CompanyWalletUpdateArgs<ExtArgs>>): Prisma__CompanyWalletClient<$Result.GetResult<Prisma.$CompanyWalletPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more CompanyWallets.
+     * @param {CompanyWalletDeleteManyArgs} args - Arguments to filter CompanyWallets to delete.
+     * @example
+     * // Delete a few CompanyWallets
+     * const { count } = await prisma.companyWallet.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends CompanyWalletDeleteManyArgs>(args?: SelectSubset<T, CompanyWalletDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more CompanyWallets.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CompanyWalletUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many CompanyWallets
+     * const companyWallet = await prisma.companyWallet.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends CompanyWalletUpdateManyArgs>(args: SelectSubset<T, CompanyWalletUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one CompanyWallet.
+     * @param {CompanyWalletUpsertArgs} args - Arguments to update or create a CompanyWallet.
+     * @example
+     * // Update or create a CompanyWallet
+     * const companyWallet = await prisma.companyWallet.upsert({
+     *   create: {
+     *     // ... data to create a CompanyWallet
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the CompanyWallet we want to update
+     *   }
+     * })
+     */
+    upsert<T extends CompanyWalletUpsertArgs>(args: SelectSubset<T, CompanyWalletUpsertArgs<ExtArgs>>): Prisma__CompanyWalletClient<$Result.GetResult<Prisma.$CompanyWalletPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more CompanyWallets that matches the filter.
+     * @param {CompanyWalletFindRawArgs} args - Select which filters you would like to apply.
+     * @example
+     * const companyWallet = await prisma.companyWallet.findRaw({
+     *   filter: { age: { $gt: 25 } }
+     * })
+     */
+    findRaw(args?: CompanyWalletFindRawArgs): Prisma.PrismaPromise<JsonObject>
+
+    /**
+     * Perform aggregation operations on a CompanyWallet.
+     * @param {CompanyWalletAggregateRawArgs} args - Select which aggregations you would like to apply.
+     * @example
+     * const companyWallet = await prisma.companyWallet.aggregateRaw({
+     *   pipeline: [
+     *     { $match: { status: "registered" } },
+     *     { $group: { _id: "$country", total: { $sum: 1 } } }
+     *   ]
+     * })
+     */
+    aggregateRaw(args?: CompanyWalletAggregateRawArgs): Prisma.PrismaPromise<JsonObject>
+
+
+    /**
+     * Count the number of CompanyWallets.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CompanyWalletCountArgs} args - Arguments to filter CompanyWallets to count.
+     * @example
+     * // Count the number of CompanyWallets
+     * const count = await prisma.companyWallet.count({
+     *   where: {
+     *     // ... the filter for the CompanyWallets we want to count
+     *   }
+     * })
+    **/
+    count<T extends CompanyWalletCountArgs>(
+      args?: Subset<T, CompanyWalletCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], CompanyWalletCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a CompanyWallet.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CompanyWalletAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends CompanyWalletAggregateArgs>(args: Subset<T, CompanyWalletAggregateArgs>): Prisma.PrismaPromise<GetCompanyWalletAggregateType<T>>
+
+    /**
+     * Group by CompanyWallet.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CompanyWalletGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends CompanyWalletGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: CompanyWalletGroupByArgs['orderBy'] }
+        : { orderBy?: CompanyWalletGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, CompanyWalletGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetCompanyWalletGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the CompanyWallet model
+   */
+  readonly fields: CompanyWalletFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for CompanyWallet.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__CompanyWalletClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the CompanyWallet model
+   */
+  interface CompanyWalletFieldRefs {
+    readonly id: FieldRef<"CompanyWallet", 'String'>
+    readonly balance: FieldRef<"CompanyWallet", 'Float'>
+    readonly currency: FieldRef<"CompanyWallet", 'String'>
+    readonly createdAt: FieldRef<"CompanyWallet", 'DateTime'>
+    readonly updatedAt: FieldRef<"CompanyWallet", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * CompanyWallet findUnique
+   */
+  export type CompanyWalletFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CompanyWallet
+     */
+    select?: CompanyWalletSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CompanyWallet
+     */
+    omit?: CompanyWalletOmit<ExtArgs> | null
+    /**
+     * Filter, which CompanyWallet to fetch.
+     */
+    where: CompanyWalletWhereUniqueInput
+  }
+
+  /**
+   * CompanyWallet findUniqueOrThrow
+   */
+  export type CompanyWalletFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CompanyWallet
+     */
+    select?: CompanyWalletSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CompanyWallet
+     */
+    omit?: CompanyWalletOmit<ExtArgs> | null
+    /**
+     * Filter, which CompanyWallet to fetch.
+     */
+    where: CompanyWalletWhereUniqueInput
+  }
+
+  /**
+   * CompanyWallet findFirst
+   */
+  export type CompanyWalletFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CompanyWallet
+     */
+    select?: CompanyWalletSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CompanyWallet
+     */
+    omit?: CompanyWalletOmit<ExtArgs> | null
+    /**
+     * Filter, which CompanyWallet to fetch.
+     */
+    where?: CompanyWalletWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CompanyWallets to fetch.
+     */
+    orderBy?: CompanyWalletOrderByWithRelationInput | CompanyWalletOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for CompanyWallets.
+     */
+    cursor?: CompanyWalletWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CompanyWallets from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CompanyWallets.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of CompanyWallets.
+     */
+    distinct?: CompanyWalletScalarFieldEnum | CompanyWalletScalarFieldEnum[]
+  }
+
+  /**
+   * CompanyWallet findFirstOrThrow
+   */
+  export type CompanyWalletFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CompanyWallet
+     */
+    select?: CompanyWalletSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CompanyWallet
+     */
+    omit?: CompanyWalletOmit<ExtArgs> | null
+    /**
+     * Filter, which CompanyWallet to fetch.
+     */
+    where?: CompanyWalletWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CompanyWallets to fetch.
+     */
+    orderBy?: CompanyWalletOrderByWithRelationInput | CompanyWalletOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for CompanyWallets.
+     */
+    cursor?: CompanyWalletWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CompanyWallets from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CompanyWallets.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of CompanyWallets.
+     */
+    distinct?: CompanyWalletScalarFieldEnum | CompanyWalletScalarFieldEnum[]
+  }
+
+  /**
+   * CompanyWallet findMany
+   */
+  export type CompanyWalletFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CompanyWallet
+     */
+    select?: CompanyWalletSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CompanyWallet
+     */
+    omit?: CompanyWalletOmit<ExtArgs> | null
+    /**
+     * Filter, which CompanyWallets to fetch.
+     */
+    where?: CompanyWalletWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CompanyWallets to fetch.
+     */
+    orderBy?: CompanyWalletOrderByWithRelationInput | CompanyWalletOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing CompanyWallets.
+     */
+    cursor?: CompanyWalletWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CompanyWallets from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CompanyWallets.
+     */
+    skip?: number
+    distinct?: CompanyWalletScalarFieldEnum | CompanyWalletScalarFieldEnum[]
+  }
+
+  /**
+   * CompanyWallet create
+   */
+  export type CompanyWalletCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CompanyWallet
+     */
+    select?: CompanyWalletSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CompanyWallet
+     */
+    omit?: CompanyWalletOmit<ExtArgs> | null
+    /**
+     * The data needed to create a CompanyWallet.
+     */
+    data: XOR<CompanyWalletCreateInput, CompanyWalletUncheckedCreateInput>
+  }
+
+  /**
+   * CompanyWallet createMany
+   */
+  export type CompanyWalletCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many CompanyWallets.
+     */
+    data: CompanyWalletCreateManyInput | CompanyWalletCreateManyInput[]
+  }
+
+  /**
+   * CompanyWallet update
+   */
+  export type CompanyWalletUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CompanyWallet
+     */
+    select?: CompanyWalletSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CompanyWallet
+     */
+    omit?: CompanyWalletOmit<ExtArgs> | null
+    /**
+     * The data needed to update a CompanyWallet.
+     */
+    data: XOR<CompanyWalletUpdateInput, CompanyWalletUncheckedUpdateInput>
+    /**
+     * Choose, which CompanyWallet to update.
+     */
+    where: CompanyWalletWhereUniqueInput
+  }
+
+  /**
+   * CompanyWallet updateMany
+   */
+  export type CompanyWalletUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update CompanyWallets.
+     */
+    data: XOR<CompanyWalletUpdateManyMutationInput, CompanyWalletUncheckedUpdateManyInput>
+    /**
+     * Filter which CompanyWallets to update
+     */
+    where?: CompanyWalletWhereInput
+    /**
+     * Limit how many CompanyWallets to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * CompanyWallet upsert
+   */
+  export type CompanyWalletUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CompanyWallet
+     */
+    select?: CompanyWalletSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CompanyWallet
+     */
+    omit?: CompanyWalletOmit<ExtArgs> | null
+    /**
+     * The filter to search for the CompanyWallet to update in case it exists.
+     */
+    where: CompanyWalletWhereUniqueInput
+    /**
+     * In case the CompanyWallet found by the `where` argument doesn't exist, create a new CompanyWallet with this data.
+     */
+    create: XOR<CompanyWalletCreateInput, CompanyWalletUncheckedCreateInput>
+    /**
+     * In case the CompanyWallet was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<CompanyWalletUpdateInput, CompanyWalletUncheckedUpdateInput>
+  }
+
+  /**
+   * CompanyWallet delete
+   */
+  export type CompanyWalletDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CompanyWallet
+     */
+    select?: CompanyWalletSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CompanyWallet
+     */
+    omit?: CompanyWalletOmit<ExtArgs> | null
+    /**
+     * Filter which CompanyWallet to delete.
+     */
+    where: CompanyWalletWhereUniqueInput
+  }
+
+  /**
+   * CompanyWallet deleteMany
+   */
+  export type CompanyWalletDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which CompanyWallets to delete
+     */
+    where?: CompanyWalletWhereInput
+    /**
+     * Limit how many CompanyWallets to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * CompanyWallet findRaw
+   */
+  export type CompanyWalletFindRawArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The query predicate filter. If unspecified, then all documents in the collection will match the predicate. ${@link https://docs.mongodb.com/manual/reference/operator/query MongoDB Docs}.
+     */
+    filter?: InputJsonValue
+    /**
+     * Additional options to pass to the `find` command ${@link https://docs.mongodb.com/manual/reference/command/find/#command-fields MongoDB Docs}.
+     */
+    options?: InputJsonValue
+  }
+
+  /**
+   * CompanyWallet aggregateRaw
+   */
+  export type CompanyWalletAggregateRawArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * An array of aggregation stages to process and transform the document stream via the aggregation pipeline. ${@link https://docs.mongodb.com/manual/reference/operator/aggregation-pipeline MongoDB Docs}.
+     */
+    pipeline?: InputJsonValue[]
+    /**
+     * Additional options to pass to the `aggregate` command ${@link https://docs.mongodb.com/manual/reference/command/aggregate/#command-fields MongoDB Docs}.
+     */
+    options?: InputJsonValue
+  }
+
+  /**
+   * CompanyWallet without action
+   */
+  export type CompanyWalletDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CompanyWallet
+     */
+    select?: CompanyWalletSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CompanyWallet
+     */
+    omit?: CompanyWalletOmit<ExtArgs> | null
+  }
+
+
+  /**
    * Model AppSetting
    */
 
@@ -16173,6 +18320,7 @@ export namespace Prisma {
     email: 'email',
     accountNumber: 'accountNumber',
     bankName: 'bankName',
+    bankCode: 'bankCode',
     agreedAmount: 'agreedAmount',
     percentageToAdd: 'percentageToAdd',
     providerCutPercentage: 'providerCutPercentage',
@@ -16220,6 +18368,19 @@ export namespace Prisma {
   export type ProviderCreditScalarFieldEnum = (typeof ProviderCreditScalarFieldEnum)[keyof typeof ProviderCreditScalarFieldEnum]
 
 
+  export const ProviderPayoutScalarFieldEnum: {
+    id: 'id',
+    providerId: 'providerId',
+    amount: 'amount',
+    reference: 'reference',
+    status: 'status',
+    paidAt: 'paidAt',
+    createdAt: 'createdAt'
+  };
+
+  export type ProviderPayoutScalarFieldEnum = (typeof ProviderPayoutScalarFieldEnum)[keyof typeof ProviderPayoutScalarFieldEnum]
+
+
   export const EmployeeScalarFieldEnum: {
     id: 'id',
     employeeNumber: 'employeeNumber',
@@ -16245,6 +18406,17 @@ export namespace Prisma {
   };
 
   export type AdminActivityScalarFieldEnum = (typeof AdminActivityScalarFieldEnum)[keyof typeof AdminActivityScalarFieldEnum]
+
+
+  export const CompanyWalletScalarFieldEnum: {
+    id: 'id',
+    balance: 'balance',
+    currency: 'currency',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type CompanyWalletScalarFieldEnum = (typeof CompanyWalletScalarFieldEnum)[keyof typeof CompanyWalletScalarFieldEnum]
 
 
   export const AppSettingScalarFieldEnum: {
@@ -16857,6 +19029,7 @@ export namespace Prisma {
     email?: StringNullableFilter<"Provider"> | string | null
     accountNumber?: StringNullableFilter<"Provider"> | string | null
     bankName?: StringNullableFilter<"Provider"> | string | null
+    bankCode?: StringNullableFilter<"Provider"> | string | null
     agreedAmount?: FloatNullableFilter<"Provider"> | number | null
     percentageToAdd?: FloatFilter<"Provider"> | number
     providerCutPercentage?: FloatFilter<"Provider"> | number
@@ -16874,6 +19047,7 @@ export namespace Prisma {
     email?: SortOrder
     accountNumber?: SortOrder
     bankName?: SortOrder
+    bankCode?: SortOrder
     agreedAmount?: SortOrder
     percentageToAdd?: SortOrder
     providerCutPercentage?: SortOrder
@@ -16894,6 +19068,7 @@ export namespace Prisma {
     email?: StringNullableFilter<"Provider"> | string | null
     accountNumber?: StringNullableFilter<"Provider"> | string | null
     bankName?: StringNullableFilter<"Provider"> | string | null
+    bankCode?: StringNullableFilter<"Provider"> | string | null
     agreedAmount?: FloatNullableFilter<"Provider"> | number | null
     percentageToAdd?: FloatFilter<"Provider"> | number
     providerCutPercentage?: FloatFilter<"Provider"> | number
@@ -16911,6 +19086,7 @@ export namespace Prisma {
     email?: SortOrder
     accountNumber?: SortOrder
     bankName?: SortOrder
+    bankCode?: SortOrder
     agreedAmount?: SortOrder
     percentageToAdd?: SortOrder
     providerCutPercentage?: SortOrder
@@ -16935,6 +19111,7 @@ export namespace Prisma {
     email?: StringNullableWithAggregatesFilter<"Provider"> | string | null
     accountNumber?: StringNullableWithAggregatesFilter<"Provider"> | string | null
     bankName?: StringNullableWithAggregatesFilter<"Provider"> | string | null
+    bankCode?: StringNullableWithAggregatesFilter<"Provider"> | string | null
     agreedAmount?: FloatNullableWithAggregatesFilter<"Provider"> | number | null
     percentageToAdd?: FloatWithAggregatesFilter<"Provider"> | number
     providerCutPercentage?: FloatWithAggregatesFilter<"Provider"> | number
@@ -17119,6 +19296,70 @@ export namespace Prisma {
     createdAt?: DateTimeWithAggregatesFilter<"ProviderCredit"> | Date | string
   }
 
+  export type ProviderPayoutWhereInput = {
+    AND?: ProviderPayoutWhereInput | ProviderPayoutWhereInput[]
+    OR?: ProviderPayoutWhereInput[]
+    NOT?: ProviderPayoutWhereInput | ProviderPayoutWhereInput[]
+    id?: StringFilter<"ProviderPayout"> | string
+    providerId?: StringFilter<"ProviderPayout"> | string
+    amount?: FloatFilter<"ProviderPayout"> | number
+    reference?: StringFilter<"ProviderPayout"> | string
+    status?: StringFilter<"ProviderPayout"> | string
+    paidAt?: DateTimeFilter<"ProviderPayout"> | Date | string
+    createdAt?: DateTimeFilter<"ProviderPayout"> | Date | string
+  }
+
+  export type ProviderPayoutOrderByWithRelationInput = {
+    id?: SortOrder
+    providerId?: SortOrder
+    amount?: SortOrder
+    reference?: SortOrder
+    status?: SortOrder
+    paidAt?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type ProviderPayoutWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: ProviderPayoutWhereInput | ProviderPayoutWhereInput[]
+    OR?: ProviderPayoutWhereInput[]
+    NOT?: ProviderPayoutWhereInput | ProviderPayoutWhereInput[]
+    providerId?: StringFilter<"ProviderPayout"> | string
+    amount?: FloatFilter<"ProviderPayout"> | number
+    reference?: StringFilter<"ProviderPayout"> | string
+    status?: StringFilter<"ProviderPayout"> | string
+    paidAt?: DateTimeFilter<"ProviderPayout"> | Date | string
+    createdAt?: DateTimeFilter<"ProviderPayout"> | Date | string
+  }, "id">
+
+  export type ProviderPayoutOrderByWithAggregationInput = {
+    id?: SortOrder
+    providerId?: SortOrder
+    amount?: SortOrder
+    reference?: SortOrder
+    status?: SortOrder
+    paidAt?: SortOrder
+    createdAt?: SortOrder
+    _count?: ProviderPayoutCountOrderByAggregateInput
+    _avg?: ProviderPayoutAvgOrderByAggregateInput
+    _max?: ProviderPayoutMaxOrderByAggregateInput
+    _min?: ProviderPayoutMinOrderByAggregateInput
+    _sum?: ProviderPayoutSumOrderByAggregateInput
+  }
+
+  export type ProviderPayoutScalarWhereWithAggregatesInput = {
+    AND?: ProviderPayoutScalarWhereWithAggregatesInput | ProviderPayoutScalarWhereWithAggregatesInput[]
+    OR?: ProviderPayoutScalarWhereWithAggregatesInput[]
+    NOT?: ProviderPayoutScalarWhereWithAggregatesInput | ProviderPayoutScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"ProviderPayout"> | string
+    providerId?: StringWithAggregatesFilter<"ProviderPayout"> | string
+    amount?: FloatWithAggregatesFilter<"ProviderPayout"> | number
+    reference?: StringWithAggregatesFilter<"ProviderPayout"> | string
+    status?: StringWithAggregatesFilter<"ProviderPayout"> | string
+    paidAt?: DateTimeWithAggregatesFilter<"ProviderPayout"> | Date | string
+    createdAt?: DateTimeWithAggregatesFilter<"ProviderPayout"> | Date | string
+  }
+
   export type EmployeeWhereInput = {
     AND?: EmployeeWhereInput | EmployeeWhereInput[]
     OR?: EmployeeWhereInput[]
@@ -17246,6 +19487,60 @@ export namespace Prisma {
     action?: StringWithAggregatesFilter<"AdminActivity"> | string
     ip?: StringNullableWithAggregatesFilter<"AdminActivity"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"AdminActivity"> | Date | string
+  }
+
+  export type CompanyWalletWhereInput = {
+    AND?: CompanyWalletWhereInput | CompanyWalletWhereInput[]
+    OR?: CompanyWalletWhereInput[]
+    NOT?: CompanyWalletWhereInput | CompanyWalletWhereInput[]
+    id?: StringFilter<"CompanyWallet"> | string
+    balance?: FloatFilter<"CompanyWallet"> | number
+    currency?: StringFilter<"CompanyWallet"> | string
+    createdAt?: DateTimeFilter<"CompanyWallet"> | Date | string
+    updatedAt?: DateTimeFilter<"CompanyWallet"> | Date | string
+  }
+
+  export type CompanyWalletOrderByWithRelationInput = {
+    id?: SortOrder
+    balance?: SortOrder
+    currency?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type CompanyWalletWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: CompanyWalletWhereInput | CompanyWalletWhereInput[]
+    OR?: CompanyWalletWhereInput[]
+    NOT?: CompanyWalletWhereInput | CompanyWalletWhereInput[]
+    balance?: FloatFilter<"CompanyWallet"> | number
+    currency?: StringFilter<"CompanyWallet"> | string
+    createdAt?: DateTimeFilter<"CompanyWallet"> | Date | string
+    updatedAt?: DateTimeFilter<"CompanyWallet"> | Date | string
+  }, "id">
+
+  export type CompanyWalletOrderByWithAggregationInput = {
+    id?: SortOrder
+    balance?: SortOrder
+    currency?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: CompanyWalletCountOrderByAggregateInput
+    _avg?: CompanyWalletAvgOrderByAggregateInput
+    _max?: CompanyWalletMaxOrderByAggregateInput
+    _min?: CompanyWalletMinOrderByAggregateInput
+    _sum?: CompanyWalletSumOrderByAggregateInput
+  }
+
+  export type CompanyWalletScalarWhereWithAggregatesInput = {
+    AND?: CompanyWalletScalarWhereWithAggregatesInput | CompanyWalletScalarWhereWithAggregatesInput[]
+    OR?: CompanyWalletScalarWhereWithAggregatesInput[]
+    NOT?: CompanyWalletScalarWhereWithAggregatesInput | CompanyWalletScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"CompanyWallet"> | string
+    balance?: FloatWithAggregatesFilter<"CompanyWallet"> | number
+    currency?: StringWithAggregatesFilter<"CompanyWallet"> | string
+    createdAt?: DateTimeWithAggregatesFilter<"CompanyWallet"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"CompanyWallet"> | Date | string
   }
 
   export type AppSettingWhereInput = {
@@ -17844,6 +20139,7 @@ export namespace Prisma {
     email?: string | null
     accountNumber?: string | null
     bankName?: string | null
+    bankCode?: string | null
     agreedAmount?: number | null
     percentageToAdd?: number
     providerCutPercentage?: number
@@ -17861,6 +20157,7 @@ export namespace Prisma {
     email?: string | null
     accountNumber?: string | null
     bankName?: string | null
+    bankCode?: string | null
     agreedAmount?: number | null
     percentageToAdd?: number
     providerCutPercentage?: number
@@ -17877,6 +20174,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     accountNumber?: NullableStringFieldUpdateOperationsInput | string | null
     bankName?: NullableStringFieldUpdateOperationsInput | string | null
+    bankCode?: NullableStringFieldUpdateOperationsInput | string | null
     agreedAmount?: NullableFloatFieldUpdateOperationsInput | number | null
     percentageToAdd?: FloatFieldUpdateOperationsInput | number
     providerCutPercentage?: FloatFieldUpdateOperationsInput | number
@@ -17893,6 +20191,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     accountNumber?: NullableStringFieldUpdateOperationsInput | string | null
     bankName?: NullableStringFieldUpdateOperationsInput | string | null
+    bankCode?: NullableStringFieldUpdateOperationsInput | string | null
     agreedAmount?: NullableFloatFieldUpdateOperationsInput | number | null
     percentageToAdd?: FloatFieldUpdateOperationsInput | number
     providerCutPercentage?: FloatFieldUpdateOperationsInput | number
@@ -17910,6 +20209,7 @@ export namespace Prisma {
     email?: string | null
     accountNumber?: string | null
     bankName?: string | null
+    bankCode?: string | null
     agreedAmount?: number | null
     percentageToAdd?: number
     providerCutPercentage?: number
@@ -17925,6 +20225,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     accountNumber?: NullableStringFieldUpdateOperationsInput | string | null
     bankName?: NullableStringFieldUpdateOperationsInput | string | null
+    bankCode?: NullableStringFieldUpdateOperationsInput | string | null
     agreedAmount?: NullableFloatFieldUpdateOperationsInput | number | null
     percentageToAdd?: FloatFieldUpdateOperationsInput | number
     providerCutPercentage?: FloatFieldUpdateOperationsInput | number
@@ -17940,6 +20241,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     accountNumber?: NullableStringFieldUpdateOperationsInput | string | null
     bankName?: NullableStringFieldUpdateOperationsInput | string | null
+    bankCode?: NullableStringFieldUpdateOperationsInput | string | null
     agreedAmount?: NullableFloatFieldUpdateOperationsInput | number | null
     percentageToAdd?: FloatFieldUpdateOperationsInput | number
     providerCutPercentage?: FloatFieldUpdateOperationsInput | number
@@ -18118,6 +20420,72 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type ProviderPayoutCreateInput = {
+    id?: string
+    providerId: string
+    amount: number
+    reference: string
+    status: string
+    paidAt?: Date | string
+    createdAt?: Date | string
+  }
+
+  export type ProviderPayoutUncheckedCreateInput = {
+    id?: string
+    providerId: string
+    amount: number
+    reference: string
+    status: string
+    paidAt?: Date | string
+    createdAt?: Date | string
+  }
+
+  export type ProviderPayoutUpdateInput = {
+    providerId?: StringFieldUpdateOperationsInput | string
+    amount?: FloatFieldUpdateOperationsInput | number
+    reference?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    paidAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ProviderPayoutUncheckedUpdateInput = {
+    providerId?: StringFieldUpdateOperationsInput | string
+    amount?: FloatFieldUpdateOperationsInput | number
+    reference?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    paidAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ProviderPayoutCreateManyInput = {
+    id?: string
+    providerId: string
+    amount: number
+    reference: string
+    status: string
+    paidAt?: Date | string
+    createdAt?: Date | string
+  }
+
+  export type ProviderPayoutUpdateManyMutationInput = {
+    providerId?: StringFieldUpdateOperationsInput | string
+    amount?: FloatFieldUpdateOperationsInput | number
+    reference?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    paidAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ProviderPayoutUncheckedUpdateManyInput = {
+    providerId?: StringFieldUpdateOperationsInput | string
+    amount?: FloatFieldUpdateOperationsInput | number
+    reference?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    paidAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type EmployeeCreateInput = {
     id?: string
     employeeNumber: string
@@ -18255,6 +20623,58 @@ export namespace Prisma {
     action?: StringFieldUpdateOperationsInput | string
     ip?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CompanyWalletCreateInput = {
+    id?: string
+    balance?: number
+    currency?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type CompanyWalletUncheckedCreateInput = {
+    id?: string
+    balance?: number
+    currency?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type CompanyWalletUpdateInput = {
+    balance?: FloatFieldUpdateOperationsInput | number
+    currency?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CompanyWalletUncheckedUpdateInput = {
+    balance?: FloatFieldUpdateOperationsInput | number
+    currency?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CompanyWalletCreateManyInput = {
+    id?: string
+    balance?: number
+    currency?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type CompanyWalletUpdateManyMutationInput = {
+    balance?: FloatFieldUpdateOperationsInput | number
+    currency?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CompanyWalletUncheckedUpdateManyInput = {
+    balance?: FloatFieldUpdateOperationsInput | number
+    currency?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type AppSettingCreateInput = {
@@ -18800,6 +21220,7 @@ export namespace Prisma {
     email?: SortOrder
     accountNumber?: SortOrder
     bankName?: SortOrder
+    bankCode?: SortOrder
     agreedAmount?: SortOrder
     percentageToAdd?: SortOrder
     providerCutPercentage?: SortOrder
@@ -18822,6 +21243,7 @@ export namespace Prisma {
     email?: SortOrder
     accountNumber?: SortOrder
     bankName?: SortOrder
+    bankCode?: SortOrder
     agreedAmount?: SortOrder
     percentageToAdd?: SortOrder
     providerCutPercentage?: SortOrder
@@ -18838,6 +21260,7 @@ export namespace Prisma {
     email?: SortOrder
     accountNumber?: SortOrder
     bankName?: SortOrder
+    bankCode?: SortOrder
     agreedAmount?: SortOrder
     percentageToAdd?: SortOrder
     providerCutPercentage?: SortOrder
@@ -18962,6 +21385,44 @@ export namespace Prisma {
     amount?: SortOrder
   }
 
+  export type ProviderPayoutCountOrderByAggregateInput = {
+    id?: SortOrder
+    providerId?: SortOrder
+    amount?: SortOrder
+    reference?: SortOrder
+    status?: SortOrder
+    paidAt?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type ProviderPayoutAvgOrderByAggregateInput = {
+    amount?: SortOrder
+  }
+
+  export type ProviderPayoutMaxOrderByAggregateInput = {
+    id?: SortOrder
+    providerId?: SortOrder
+    amount?: SortOrder
+    reference?: SortOrder
+    status?: SortOrder
+    paidAt?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type ProviderPayoutMinOrderByAggregateInput = {
+    id?: SortOrder
+    providerId?: SortOrder
+    amount?: SortOrder
+    reference?: SortOrder
+    status?: SortOrder
+    paidAt?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type ProviderPayoutSumOrderByAggregateInput = {
+    amount?: SortOrder
+  }
+
   export type EmployeeCountOrderByAggregateInput = {
     id?: SortOrder
     employeeNumber?: SortOrder
@@ -19023,6 +21484,38 @@ export namespace Prisma {
     action?: SortOrder
     ip?: SortOrder
     createdAt?: SortOrder
+  }
+
+  export type CompanyWalletCountOrderByAggregateInput = {
+    id?: SortOrder
+    balance?: SortOrder
+    currency?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type CompanyWalletAvgOrderByAggregateInput = {
+    balance?: SortOrder
+  }
+
+  export type CompanyWalletMaxOrderByAggregateInput = {
+    id?: SortOrder
+    balance?: SortOrder
+    currency?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type CompanyWalletMinOrderByAggregateInput = {
+    id?: SortOrder
+    balance?: SortOrder
+    currency?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type CompanyWalletSumOrderByAggregateInput = {
+    balance?: SortOrder
   }
 
   export type AppSettingCountOrderByAggregateInput = {
@@ -19586,6 +22079,7 @@ export namespace Prisma {
     email?: string | null
     accountNumber?: string | null
     bankName?: string | null
+    bankCode?: string | null
     agreedAmount?: number | null
     percentageToAdd?: number
     providerCutPercentage?: number
@@ -19602,6 +22096,7 @@ export namespace Prisma {
     email?: string | null
     accountNumber?: string | null
     bankName?: string | null
+    bankCode?: string | null
     agreedAmount?: number | null
     percentageToAdd?: number
     providerCutPercentage?: number
@@ -19633,6 +22128,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     accountNumber?: NullableStringFieldUpdateOperationsInput | string | null
     bankName?: NullableStringFieldUpdateOperationsInput | string | null
+    bankCode?: NullableStringFieldUpdateOperationsInput | string | null
     agreedAmount?: NullableFloatFieldUpdateOperationsInput | number | null
     percentageToAdd?: FloatFieldUpdateOperationsInput | number
     providerCutPercentage?: FloatFieldUpdateOperationsInput | number
@@ -19648,6 +22144,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     accountNumber?: NullableStringFieldUpdateOperationsInput | string | null
     bankName?: NullableStringFieldUpdateOperationsInput | string | null
+    bankCode?: NullableStringFieldUpdateOperationsInput | string | null
     agreedAmount?: NullableFloatFieldUpdateOperationsInput | number | null
     percentageToAdd?: FloatFieldUpdateOperationsInput | number
     providerCutPercentage?: FloatFieldUpdateOperationsInput | number

@@ -195,6 +195,15 @@ export class AdminController {
     }
   }
 
+  @Get('loans/balance')
+  async getCompanyBalance() {
+    try {
+      return await firstValueFrom(this.loanClient.send('loan-company-balance', {}));
+    } catch (err) {
+      handleLoanError(err);
+    }
+  }
+
   @Get('loans')
   async getAllLoans() {
     try {

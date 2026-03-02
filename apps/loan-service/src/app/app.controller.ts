@@ -36,6 +36,11 @@ export class AppController {
     return this.appService.approveLoan(loanId);
   }
 
+  @MessagePattern('loan-company-balance')
+  getCompanyBalance() {
+    return this.appService.getCompanyBalance();
+  }
+
   @MessagePattern('loan-reject')
   rejectLoan(@Payload() loanId: string) {
     return this.appService.rejectLoan(loanId);

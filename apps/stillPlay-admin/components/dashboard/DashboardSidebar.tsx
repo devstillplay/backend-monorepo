@@ -1,6 +1,7 @@
 "use client";
 
 import AccountBalanceOutlinedIcon from "@mui/icons-material/AccountBalanceOutlined";
+import SendOutlinedIcon from "@mui/icons-material/SendOutlined";
 import DashboardOutlinedIcon from "@mui/icons-material/DashboardOutlined";
 import BadgeOutlinedIcon from "@mui/icons-material/BadgeOutlined";
 import LogoutIcon from "@mui/icons-material/Logout";
@@ -37,6 +38,11 @@ const navItems = [
     label: "Providers",
     href: "/dashboard/providers",
     icon: <AccountBalanceOutlinedIcon />,
+  },
+  {
+    label: "Disbursement",
+    href: "/dashboard/disbursement",
+    icon: <SendOutlinedIcon />,
   },
   {
     label: "Staff",

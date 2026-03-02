@@ -8,13 +8,18 @@ import {
   listAdminActivity,
   recordAdminActivity,
   listProviders,
+  getBudpayBanks,
+  listProvidersForDisbursement,
+  executeDisbursement,
   createProvider,
+  deleteProvider,
   listEmployees,
   createEmployee,
   getLoanEligibility,
   getUserLoanHistory,
   getUserRepayments,
   getUserWallet,
+  getCompanyBalance,
   requestLoanForUser,
   approveLoan,
   rejectLoan,
@@ -34,6 +39,7 @@ export const adminKeys = {
   employees: () => [...adminKeys.all, "employees"] as const,
   activity: () => [...adminKeys.all, "activity"] as const,
   settings: () => [...adminKeys.all, "settings"] as const,
+  companyBalance: () => [...adminKeys.all, "companyBalance"] as const,
   loans: {
     all: () => [...adminKeys.all, "loans", "all"] as const,
     allRepayments: () => [...adminKeys.all, "loans", "repayments", "all"] as const,
@@ -47,6 +53,8 @@ export const adminKeys = {
 export const providerKeys = {
   all: ["providers"] as const,
   list: () => [...providerKeys.all, "list"] as const,
+  disbursement: () => [...providerKeys.all, "disbursement"] as const,
+  banks: (currency?: string) => [...providerKeys.all, "banks", currency ?? "NGN"] as const,
 };
 
 /** Fetch admin users list with TanStack Query; refetches on window focus and when invalidated. */
@@ -143,6 +151,46 @@ export function useProviders() {
   });
 }
 
+/** Fetch BudPay bank list for provider form. */
+export function useBudpayBanks(currency = "NGN") {
+  const token = useAuthStore((s) => s.token);
+  return useQuery({
+    queryKey: providerKeys.banks(currency),
+    queryFn: () => getBudpayBanks(token!, currency),
+    enabled: !!token,
+    staleTime: 60 * 60 * 1000, // 1 hour - banks rarely change
+  });
+}
+
+/** Fetch providers for disbursement page (with balance and total paid). */
+export function useProvidersForDisbursement() {
+  const token = useAuthStore((s) => s.token);
+  return useQuery({
+    queryKey: providerKeys.disbursement(),
+    queryFn: () => listProvidersForDisbursement(token!),
+    enabled: !!token,
+    refetchOnWindowFocus: true,
+    staleTime: 30 * 1000,
+  });
+}
+
+/** Execute disbursement and invalidate lists. */
+export function useDisbursement() {
+  const token = useAuthStore((s) => s.token);
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: { transfers: { providerId: string; amount: number }[]; currency?: string; simulate?: boolean }) =>
+      executeDisbursement(token!, payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: providerKeys.list() });
+      queryClient.invalidateQueries({ queryKey: providerKeys.disbursement() });
+      queryClient.invalidateQueries({ queryKey: adminKeys.companyBalance() });
+      recordActivity({ action: "Provider disbursement" });
+      queryClient.invalidateQueries({ queryKey: adminKeys.activity() });
+    },
+  });
+}
+
 /** Create provider and invalidate list. */
 export function useCreateProvider() {
   const token = useAuthStore((s) => s.token);
@@ -152,7 +200,31 @@ export function useCreateProvider() {
       createProvider(token!, payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: providerKeys.list() });
+      queryClient.invalidateQueries({ queryKey: providerKeys.disbursement() });
+      queryClient.invalidateQueries({ queryKey: adminKeys.companyBalance() });
       recordActivity({ action: "Provider added" });
+      queryClient.invalidateQueries({ queryKey: adminKeys.activity() });
+    },
+  });
+}
+
+/** Delete provider (with optional payout first). */
+export function useDeleteProvider() {
+  const token = useAuthStore((s) => s.token);
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      providerId,
+      payoutFirst,
+    }: {
+      providerId: string;
+      payoutFirst: boolean;
+    }) => deleteProvider(token!, providerId, payoutFirst),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: providerKeys.list() });
+      queryClient.invalidateQueries({ queryKey: providerKeys.disbursement() });
+      queryClient.invalidateQueries({ queryKey: adminKeys.companyBalance() });
+      recordActivity({ action: "Provider deleted" });
       queryClient.invalidateQueries({ queryKey: adminKeys.activity() });
     },
   });
@@ -214,6 +286,17 @@ export function useUserWallet(userId: string | null) {
     queryKey: adminKeys.loans.userWallet(userId ?? ""),
     queryFn: () => getUserWallet(token!, userId!),
     enabled: !!token && !!userId,
+    staleTime: 30 * 1000,
+  });
+}
+
+/** Fetch company account balance (admin). */
+export function useCompanyBalance() {
+  const token = useAuthStore((s) => s.token);
+  return useQuery({
+    queryKey: adminKeys.companyBalance(),
+    queryFn: () => getCompanyBalance(token!),
+    enabled: !!token,
     staleTime: 30 * 1000,
   });
 }
@@ -282,7 +365,7 @@ export function useAllRepayments() {
   });
 }
 
-/** Approve a loan (admin); invalidates all loans list. */
+/** Approve a loan (admin); invalidates all loans list and company balance. */
 export function useApproveLoan() {
   const token = useAuthStore((s) => s.token);
   const queryClient = useQueryClient();
@@ -290,6 +373,7 @@ export function useApproveLoan() {
     mutationFn: (loanId: string) => approveLoan(token!, loanId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: adminKeys.loans.all() });
+      queryClient.invalidateQueries({ queryKey: adminKeys.companyBalance() });
       recordActivity({ action: "Loan approved" });
       queryClient.invalidateQueries({ queryKey: adminKeys.activity() });
     },

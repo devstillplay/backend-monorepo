@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Body,
   Controller,
+  Delete,
   Get,
   HttpException,
   Inject,
@@ -44,6 +45,100 @@ export class ProviderController {
     @Inject(PROVIDER_SERVICE) private readonly providerClient: ClientProxy,
   ) {}
 
+  @Get('banks')
+  async getBanks(@Query('currency') currency?: string) {
+    try {
+      return await firstValueFrom(
+        this.providerClient.send('provider-banks-list', {
+          currency: currency ?? 'NGN',
+        })
+      );
+    } catch (err) {
+      handleProviderError(err);
+    }
+  }
+
+  @Get('disbursement')
+  async listForDisbursement() {
+    try {
+      return await firstValueFrom(
+        this.providerClient.send('provider-list-for-disbursement', {})
+      );
+    } catch (err) {
+      handleProviderError(err);
+    }
+  }
+
+  @Post('disbursement')
+  async executeDisbursement(
+    @Body()
+    body: {
+      transfers: { providerId: string; amount: number }[];
+      currency?: string;
+      simulate?: boolean;
+    },
+  ) {
+    if (!body?.transfers?.length) {
+      throw new BadRequestException('transfers array is required');
+    }
+    try {
+      return await firstValueFrom(
+        this.providerClient.send('provider-disbursement', {
+          transfers: body.transfers,
+          currency: body.currency ?? 'NGN',
+          simulate: body.simulate ?? false,
+        })
+      );
+    } catch (err) {
+      handleProviderError(err);
+    }
+  }
+
+  @Get('verify-transfer/:reference')
+  async verifyTransfer(@Param('reference') reference: string) {
+    try {
+      return await firstValueFrom(
+        this.providerClient.send('provider-verify-transfer', reference)
+      );
+    } catch (err) {
+      handleProviderError(err);
+    }
+  }
+
+  @Delete(':providerId')
+  async delete(
+    @Param('providerId') providerId: string,
+    @Query('payoutFirst') payoutFirst?: string,
+  ) {
+    try {
+      return await firstValueFrom(
+        this.providerClient.send('provider-delete', {
+          providerId,
+          payoutFirst: payoutFirst === 'true' || payoutFirst === '1',
+        })
+      );
+    } catch (err) {
+      handleProviderError(err);
+    }
+  }
+
+  @Get(':providerId/payouts')
+  async getPayouts(
+    @Param('providerId') providerId: string,
+    @Query('limit') limit?: string,
+  ) {
+    try {
+      return await firstValueFrom(
+        this.providerClient.send('provider-payouts', {
+          providerId,
+          limit: limit != null ? parseInt(limit, 10) : undefined,
+        })
+      );
+    } catch (err) {
+      handleProviderError(err);
+    }
+  }
+
   @Post()
   async create(
     @Body()
@@ -52,6 +147,7 @@ export class ProviderController {
       email?: string;
       accountNumber?: string;
       bankName?: string;
+      bankCode?: string;
       agreedAmount?: number;
       percentageToAdd?: number;
       providerCutPercentage?: number;
@@ -65,8 +161,9 @@ export class ProviderController {
         this.providerClient.send('provider-create', {
           name: body.name.trim(),
           email: body.email,
-          accountNumber: body.accountNumber,
-          bankName: body.bankName,
+      accountNumber: body.accountNumber,
+      bankName: body.bankName,
+      bankCode: body.bankCode,
           agreedAmount: body.agreedAmount,
           percentageToAdd: body.percentageToAdd,
           providerCutPercentage: body.providerCutPercentage,
@@ -110,6 +207,7 @@ export class ProviderController {
       email?: string;
       accountNumber?: string | null;
       bankName?: string | null;
+      bankCode?: string | null;
       agreedAmount?: number | null;
       percentageToAdd?: number;
       providerCutPercentage?: number;
@@ -125,6 +223,7 @@ export class ProviderController {
           email: body?.email,
           accountNumber: body?.accountNumber,
           bankName: body?.bankName,
+          bankCode: body?.bankCode,
           agreedAmount: body?.agreedAmount,
           percentageToAdd: body?.percentageToAdd,
           providerCutPercentage: body?.providerCutPercentage,

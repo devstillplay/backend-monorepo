@@ -80,6 +80,12 @@ export class AppService {
       where: { userId: loan.userId },
     });
     if (!wallet) throw new NotFoundException('Wallet not found');
+    const companyWallet = await this.ensureCompanyWallet();
+    if (companyWallet.balance < loan.amount) {
+      throw new BadRequestException(
+        `Insufficient company balance. Available: ₦${companyWallet.balance.toFixed(2)}, required: ₦${loan.amount.toFixed(2)}`,
+      );
+    }
     const now = new Date();
     await this.prisma.$transaction(async (tx) => {
       const result = await tx.loan.updateMany({
@@ -95,11 +101,30 @@ export class AppService {
         where: { id: wallet.id },
         data: { balance: { increment: loan.amount } },
       });
+      await tx.companyWallet.update({
+        where: { id: companyWallet.id },
+        data: { balance: { decrement: loan.amount } },
+      });
     });
     const updated = await this.prisma.loan.findUnique({
       where: { id: loanId },
     });
     return { message: 'Loan approved and amount added to wallet', loan: updated };
+  }
+
+  async getCompanyBalance() {
+    const cw = await this.ensureCompanyWallet();
+    return { balance: cw.balance, currency: cw.currency };
+  }
+
+  private async ensureCompanyWallet() {
+    let cw = await this.prisma.companyWallet.findFirst();
+    if (!cw) {
+      cw = await this.prisma.companyWallet.create({
+        data: { balance: 0, currency: 'NGN' },
+      });
+    }
+    return cw;
   }
 
   async rejectLoan(loanId: string) {
@@ -246,8 +271,7 @@ export class AppService {
         });
       }
     }
-    // Credit providers: each gets (their funded share) * repayment * (1 + providerCutPercentage/100)
-    // The difference between percentageToAdd and providerCutPercentage remains with the company.
+    // Record provider credits for history (amount owed = agreedAmount - totalPaid, not credits)
     const fundings = await this.prisma.loanFunding.findMany({
       where: { loanId },
       include: { provider: true },
@@ -257,24 +281,13 @@ export class AppService {
       const providerCut = f.provider.providerCutPercentage ?? f.provider.percentageToAdd ?? 0;
       const creditAmount = share * amount * (1 + providerCut / 100);
       if (creditAmount <= 0) continue;
-      const providerWallet = await this.prisma.providerWallet.findUnique({
-        where: { providerId: f.providerId },
+      await this.prisma.providerCredit.create({
+        data: {
+          providerId: f.providerId,
+          amount: creditAmount,
+          loanId,
+        },
       });
-      if (providerWallet) {
-        await this.prisma.$transaction([
-          this.prisma.providerCredit.create({
-            data: {
-              providerId: f.providerId,
-              amount: creditAmount,
-              loanId,
-            },
-          }),
-          this.prisma.providerWallet.update({
-            where: { id: providerWallet.id },
-            data: { balance: { increment: creditAmount } },
-          }),
-        ]);
-      }
     }
     const updated = await this.prisma.loan.findUnique({
       where: { id: loanId },

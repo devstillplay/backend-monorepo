@@ -1,9 +1,11 @@
 "use client";
 
 import AddIcon from "@mui/icons-material/Add";
+import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import {
   Alert,
+  Autocomplete,
   Box,
   Button,
   CircularProgress,
@@ -23,7 +25,7 @@ import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
 
 import DashboardHeader from "../../../components/dashboard/DashboardHeader";
-import { useProviders, useCreateProvider } from "../../../lib/queries";
+import { useProviders, useCreateProvider, useDeleteProvider, useBudpayBanks } from "../../../lib/queries";
 import { getProviderFinalAmount, getCompanyCutAmount, type Provider } from "../../../lib/api";
 
 function formatDate(iso: string | null | undefined): string {
@@ -46,7 +48,13 @@ function formatMoney(value: number | null | undefined): string {
 }
 
 /** Row in the provider table */
-function ProviderRow({ p }: { p: Provider }) {
+function ProviderRow({
+  p,
+  onDelete,
+}: {
+  p: Provider;
+  onDelete?: (p: Provider) => void;
+}) {
   const totalPct = p.percentageToAdd ?? 0;
   const providerPct = p.providerCutPercentage ?? 0;
   const companyPct = Math.max(0, totalPct - providerPct);
@@ -61,7 +69,7 @@ function ProviderRow({ p }: { p: Provider }) {
         borderBottom: "1px solid #f3f3f3",
         display: { xs: "flex", md: "grid" },
         flexDirection: { xs: "column", md: "unset" },
-        gridTemplateColumns: { md: "1.2fr 0.8fr 1fr 0.9fr 1fr 1.1fr 1.1fr 0.8fr" },
+        gridTemplateColumns: { md: "1.2fr 0.8fr 1fr 0.9fr 1fr 1.1fr 1.1fr 0.9fr 0.8fr 0.6fr" },
         alignItems: "center",
         gap: { xs: 0.5, md: 1 },
         backgroundColor: "#ffffff",
@@ -94,7 +102,7 @@ function ProviderRow({ p }: { p: Provider }) {
         </Typography>
       </Stack>
 
-      {/* Agreed amount */}
+      {/* Amount funded (initial) */}
       <Typography variant="body2">{formatMoney(p.agreedAmount)}</Typography>
 
       {/* Percentage split */}
@@ -139,10 +147,35 @@ function ProviderRow({ p }: { p: Provider }) {
         </Stack>
       </Tooltip>
 
+      {/* Amount owed (funded - paid) / Total paid */}
+      <Stack spacing={0.2}>
+        <Typography variant="body2" fontWeight={500} sx={{ color: "#0b7b4c" }}>
+          {formatMoney(p.balance ?? 0)}
+        </Typography>
+        <Typography variant="caption" color="text.secondary">
+          owed
+        </Typography>
+        <Typography variant="caption" color="text.secondary" sx={{ fontSize: 11 }}>
+          paid: {formatMoney(p.totalPaid ?? 0)}
+        </Typography>
+      </Stack>
+
       {/* Agreed date */}
       <Typography variant="body2" color="text.secondary" sx={{ fontSize: 12 }}>
         {formatDate(p.agreedAt)}
       </Typography>
+
+      {/* Delete */}
+      {onDelete && (
+        <IconButton
+          size="small"
+          color="error"
+          onClick={() => onDelete(p)}
+          aria-label="Delete provider"
+        >
+          <DeleteOutlineIcon fontSize="small" />
+        </IconButton>
+      )}
     </Box>
   );
 }
@@ -150,12 +183,14 @@ function ProviderRow({ p }: { p: Provider }) {
 export default function ProvidersPage() {
   const [search, setSearch] = useState("");
   const [openCreate, setOpenCreate] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<Provider | null>(null);
 
   // Form state
   const [formName, setFormName] = useState("");
   const [formEmail, setFormEmail] = useState("");
   const [formAccountNumber, setFormAccountNumber] = useState("");
   const [formBankName, setFormBankName] = useState("");
+  const [formBankCode, setFormBankCode] = useState("");
   const [formAgreedAmount, setFormAgreedAmount] = useState("");
   const [formTotalPct, setFormTotalPct] = useState("");
   const [formProviderPct, setFormProviderPct] = useState("");
@@ -164,6 +199,9 @@ export default function ProvidersPage() {
 
   const { data: providers = [], isLoading, isError, error, refetch, isFetching } = useProviders();
   const createMutation = useCreateProvider();
+  const deleteMutation = useDeleteProvider();
+  const { data: banksData } = useBudpayBanks("NGN");
+  const banks = banksData?.banks ?? [];
 
   const filtered = useMemo(() => {
     if (!search.trim()) return providers;
@@ -183,6 +221,7 @@ export default function ProvidersPage() {
     setFormEmail("");
     setFormAccountNumber("");
     setFormBankName("");
+    setFormBankCode("");
     setFormAgreedAmount("");
     setFormTotalPct("");
     setFormProviderPct("");
@@ -218,6 +257,7 @@ export default function ProvidersPage() {
         email: formEmail.trim() || undefined,
         accountNumber: formAccountNumber.trim() || undefined,
         bankName: formBankName.trim() || undefined,
+        bankCode: formBankCode.trim() || undefined,
         agreedAmount: amount,
         percentageToAdd: totalPct,
         providerCutPercentage: providerPct,
@@ -303,7 +343,7 @@ export default function ProvidersPage() {
                 paddingY: 1.2,
                 paddingX: 3,
                 display: { xs: "none", md: "grid" },
-                gridTemplateColumns: { md: "1.2fr 0.8fr 1fr 0.9fr 1.1fr 1.1fr 1.1fr 0.8fr" },
+                gridTemplateColumns: { md: "1.2fr 0.8fr 1fr 0.9fr 1.1fr 1.1fr 1.1fr 0.9fr 0.8fr 0.6fr" },
                 alignItems: "center",
                 gap: 1,
               }}
@@ -311,11 +351,13 @@ export default function ProvidersPage() {
               <Box>Name / #</Box>
               <Box>Email</Box>
               <Box>Bank / Account</Box>
-              <Box>Agreed amount</Box>
+              <Box>Amount funded</Box>
               <Box>% split</Box>
               <Box>Provider return</Box>
               <Box>Company cut</Box>
+              <Box>Owed / Paid</Box>
               <Box>Date</Box>
+              <Box />
             </Box>
 
             <Box sx={{ marginTop: 1 }}>
@@ -340,7 +382,11 @@ export default function ProvidersPage() {
               ) : (
                 <Stack spacing={0}>
                   {filtered.map((p: Provider) => (
-                    <ProviderRow key={p.id} p={p} />
+                    <ProviderRow
+                      key={p.id}
+                      p={p}
+                      onDelete={(prov) => setDeleteTarget(prov)}
+                    />
                   ))}
                 </Stack>
               )}
@@ -384,17 +430,43 @@ export default function ProvidersPage() {
               </Typography>
             </Divider>
 
-            <Stack direction="row" spacing={1.5}>
-              <TextField
-                label="Bank name"
-                fullWidth
-                value={formBankName}
-                onChange={(e) => setFormBankName(e.target.value)}
-                placeholder="e.g. GTBank"
+            <Stack direction="row" spacing={1.5} flexWrap="wrap">
+              <Autocomplete
+                options={banks}
+                getOptionLabel={(opt) =>
+                  typeof opt === "string" ? opt : `${opt.bank_name} (${opt.bank_code})`
+                }
+                value={
+                  formBankCode && formBankName
+                    ? { bank_name: formBankName, bank_code: formBankCode }
+                    : null
+                }
+                onChange={(_, val) => {
+                  if (val) {
+                    setFormBankName(val.bank_name);
+                    setFormBankCode(val.bank_code);
+                  } else {
+                    setFormBankName("");
+                    setFormBankCode("");
+                  }
+                }}
+                isOptionEqualToValue={(opt, val) =>
+                  opt.bank_code === val.bank_code && opt.bank_name === val.bank_name
+                }
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Bank"
+                    placeholder="Search or select bank"
+                    helperText="Select bank for provider payouts"
+                  />
+                )}
+                sx={{ minWidth: 220, flex: 1 }}
               />
               <TextField
                 label="Account number"
                 fullWidth
+                sx={{ minWidth: 160, flex: 1 }}
                 value={formAccountNumber}
                 onChange={(e) =>
                   setFormAccountNumber(e.target.value.replace(/\D/g, "").slice(0, 10))
@@ -411,14 +483,14 @@ export default function ProvidersPage() {
             </Divider>
 
             <TextField
-              label="Agreed capital amount (NGN)"
+              label="Amount funded to our account (NGN)"
               type="number"
               inputProps={{ min: 0, step: 1000 }}
               fullWidth
               value={formAgreedAmount}
               onChange={(e) => setFormAgreedAmount(e.target.value)}
               placeholder="e.g. 1,000,000"
-              helperText="Total capital the provider is supplying"
+              helperText="Capital the provider has funded to our account"
             />
 
             {/* Percentage split */}
@@ -531,6 +603,80 @@ export default function ProvidersPage() {
             sx={{ backgroundColor: "#0b7b4c" }}
           >
             {createMutation.isPending ? "Creating..." : "Register"}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* ── Delete provider dialog ── */}
+      <Dialog
+        open={!!deleteTarget}
+        onClose={() => !deleteMutation.isPending && setDeleteTarget(null)}
+        PaperProps={{ sx: { borderRadius: 2 } }}
+        maxWidth="xs"
+        fullWidth
+      >
+        <DialogTitle fontWeight={700}>Delete provider</DialogTitle>
+        <DialogContent>
+          {deleteTarget && (
+            <Stack spacing={2} sx={{ pt: 1 }}>
+              <Typography variant="body2">
+                Delete <strong>{deleteTarget.name}</strong> ({deleteTarget.providerNumber})?
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                Amount owed: {formatMoney(deleteTarget.balance ?? 0)}
+              </Typography>
+              <Typography variant="caption" color="text.secondary">
+                Choose how to handle the amount owed:
+              </Typography>
+              {deleteMutation.isError && (
+                <Alert severity="error">
+                  {(deleteMutation.error as Error).message}
+                </Alert>
+              )}
+            </Stack>
+          )}
+        </DialogContent>
+        <DialogActions sx={{ px: 3, pb: 2, flexDirection: "column", alignItems: "stretch", gap: 1 }}>
+          <Button
+            variant="contained"
+            color="primary"
+            disabled={!deleteTarget || deleteMutation.isPending}
+            onClick={() => {
+              if (!deleteTarget) return;
+              deleteMutation.mutate(
+                { providerId: deleteTarget.id, payoutFirst: true },
+                { onSuccess: () => setDeleteTarget(null) }
+              );
+            }}
+            sx={{ backgroundColor: "#0b7b4c" }}
+          >
+            {deleteMutation.isPending ? "Processing..." : "Complete payout & delete"}
+          </Button>
+          <Typography variant="caption" color="text.secondary" sx={{ textAlign: "center" }}>
+            Pay full amount owed from company balance, then delete
+          </Typography>
+          <Button
+            variant="outlined"
+            color="error"
+            disabled={!deleteTarget || deleteMutation.isPending}
+            onClick={() => {
+              if (!deleteTarget) return;
+              deleteMutation.mutate(
+                { providerId: deleteTarget.id, payoutFirst: false },
+                { onSuccess: () => setDeleteTarget(null) }
+              );
+            }}
+          >
+            Delete & leave balance
+          </Button>
+          <Typography variant="caption" color="text.secondary" sx={{ textAlign: "center" }}>
+            Delete provider, keep amount in company account
+          </Typography>
+          <Button
+            onClick={() => setDeleteTarget(null)}
+            disabled={deleteMutation.isPending}
+          >
+            Cancel
           </Button>
         </DialogActions>
       </Dialog>

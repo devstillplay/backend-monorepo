@@ -54,6 +54,8 @@ export const endpoints = {
         `${getBaseUrl()}/admin/loans/${loanId}/repayments`,
       userWallet: (userId: string) =>
         `${getBaseUrl()}/admin/loans/user/${userId}/wallet`,
+      companyBalance: () =>
+        `${getBaseUrl()}/admin/loans/balance`,
       approve: () => `${getBaseUrl()}/admin/loans/approve`,
       reject: () => `${getBaseUrl()}/admin/loans/reject`,
     },
@@ -64,9 +66,16 @@ export const endpoints = {
   },
   providers: {
     list: () => `${getBaseUrl()}/providers`,
+    banks: (currency?: string) =>
+      `${getBaseUrl()}/providers/banks${currency ? `?currency=${encodeURIComponent(currency)}` : ''}`,
     one: (id: string) => `${getBaseUrl()}/providers/${id}`,
     create: () => `${getBaseUrl()}/providers`,
     update: (id: string) => `${getBaseUrl()}/providers/${id}`,
+    delete: (id: string, payoutFirst?: boolean) =>
+      `${getBaseUrl()}/providers/${id}${payoutFirst ? '?payoutFirst=true' : ''}`,
+    disbursement: () => `${getBaseUrl()}/providers/disbursement`,
+    verifyTransfer: (reference: string) =>
+      `${getBaseUrl()}/providers/verify-transfer/${encodeURIComponent(reference)}`,
   },
   files: {
     upload: () => `${getBaseUrl()}/files/upload`,

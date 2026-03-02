@@ -12,6 +12,7 @@ import { useAuthStore } from "../../store/auth";
 const pathToAction: Record<string, string> = {
   "/dashboard": "Viewed Dashboard",
   "/dashboard/providers": "Viewed Providers",
+  "/dashboard/disbursement": "Viewed Disbursement",
   "/dashboard/staff": "Viewed Staff",
   "/dashboard/loan-request": "Viewed Loan Request",
   "/dashboard/loan-repayment": "Viewed Loan Repayment",

@@ -14,6 +14,7 @@ export class AppController {
       email?: string;
       accountNumber?: string;
       bankName?: string;
+      bankCode?: string;
       agreedAmount?: number;
       percentageToAdd?: number;
       providerCutPercentage?: number;
@@ -22,6 +23,11 @@ export class AppController {
     }
   ) {
     return this.appService.createProvider(payload);
+  }
+
+  @MessagePattern('provider-banks-list')
+  getBudpayBanks(@Payload() payload: { currency?: string }) {
+    return this.appService.getBudpayBanks(payload?.currency ?? 'NGN');
   }
 
   @MessagePattern('provider-list')
@@ -42,6 +48,7 @@ export class AppController {
       email?: string;
       accountNumber?: string | null;
       bankName?: string | null;
+      bankCode?: string | null;
       agreedAmount?: number | null;
       percentageToAdd?: number;
       providerCutPercentage?: number;
@@ -81,5 +88,45 @@ export class AppController {
       payload.providerId,
       payload.limit
     );
+  }
+
+  @MessagePattern('provider-list-for-disbursement')
+  listProvidersForDisbursement() {
+    return this.appService.listProvidersForDisbursement();
+  }
+
+  @MessagePattern('provider-verify-transfer')
+  verifyTransfer(@Payload() reference: string) {
+    return this.appService.verifyBudpayTransfer(reference);
+  }
+
+  @MessagePattern('provider-payouts')
+  getProviderPayouts(@Payload() payload: { providerId: string; limit?: number }) {
+    return this.appService.getProviderPayouts(
+      payload.providerId,
+      payload.limit
+    );
+  }
+
+  @MessagePattern('provider-delete')
+  deleteProvider(
+    @Payload() payload: { providerId: string; payoutFirst: boolean }
+  ) {
+    return this.appService.deleteProvider(
+      payload.providerId,
+      payload.payoutFirst ?? false
+    );
+  }
+
+  @MessagePattern('provider-disbursement')
+  executeDisbursement(
+    @Payload()
+    payload: {
+      transfers: { providerId: string; amount: number }[];
+      currency?: string;
+      simulate?: boolean;
+    }
+  ) {
+    return this.appService.executeDisbursement(payload);
   }
 }

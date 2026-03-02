@@ -35,6 +35,7 @@ import {
   useAllLoans,
   useAllRepayments,
   useProviders,
+  useCompanyBalance,
 } from "../../lib/queries";
 import { useAuthStore } from "../../store/auth";
 
@@ -59,6 +60,7 @@ export default function DashboardOverview({ onNavigateToUsers }: DashboardOvervi
   const { data: loansData, isLoading: loansLoading } = useAllLoans();
   const { data: repaymentsData, isLoading: repaymentsLoading } = useAllRepayments();
   const { data: providersList = [] } = useProviders();
+  const { data: companyBalance } = useCompanyBalance();
 
   const loans = loansData?.loans ?? [];
   const repayments = repaymentsData?.repayments ?? [];
@@ -150,6 +152,46 @@ export default function DashboardOverview({ onNavigateToUsers }: DashboardOvervi
       <Typography variant="h5" fontWeight={700}>
         Dashboard Overview
       </Typography>
+
+      {/* Balance in Account */}
+      <Card
+        sx={{
+          borderRadius: 2,
+          boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
+          mb: 2,
+          border: "1px solid #e8f5ef",
+          backgroundColor: "#f8fdf9",
+        }}
+      >
+        <CardContent>
+          <Stack direction="row" alignItems="center" spacing={2}>
+            <Box
+              sx={{
+                width: 52,
+                height: 52,
+                borderRadius: 2,
+                bgcolor: "#0b7b4c",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <AccountBalanceOutlinedIcon sx={{ color: "#fff", fontSize: 28 }} />
+            </Box>
+            <Box>
+              <Typography variant="subtitle2" color="text.secondary">
+                Balance in Account
+              </Typography>
+              <Typography variant="h5" fontWeight={700} sx={{ color: "#0b7b4c" }}>
+                {formatCurrency(companyBalance?.balance ?? 0)}
+              </Typography>
+              <Typography variant="caption" color="text.secondary">
+                Available for loans and provider payouts
+              </Typography>
+            </Box>
+          </Stack>
+        </CardContent>
+      </Card>
 
       {/* Stat cards */}
       <Grid container spacing={2}>
