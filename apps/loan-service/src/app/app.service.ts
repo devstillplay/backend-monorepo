@@ -225,6 +225,7 @@ export class AppService {
       );
     }
     const now = new Date();
+    const companyWallet = await this.ensureCompanyWallet();
     await this.prisma.$transaction(async (tx) => {
       await tx.wallet.update({
         where: { id: wallet.id },
@@ -246,6 +247,11 @@ export class AppService {
       });
       await tx.loanRepayment.create({
         data: { loanId, userId: loan.userId, amount, repaidAt: now },
+      });
+      // Credit company wallet when customer repays (money flows back to company)
+      await tx.companyWallet.update({
+        where: { id: companyWallet.id },
+        data: { balance: { increment: amount } },
       });
     });
 
