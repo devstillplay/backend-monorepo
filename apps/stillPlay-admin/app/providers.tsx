@@ -4,6 +4,7 @@ import { Box, CssBaseline, ThemeProvider } from "@mui/material";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactNode, useState } from "react";
 
+import OneSignalProvider from "../components/OneSignalProvider";
 import { theme } from "../theme/theme";
 
 type ProvidersProps = {
@@ -27,6 +28,7 @@ export default function Providers({ children }: ProvidersProps) {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider theme={theme}>
         <CssBaseline />
+        <OneSignalProvider>
         <Box
           sx={{
             width: "100%",
@@ -38,6 +40,7 @@ export default function Providers({ children }: ProvidersProps) {
         >
           {children}
         </Box>
+        </OneSignalProvider>
       </ThemeProvider>
     </QueryClientProvider>
   );

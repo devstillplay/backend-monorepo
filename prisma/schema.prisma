@@ -196,3 +196,23 @@ model AppSetting {
   value     String
   updatedAt DateTime @updatedAt
 }
+
+// Chat support thread – one per customer
+model ChatSupport {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @db.ObjectId // customer
+  status    String   // open | closed
+  createdAt DateTime @default(now())
+  messages  ChatMessage[]
+}
+
+// Chat message within a support thread
+model ChatMessage {
+  id            String     @id @default(auto()) @map("_id") @db.ObjectId
+  chatSupportId String     @db.ObjectId
+  chatSupport   ChatSupport @relation(fields: [chatSupportId], references: [id])
+  senderType    String     // customer | admin
+  senderId      String     // userId or employeeId
+  content       String
+  createdAt     DateTime   @default(now())
+}

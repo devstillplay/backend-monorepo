@@ -284,6 +284,22 @@ exports.Prisma.AppSettingScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.ChatSupportScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  status: 'status',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.ChatMessageScalarFieldEnum = {
+  id: 'id',
+  chatSupportId: 'chatSupportId',
+  senderType: 'senderType',
+  senderId: 'senderId',
+  content: 'content',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -311,7 +327,9 @@ exports.Prisma.ModelName = {
   Employee: 'Employee',
   AdminActivity: 'AdminActivity',
   CompanyWallet: 'CompanyWallet',
-  AppSetting: 'AppSetting'
+  AppSetting: 'AppSetting',
+  ChatSupport: 'ChatSupport',
+  ChatMessage: 'ChatMessage'
 };
 
 /**

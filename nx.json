@@ -13,7 +13,9 @@
     "stillplay-admin": {"tags": ["type:app", "scope:stillplay-admin"]},
     "file-service": {"tags": ["type:app", "scope:file-service"]},
     "loan-service": {"tags": ["type:app", "scope:loan-service"]},
-    "provider-service": {"tags": ["type:app", "scope:provider-service"]}
+    "provider-service": {"tags": ["type:app", "scope:provider-service"]},
+    "chat-service": {"tags": ["type:app", "scope:chat-service"]},
+    "stillplay-landing": {"tags": ["type:app", "scope:stillplay-landing"]}
   },
   "namedInputs": {
     "default": ["{projectRoot}/**/*", "sharedGlobals"],

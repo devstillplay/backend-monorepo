@@ -4,6 +4,8 @@ import { CssBaseline, ThemeProvider, createTheme } from "@mui/material";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useState } from "react";
 
+import OneSignalProvider from "@/components/OneSignalProvider";
+
 const theme = createTheme({
   palette: {
     mode: "light",
@@ -33,7 +35,7 @@ export default function Providers({
     <QueryClientProvider client={queryClient}>
       <ThemeProvider theme={theme}>
         <CssBaseline />
-        {children}
+        <OneSignalProvider>{children}</OneSignalProvider>
       </ThemeProvider>
     </QueryClientProvider>
   );

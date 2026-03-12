@@ -27,6 +27,10 @@ import {
   listAllRepayments,
   getAppSettings,
   setAppSetting,
+  getChatThreads,
+  getChatMessages,
+  sendChatMessage,
+  createChatThread,
   type AdminUser,
   type CreateProviderPayload,
   type CreateEmployeePayload,
@@ -412,6 +416,70 @@ export function useSetAppSetting() {
       setAppSetting(token!, key, value),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: adminKeys.settings() });
+    },
+  });
+}
+
+// ---------- Chat (support) ----------
+
+export const chatKeys = {
+  all: ["chat"] as const,
+  threads: (params?: { userId?: string; status?: string }) =>
+    [...chatKeys.all, "threads", params ?? {}] as const,
+  messages: (chatSupportId: string, userId?: string) =>
+    [...chatKeys.all, "messages", chatSupportId, userId ?? ""] as const,
+};
+
+export function useChatThreads(params?: { userId?: string; status?: string }) {
+  const token = useAuthStore((s) => s.token);
+  return useQuery({
+    queryKey: chatKeys.threads(params),
+    queryFn: () => getChatThreads(token!, params),
+    enabled: !!token,
+    refetchOnWindowFocus: true,
+    staleTime: 15 * 1000,
+  });
+}
+
+export function useChatMessages(
+  chatSupportId: string | null,
+  limit?: number,
+  userId?: string | null
+) {
+  const token = useAuthStore((s) => s.token);
+  return useQuery({
+    queryKey: chatKeys.messages(chatSupportId ?? "", userId ?? undefined),
+    queryFn: () => getChatMessages(token!, chatSupportId!, limit),
+    enabled: !!token && !!chatSupportId,
+    staleTime: 5 * 1000,
+    // Prevent showing cached messages from a different user when switching
+    placeholderData: undefined,
+  });
+}
+
+export function useSendChatMessage() {
+  const token = useAuthStore((s) => s.token);
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: { chatSupportId: string; content: string; recipientUserId?: string }) =>
+      sendChatMessage(token!, payload),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: ["chat", "messages", variables.chatSupportId],
+      });
+      queryClient.invalidateQueries({ queryKey: chatKeys.threads() });
+    },
+  });
+}
+
+export function useCreateChatThread() {
+  const token = useAuthStore((s) => s.token);
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (options?: { userId?: string }) =>
+      createChatThread(token!, options),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: chatKeys.threads() });
     },
   });
 }

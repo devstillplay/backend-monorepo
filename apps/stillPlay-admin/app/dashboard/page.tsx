@@ -4,7 +4,6 @@ import BlockIcon from "@mui/icons-material/Block";
 import CloseIcon from "@mui/icons-material/Close";
 import LockOpenIcon from "@mui/icons-material/LockOpen";
 import RefreshIcon from "@mui/icons-material/Refresh";
-import SendIcon from "@mui/icons-material/Send";
 import VerifiedUserIcon from "@mui/icons-material/VerifiedUser";
 import {
   Avatar,
@@ -79,17 +78,6 @@ function DashboardPageContent() {
   const [userListTab, setUserListTab] = useState<"all" | "pending" | "suspended">("all");
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [page, setPage] = useState(1);
-  const [isChatOpen, setIsChatOpen] = useState(false);
-  const [chatUser, setChatUser] = useState<null | {
-    id: string;
-    name: string;
-    code: string;
-  }>(null);
-  const [isChatLoading, setIsChatLoading] = useState(false);
-  const [messages, setMessages] = useState<
-    { id: number; sender: "user" | "admin"; text: string; time: string }[]
-  >([]);
-  const [chatMessage, setChatMessage] = useState("");
   const [deleteConfirmRow, setDeleteConfirmRow] = useState<{
     id: string;
     name: string;
@@ -174,38 +162,6 @@ function DashboardPageContent() {
     setUserListTab(value);
     setPage(1);
   };
-
-  useEffect(() => {
-    if (!chatUser) {
-      return;
-    }
-    setIsChatLoading(true);
-    const timeoutId = window.setTimeout(() => {
-      setMessages([
-        {
-          id: 1,
-          sender: "user",
-          text: "Hi, I need help with my loan approval.",
-          time: "09:20",
-        },
-        {
-          id: 2,
-          sender: "admin",
-          text: "Sure, can you confirm your offline code?",
-          time: "09:22",
-        },
-        {
-          id: 3,
-          sender: "user",
-          text: chatUser.code,
-          time: "09:23",
-        },
-      ]);
-      setIsChatLoading(false);
-    }, 500);
-
-    return () => window.clearTimeout(timeoutId);
-  }, [chatUser]);
 
   const handleMainTabChange = (_: React.SyntheticEvent, value: "overview" | "users") => {
     router.push(value === "overview" ? "/dashboard" : "/dashboard?tab=users");
@@ -460,14 +416,7 @@ function DashboardPageContent() {
                             <RowActions
                               isVisible
                               suspended={row.suspended}
-                              onChatClick={() => {
-                                setChatUser({
-                                  id: row.id,
-                                  name: row.name,
-                                  code: row.code,
-                                });
-                                setIsChatOpen(true);
-                              }}
+                              onChatClick={() => router.push(`/dashboard/support?userId=${row.id}`)}
                               onLoansClick={() => {
                                 setLoansUser({ id: row.id, name: row.name });
                                 setRequestLoanAmount("");
@@ -601,126 +550,6 @@ function DashboardPageContent() {
           </Box>
         </Stack>
       </Box>
-      <Drawer
-        anchor="right"
-        open={isChatOpen}
-        onClose={() => {
-          setIsChatOpen(false);
-          setChatMessage("");
-        }}
-        PaperProps={{
-          sx: {
-            width: { xs: "100%", sm: 360 },
-            padding: 3,
-          },
-        }}
-      >
-        <Stack spacing={3} sx={{ height: "100%" }}>
-          <Stack
-            direction="row"
-            alignItems="center"
-            justifyContent="space-between"
-          >
-            <Stack spacing={0.5}>
-              <Typography variant="h6" fontWeight={700}>
-                {chatUser ? chatUser.name : "User chat"}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                User ID: {chatUser?.id ?? "--"}
-              </Typography>
-            </Stack>
-            <IconButton
-              aria-label="Close chat"
-              onClick={() => {
-                setIsChatOpen(false);
-                setChatMessage("");
-              }}
-            >
-              <CloseIcon />
-            </IconButton>
-          </Stack>
-
-          <Box
-            sx={{
-              flex: 1,
-              backgroundColor: "#f3f3f3",
-              borderRadius: 1,
-              padding: 2,
-              overflowY: "auto",
-            }}
-          >
-            <Stack spacing={2}>
-              {isChatLoading ? (
-                <Typography color="text.secondary">Loading chat...</Typography>
-              ) : (
-                messages.map((message) => (
-                  <Box
-                    key={message.id}
-                    sx={{
-                      alignSelf:
-                        message.sender === "admin" ? "flex-end" : "flex-start",
-                      backgroundColor:
-                        message.sender === "admin" ? "#0b7b4c" : "#ffffff",
-                      color:
-                        message.sender === "admin" ? "#ffffff" : "text.primary",
-                      padding: 1.5,
-                      borderRadius: 1,
-                      maxWidth: "80%",
-                    }}
-                  >
-                    <Typography variant="body2">{message.text}</Typography>
-                    <Typography variant="caption" sx={{ opacity: 0.7 }}>
-                      {message.time}
-                    </Typography>
-                  </Box>
-                ))
-              )}
-            </Stack>
-          </Box>
-
-          <Stack direction="row" spacing={1} alignItems="center">
-            <TextField
-              fullWidth
-              placeholder="Type a message..."
-              value={chatMessage}
-              onChange={(e) => setChatMessage(e.target.value)}
-              size="small"
-              sx={{
-                "& .MuiOutlinedInput-root": {
-                  borderRadius: 1.5,
-                  backgroundColor: "#fff",
-                },
-              }}
-            />
-            <IconButton
-              color="primary"
-              onClick={() => {
-                if (!chatMessage.trim()) return;
-                const now = new Date();
-                const time = `${now.getHours().toString().padStart(2, "0")}:${now.getMinutes().toString().padStart(2, "0")}`;
-                setMessages((prev) => [
-                  ...prev,
-                  {
-                    id: prev.length + 1,
-                    sender: "admin",
-                    text: chatMessage.trim(),
-                    time,
-                  },
-                ]);
-                setChatMessage("");
-              }}
-              sx={{
-                backgroundColor: "#0b7b4c",
-                color: "#fff",
-                "&:hover": { backgroundColor: "#096b3d" },
-              }}
-            >
-              <SendIcon />
-            </IconButton>
-          </Stack>
-        </Stack>
-      </Drawer>
-
       <Drawer
         anchor="right"
         open={!!loansUser}

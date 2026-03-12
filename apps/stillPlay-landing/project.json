@@ -1,0 +1,27 @@
+{
+  "name": "stillplay-landing",
+  "projectType": "application",
+  "sourceRoot": "apps/stillPlay-landing",
+  "targets": {
+    "dev": {
+      "executor": "@nx/next:dev",
+      "options": {
+        "port": 3003
+      }
+    },
+    "build": {
+      "executor": "@nx/next:build",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/apps/stillplay-landing"
+      }
+    },
+    "start": {
+      "executor": "@nx/next:start",
+      "options": {
+        "buildTarget": "stillplay-landing:build",
+        "port": 3003
+      }
+    }
+  }
+}

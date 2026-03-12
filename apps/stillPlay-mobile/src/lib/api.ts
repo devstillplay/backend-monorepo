@@ -440,3 +440,95 @@ export async function listUserRepayments(
   const raw = data as { repayments?: RepaymentItem[] } | RepaymentItem[];
   return Array.isArray(raw) ? raw : (raw.repayments ?? []);
 }
+
+// ---------- Chat (support) ----------
+
+export type ChatThread = {
+  id: string;
+  userId: string;
+  status: string;
+  createdAt: string;
+  _count?: { messages: number };
+};
+
+export type ChatMessage = {
+  id: string;
+  chatSupportId: string;
+  senderType: string;
+  senderId: string;
+  content: string;
+  createdAt: string;
+};
+
+export async function createChatThread(
+  token: string
+): Promise<{ thread: ChatThread }> {
+  const res = await fetch(endpoints.chat.createThread(), {
+    method: "POST",
+    headers: getAuthHeaders(token),
+    body: JSON.stringify({}),
+  });
+  const data = await res.json().catch(() => ({}));
+  handleAuthError(res);
+  if (!res.ok) {
+    throw new Error(
+      typeof data.message === "string" ? data.message : "Failed to create thread"
+    );
+  }
+  return data;
+}
+
+export async function getChatThreads(
+  token: string,
+  params?: { userId?: string; status?: string }
+): Promise<{ threads: ChatThread[] }> {
+  const url = new URL(endpoints.chat.threads());
+  if (params?.userId) url.searchParams.set("userId", params.userId);
+  if (params?.status) url.searchParams.set("status", params.status);
+  const res = await fetch(url.toString(), { headers: getAuthHeaders(token) });
+  const data = await res.json().catch(() => ({}));
+  handleAuthError(res);
+  if (!res.ok) {
+    throw new Error(
+      typeof data.message === "string" ? data.message : "Failed to load threads"
+    );
+  }
+  return { threads: Array.isArray(data.threads) ? data.threads : [] };
+}
+
+export async function getChatMessages(
+  token: string,
+  chatSupportId: string,
+  limit?: number
+): Promise<{ messages: ChatMessage[] }> {
+  const url = new URL(endpoints.chat.messages(chatSupportId));
+  if (limit != null) url.searchParams.set("limit", String(limit));
+  const res = await fetch(url.toString(), { headers: getAuthHeaders(token) });
+  const data = await res.json().catch(() => ({}));
+  handleAuthError(res);
+  if (!res.ok) {
+    throw new Error(
+      typeof data.message === "string" ? data.message : "Failed to load messages"
+    );
+  }
+  return { messages: Array.isArray(data.messages) ? data.messages : [] };
+}
+
+export async function sendChatMessage(
+  token: string,
+  payload: { chatSupportId: string; content: string }
+): Promise<{ message: ChatMessage }> {
+  const res = await fetch(endpoints.chat.sendMessage(), {
+    method: "POST",
+    headers: getAuthHeaders(token),
+    body: JSON.stringify(payload),
+  });
+  const data = await res.json().catch(() => ({}));
+  handleAuthError(res);
+  if (!res.ok) {
+    throw new Error(
+      typeof data.message === "string" ? data.message : "Failed to send message"
+    );
+  }
+  return data;
+}

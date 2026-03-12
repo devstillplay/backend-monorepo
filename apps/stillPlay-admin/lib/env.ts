@@ -9,6 +9,12 @@ const baseUrl =
     ? 'http://localhost:3000/api'
     : 'https://api-gateway-production-dab1.up.railway.app/api';
 
+/** Pusher client config (real-time chat). Set NEXT_PUBLIC_PUSHER_KEY and NEXT_PUBLIC_PUSHER_CLUSTER in .env.local */
+export const pusherConfig = {
+  key: process.env.NEXT_PUBLIC_PUSHER_KEY ?? '',
+  cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER ?? 'ap1',
+};
+
 export function getBaseUrl(): string {
   return baseUrl;
 }
@@ -79,5 +85,12 @@ export const endpoints = {
   },
   files: {
     upload: () => `${getBaseUrl()}/files/upload`,
+  },
+  chat: {
+    threads: () => `${getBaseUrl()}/chat/threads`,
+    createThread: () => `${getBaseUrl()}/chat/threads`,
+    messages: (chatSupportId: string) =>
+      `${getBaseUrl()}/chat/threads/${chatSupportId}/messages`,
+    sendMessage: () => `${getBaseUrl()}/chat/messages`,
   },
 } as const;

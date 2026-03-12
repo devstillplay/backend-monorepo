@@ -17,6 +17,7 @@ import {
   ProviderController,
   PROVIDER_SERVICE,
 } from './provider/provider.controller';
+import { ChatController, CHAT_SERVICE } from './chat/chat.controller';
 
 @Module({
   imports: [
@@ -130,6 +131,19 @@ import {
         }),
         inject: [ConfigService],
       },
+      {
+        name: CHAT_SERVICE,
+        imports: [ConfigModule],
+        useFactory: (config: ConfigService) => ({
+          transport: Transport.TCP,
+          options: {
+            host: config.get('CHAT_SERVICE_HOST', 'localhost'),
+            port:
+              parseInt(config.get('CHAT_SERVICE_PORT') ?? '8885', 10) || 8885,
+          },
+        }),
+        inject: [ConfigService],
+      },
     ]),
   ],
   controllers: [
@@ -142,6 +156,7 @@ import {
     FileController,
     LoanController,
     ProviderController,
+    ChatController,
   ],
   providers: [AppService, AuthService],
 })

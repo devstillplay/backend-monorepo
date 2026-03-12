@@ -214,7 +214,11 @@ export default function ProfilePage() {
             { label: "Profile settings", icon: <PersonIcon /> },
             { label: "Payment Method", icon: <CreditCardIcon /> },
             { label: "Invite and earn", icon: <GroupAddIcon /> },
-            { label: "Chat with us", icon: <ChatBubbleIcon /> },
+            {
+              label: "Chat with us",
+              icon: <ChatBubbleIcon />,
+              onClick: () => router.push("/dashboard/support"),
+            },
             { label: "Log Out", icon: <LogoutIcon />, onClick: handleLogout },
           ].map((item) => (
             <Stack
