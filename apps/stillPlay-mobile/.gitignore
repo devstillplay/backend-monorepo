@@ -1,6 +1,5 @@
 .env
 .env.local
 
-node_modules    
-Username: akorphilip1
-Password: M5ab8KDmZ9nXQh,
+node_modules
+.next
