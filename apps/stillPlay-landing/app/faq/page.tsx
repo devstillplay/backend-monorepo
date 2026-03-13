@@ -65,7 +65,7 @@ export default function FAQPage() {
       {/* FAQ Section */}
       <Box sx={{ py: { xs: 6, md: 8 }, bgcolor: "#fff" }}>
         <Container maxWidth="md">
-          <Typography variant="h3" sx={{ fontWeight: 700, textAlign: "center", mb: 1, color: "#1a1a1a" }}>
+          <Typography variant="h3" sx={{ fontWeight: 700, textAlign: "center", mb: 1, color: "#1a1a1a", fontSize: { xs: "1.5rem", md: "2.5rem" } }}>
             Frequently Asked Questions
           </Typography>
           <Typography variant="body1" sx={{ textAlign: "center", mb: 6, color: "#4a4a4a" }}>

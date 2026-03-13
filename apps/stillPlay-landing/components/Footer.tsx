@@ -92,17 +92,30 @@ export default function Footer() {
             </Stack>
           </Grid>
         </Grid>
-        <Box sx={{ borderTop: "1px solid rgba(0,0,0,0.12)", mt: 4, pt: 4, position: "relative" }}>
+        <Box
+          sx={{
+            borderTop: "1px solid rgba(0,0,0,0.12)",
+            mt: 4,
+            pt: 4,
+            position: "relative",
+            display: "flex",
+            flexDirection: { xs: "column", sm: "row" },
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 2,
+          }}
+        >
           <Typography variant="body2" sx={{ textAlign: "center", color: "#4a4a4a" }}>
             © {new Date().getFullYear()} {COMPANY_NAME}. All rights reserved.
           </Typography>
           <Box
             component="a"
             href={`mailto:${SUPPORT_EMAIL}`}
+            aria-label="Contact support"
             sx={{
-              position: "absolute",
-              right: 0,
-              bottom: 0,
+              position: { xs: "static", sm: "absolute" },
+              right: { sm: 0 },
+              bottom: { sm: 0 },
               width: 40,
               height: 40,
               borderRadius: "50%",
@@ -112,6 +125,7 @@ export default function Footer() {
               alignItems: "center",
               justifyContent: "center",
               textDecoration: "none",
+              flexShrink: 0,
               "&:hover": { bgcolor: "#333" },
             }}
           >

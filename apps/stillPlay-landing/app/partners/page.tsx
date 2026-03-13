@@ -83,7 +83,7 @@ export default function PartnersPage() {
       {/* Main Heading */}
       <Box sx={{ py: { xs: 6, md: 8 }, bgcolor: "#fff" }}>
         <Container maxWidth="md">
-          <Typography variant="h3" sx={{ fontWeight: 700, textAlign: "center", mb: 1, color: "#1a1a1a" }}>
+          <Typography variant="h3" sx={{ fontWeight: 700, textAlign: "center", mb: 1, color: "#1a1a1a", fontSize: { xs: "1.75rem", md: "2.5rem" } }}>
             Partner With Still Play
           </Typography>
           <Typography variant="h6" sx={{ textAlign: "center", color: "#4a4a4a", fontWeight: 400 }}>

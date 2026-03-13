@@ -184,7 +184,7 @@ export default function LandingPage() {
                   sx={{
                     color: "#2d2d2d",
                     fontWeight: 700,
-                    fontSize: { xs: "1.75rem", md: "2.5rem" },
+                    fontSize: { xs: "1.5rem", sm: "1.75rem", md: "2.5rem" },
                     lineHeight: 1.2,
                   }}
                 >
@@ -206,12 +206,13 @@ export default function LandingPage() {
                 <Typography variant="body2" sx={{ color: "#6b6b6b" }}>
                   {COMPANY_NAME}
                 </Typography>
-                <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
+                <Stack direction={{ xs: "column", sm: "row" }} spacing={2} sx={{ width: { xs: "100%", sm: "auto" } }}>
                   <Button
                     component={Link}
                     href="#waitlist"
                     variant="contained"
                     size="large"
+                    fullWidth
                     sx={{
                       textTransform: "none",
                       backgroundColor: "#FFC107",
@@ -229,6 +230,7 @@ export default function LandingPage() {
                     href={`mailto:${PARTNERSHIP_EMAIL}`}
                     variant="outlined"
                     size="large"
+                    fullWidth
                     sx={{
                       textTransform: "none",
                       borderColor: "#0b7b4c",
@@ -259,7 +261,7 @@ export default function LandingPage() {
                   alt="Still Play"
                   sx={{
                     width: "100%",
-                    maxWidth: 380,
+                    maxWidth: { xs: 260, sm: 320, md: 380 },
                     height: "auto",
                     objectFit: "contain",
                   }}
@@ -273,7 +275,7 @@ export default function LandingPage() {
       {/* Built for Security and Trust */}
       <Box id="about" component="section" sx={{ py: { xs: 8, md: 12 }, bgcolor: "#f5f5f5" }}>
         <Container maxWidth="lg">
-          <Typography variant="h4" sx={{ fontWeight: 700, textAlign: "center", mb: 2, color: "#1a1a1a" }}>
+          <Typography variant="h4" sx={{ fontWeight: 700, textAlign: "center", mb: 2, color: "#1a1a1a", fontSize: { xs: "1.5rem", md: "2rem" } }}>
             Built for Security and Trust
           </Typography>
           <Typography variant="body1" sx={{ textAlign: "center", maxWidth: 640, mx: "auto", mb: 6, color: "#4a4a4a" }}>
@@ -325,7 +327,7 @@ export default function LandingPage() {
       {/* How It Works */}
       <Box component="section" sx={{ py: { xs: 8, md: 12 }, bgcolor: "#fff" }}>
         <Container maxWidth="lg">
-          <Typography variant="h4" sx={{ fontWeight: 700, textAlign: "center", mb: 2, color: "#1a1a1a" }}>
+          <Typography variant="h4" sx={{ fontWeight: 700, textAlign: "center", mb: 2, color: "#1a1a1a", fontSize: { xs: "1.5rem", md: "2rem" } }}>
             How It Works
           </Typography>
           <Typography variant="body1" sx={{ textAlign: "center", mb: 6, color: "#4a4a4a" }}>
@@ -375,7 +377,7 @@ export default function LandingPage() {
       {/* Why Bettors Use Still Play */}
       <Box component="section" sx={{ py: { xs: 8, md: 12 }, bgcolor: "#fff", borderTop: "1px solid rgba(0,0,0,0.08)" }}>
         <Container maxWidth="lg">
-          <Typography variant="h4" sx={{ fontWeight: 700, textAlign: "center", mb: 6, color: "#1a1a1a" }}>
+          <Typography variant="h4" sx={{ fontWeight: 700, textAlign: "center", mb: 6, color: "#1a1a1a", fontSize: { xs: "1.5rem", md: "2rem" } }}>
             Why Bettors Use Still Play
           </Typography>
           <Grid container spacing={3}>
@@ -413,14 +415,14 @@ export default function LandingPage() {
       {/* The Opportunity */}
       <Box component="section" sx={{ py: { xs: 8, md: 12 }, bgcolor: "#000", color: "white" }}>
         <Container maxWidth="lg">
-          <Typography variant="h4" sx={{ fontWeight: 700, textAlign: "center", mb: 6, color: "white" }}>
+          <Typography variant="h4" sx={{ fontWeight: 700, textAlign: "center", mb: 6, color: "white", fontSize: { xs: "1.5rem", md: "2rem" } }}>
             The Opportunity
           </Typography>
           <Grid container spacing={4} justifyContent="center">
             {OPPORTUNITY_STATS.map((stat) => (
               <Grid item xs={12} sm={4} key={stat.label}>
                 <Box sx={{ textAlign: "center" }}>
-                  <Typography variant="h3" sx={{ fontWeight: 800, mb: 1, color: "#FFC107" }}>
+                  <Typography variant="h3" sx={{ fontWeight: 800, mb: 1, color: "#FFC107", fontSize: { xs: "2rem", sm: "2.5rem", md: "3rem" } }}>
                     {stat.value}
                   </Typography>
                   <Typography variant="body1" sx={{ color: "white" }}>
@@ -436,7 +438,7 @@ export default function LandingPage() {
       {/* From Betting Discipline to Financial Passport */}
       <Box component="section" sx={{ py: { xs: 8, md: 12 }, bgcolor: "#fff" }}>
         <Container maxWidth="lg">
-          <Typography variant="h4" sx={{ fontWeight: 700, textAlign: "center", mb: 2, color: "#1a1a1a" }}>
+          <Typography variant="h4" sx={{ fontWeight: 700, textAlign: "center", mb: 2, color: "#1a1a1a", fontSize: { xs: "1.35rem", sm: "1.5rem", md: "2rem" } }}>
             From Betting Discipline to Financial Passport
           </Typography>
           <Typography variant="body1" sx={{ textAlign: "center", mb: 6, color: "#4a4a4a" }}>
@@ -471,7 +473,7 @@ export default function LandingPage() {
       {/* Built for Betting Platforms */}
       <Box id="partners" component="section" sx={{ py: { xs: 8, md: 12 }, background: "linear-gradient(180deg, #0a6b3a 0%, #0b7b4c 50%, #0d8f5a 100%)" }}>
         <Container maxWidth="lg">
-          <Typography variant="h4" sx={{ fontWeight: 700, textAlign: "center", mb: 2, color: "white" }}>
+          <Typography variant="h4" sx={{ fontWeight: 700, textAlign: "center", mb: 2, color: "white", fontSize: { xs: "1.5rem", md: "2rem" } }}>
             Built for Betting Platforms
           </Typography>
           <Typography variant="body1" sx={{ textAlign: "center", maxWidth: 640, mx: "auto", mb: 6, color: "rgba(255,255,255,0.95)" }}>
@@ -534,7 +536,7 @@ export default function LandingPage() {
       {/* Powering the Betting Credit Ecosystem */}
       <Box component="section" sx={{ py: { xs: 8, md: 12 }, bgcolor: "#fff" }}>
         <Container maxWidth="lg">
-          <Typography variant="h4" sx={{ fontWeight: 700, textAlign: "center", mb: 1, color: "#1a1a1a" }}>
+          <Typography variant="h4" sx={{ fontWeight: 700, textAlign: "center", mb: 1, color: "#1a1a1a", fontSize: { xs: "1.35rem", sm: "1.5rem", md: "2rem" } }}>
             Powering the Betting Credit Ecosystem
           </Typography>
           <Typography variant="body1" sx={{ textAlign: "center", mb: 6, color: "#4a4a4a" }}>
@@ -593,7 +595,7 @@ export default function LandingPage() {
       {/* Early Access Advantage */}
       <Box component="section" sx={{ py: { xs: 8, md: 12 }, bgcolor: "#FFC107" }}>
         <Container maxWidth="lg">
-          <Typography variant="h4" sx={{ fontWeight: 700, textAlign: "center", mb: 1, color: "#1a1a1a" }}>
+          <Typography variant="h4" sx={{ fontWeight: 700, textAlign: "center", mb: 1, color: "#1a1a1a", fontSize: { xs: "1.5rem", md: "2rem" } }}>
             Early Access Advantage
           </Typography>
           <Typography variant="body1" sx={{ textAlign: "center", mb: 6, color: "#4a4a4a" }}>
@@ -656,7 +658,7 @@ export default function LandingPage() {
       {/* Be Among the First to Access Still Play - Waitlist */}
       <Box id="waitlist" component="section" sx={{ py: { xs: 8, md: 12 }, bgcolor: "#fff" }}>
         <Container maxWidth="sm">
-          <Typography variant="h4" sx={{ fontWeight: 700, textAlign: "center", mb: 1, color: "#1a1a1a" }}>
+          <Typography variant="h4" sx={{ fontWeight: 700, textAlign: "center", mb: 1, color: "#1a1a1a", fontSize: { xs: "1.5rem", md: "2rem" } }}>
             Be Among the First to Access Still Play
           </Typography>
           <Typography variant="body1" sx={{ textAlign: "center", mb: 6, color: "#4a4a4a" }}>
