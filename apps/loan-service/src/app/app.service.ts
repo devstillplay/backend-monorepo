@@ -109,7 +109,10 @@ export class AppService {
     const updated = await this.prisma.loan.findUnique({
       where: { id: loanId },
     });
-    return { message: 'Loan approved and amount added to wallet', loan: updated };
+    return {
+      message: 'Loan approved and amount added to wallet',
+      loan: updated,
+    };
   }
 
   async getCompanyBalance() {
@@ -209,8 +212,13 @@ export class AppService {
     const loan = await this.prisma.loan.findUnique({ where: { id: loanId } });
     if (!loan) throw new NotFoundException('Loan not found');
     // APPROVED and DISBURSED both mean customer has received funds (wallet credited at approval)
-    if (loan.status !== LoanStatus.DISBURSED && loan.status !== LoanStatus.APPROVED) {
-      throw new BadRequestException('Only approved or disbursed loans can be repaid');
+    if (
+      loan.status !== LoanStatus.DISBURSED &&
+      loan.status !== LoanStatus.APPROVED
+    ) {
+      throw new BadRequestException(
+        'Only approved or disbursed loans can be repaid',
+      );
     }
     const currentRepaid = loan.amountRepaid;
     const newRepaid = currentRepaid + amount;
@@ -255,12 +263,15 @@ export class AppService {
       });
     });
 
-    // On-time repayment bonus: increase credit limit by 5% when loan is fully repaid on or before due date
+    // On-time repayment bonus: increase credit limit by 5% when loan is fully repaid on or before due
     if (fullRepaid && loan.dueDate) {
       const repaidAt = now;
       const dueDate = new Date(loan.dueDate);
       if (repaidAt <= dueDate) {
-        const defaultLimitStr = await this.getAppSetting('loan_max_amount', '5000');
+        const defaultLimitStr = await this.getAppSetting(
+          'loan_max_amount',
+          '5000',
+        );
         const defaultLimit = Number(defaultLimitStr ?? 5000);
         const user = await this.prisma.user.findUnique({
           where: { id: loan.userId },
@@ -284,7 +295,8 @@ export class AppService {
     });
     for (const f of fundings) {
       const share = f.amount / loan.amount;
-      const providerCut = f.provider.providerCutPercentage ?? f.provider.percentageToAdd ?? 0;
+      const providerCut =
+        f.provider.providerCutPercentage ?? f.provider.percentageToAdd ?? 0;
       const creditAmount = share * amount * (1 + providerCut / 100);
       if (creditAmount <= 0) continue;
       await this.prisma.providerCredit.create({
@@ -333,7 +345,10 @@ export class AppService {
 
   // ─── App Settings ──────────────────────────────────────────────────────────
 
-  async getAppSetting(key: string, defaultValue?: string): Promise<string | undefined> {
+  async getAppSetting(
+    key: string,
+    defaultValue?: string,
+  ): Promise<string | undefined> {
     const setting = await this.prisma.appSetting.findUnique({ where: { key } });
     return setting?.value ?? defaultValue;
   }
@@ -382,7 +397,9 @@ export class AppService {
     const activeLoans = await this.prisma.loan.findMany({
       where: {
         userId,
-        status: { in: [LoanStatus.PENDING, LoanStatus.APPROVED, LoanStatus.DISBURSED] },
+        status: {
+          in: [LoanStatus.PENDING, LoanStatus.APPROVED, LoanStatus.DISBURSED],
+        },
       },
       orderBy: { createdAt: 'desc' },
     });
@@ -402,9 +419,7 @@ export class AppService {
     }));
     const primary =
       withRemaining.length > 0
-        ? withRemaining.reduce((a, b) =>
-            b.remaining > a.remaining ? b : a
-          )
+        ? withRemaining.reduce((a, b) => (b.remaining > a.remaining ? b : a))
         : null;
     const activeLoan = primary
       ? {
@@ -469,19 +484,31 @@ export class AppService {
   }) {
     const amount = Number(payload.amount ?? 0);
     if (!amount || Number.isNaN(amount) || amount <= 0) {
-      return { applied: false, reason: 'Invalid amount', reference: payload.reference };
+      return {
+        applied: false,
+        reason: 'Invalid amount',
+        reference: payload.reference,
+      };
     }
 
     const email = payload.customer?.email;
     if (!email) {
-      return { applied: false, reason: 'Missing customer email', reference: payload.reference };
+      return {
+        applied: false,
+        reason: 'Missing customer email',
+        reference: payload.reference,
+      };
     }
 
     const user = await this.prisma.user.findFirst({
       where: { email: email.toLowerCase() },
     });
     if (!user) {
-      return { applied: false, reason: 'User not found for email', reference: payload.reference };
+      return {
+        applied: false,
+        reason: 'User not found for email',
+        reference: payload.reference,
+      };
     }
 
     const loan = await this.prisma.loan.findFirst({
