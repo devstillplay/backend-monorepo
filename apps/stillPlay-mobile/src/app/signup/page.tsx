@@ -4,42 +4,65 @@ import {
   Box,
   Button,
   IconButton,
+  Paper,
   Stack,
-  Typography
+  Typography,
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import PersonIcon from "@mui/icons-material/Person";
 import PhotoCameraIcon from "@mui/icons-material/PhotoCamera";
 import BadgeIcon from "@mui/icons-material/Badge";
+import VerifiedUserIcon from "@mui/icons-material/VerifiedUser";
 import { useRouter } from "next/navigation";
 
-import MobileFrame from "@/components/MobileFrame";
+import AuthScreenShell from "@/components/AuthScreenShell";
+import { authCardWideSx, mergeSx } from "@/lib/desktopLayout";
+import { useSignupStore } from "@/store/useSignupStore";
 
 const steps = [
   {
     title: "Personal Details",
-    description: "Provide you full name, NIN & address",
-    icon: <PersonIcon />
+    description: "Your name, NIN, email, and password",
+    icon: <PersonIcon />,
+  },
+  {
+    title: "Identity verification (Dojah)",
+    description: "Government ID and liveness via Dojah",
+    icon: <VerifiedUserIcon />,
   },
   {
     title: "A selfie",
-    description: "Provide you full name, DOB & address",
-    icon: <PhotoCameraIcon />
+    description: "Optional photo for your profile",
+    icon: <PhotoCameraIcon />,
   },
   {
-    title: "NIN (National Identity Number)",
-    description: "Provide you full name, DOB & address",
-    icon: <BadgeIcon />
-  }
+    title: "NIN slip",
+    description: "Optional upload, then create your account",
+    icon: <BadgeIcon />,
+  },
 ];
 
 export default function SignupPage() {
   const router = useRouter();
+  const firstName = useSignupStore((s) => s.firstName);
+  const email = useSignupStore((s) => s.email);
+  const nin = useSignupStore((s) => s.nin);
+  const hasPersonalForDojah = Boolean(
+    firstName?.trim() && email?.trim() && nin?.trim()
+  );
+
+  const goToDojahKyc = () => {
+    if (hasPersonalForDojah) {
+      router.push("/signup/verify-identity");
+    } else {
+      router.push("/signup/personal-details");
+    }
+  };
 
   return (
-    <MobileFrame>
-      <Box className="screen-content" sx={{ pb: 4 }}>
-        <Stack spacing={3} sx={{ height: "100%" }}>
+    <AuthScreenShell>
+      <Paper elevation={0} sx={mergeSx(authCardWideSx, { overflow: "hidden" })}>
+        <Stack spacing={3} sx={{ height: "100%", pb: 4 }}>
           <Box sx={{ px: 2, pt: 2 }}>
             <Stack direction="row" alignItems="center" spacing={1}>
               <IconButton onClick={() => router.back()}>
@@ -101,18 +124,42 @@ export default function SignupPage() {
             ))}
           </Stack>
 
-          <Box sx={{ px: 3, mt: "auto" }}>
+          <Stack spacing={1.5} sx={{ px: 3, mt: "auto" }}>
             <Button
               variant="contained"
               size="large"
               fullWidth
               onClick={() => router.push("/signup/personal-details")}
+              sx={{ borderRadius: 999, py: 1.25, textTransform: "none", fontWeight: 700 }}
             >
               Continue
             </Button>
-          </Box>
+            <Button
+              variant="outlined"
+              size="large"
+              fullWidth
+              onClick={goToDojahKyc}
+              startIcon={<VerifiedUserIcon />}
+              sx={{
+                borderRadius: 999,
+                py: 1.25,
+                textTransform: "none",
+                fontWeight: 700,
+                borderColor: "#F5B000",
+                color: "#1D2939",
+                "&:hover": { borderColor: "#d49a00", bgcolor: "#FFF9E6" },
+              }}
+            >
+              Validate KYC with Dojah
+            </Button>
+            <Typography variant="caption" color="text.secondary" textAlign="center" display="block">
+              {hasPersonalForDojah
+                ? "Opens Dojah identity verification (ID + liveness)."
+                : "Complete personal details first — we’ll send you there if needed."}
+            </Typography>
+          </Stack>
         </Stack>
-      </Box>
-    </MobileFrame>
+      </Paper>
+    </AuthScreenShell>
   );
 }

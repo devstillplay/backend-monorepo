@@ -216,3 +216,19 @@ model ChatMessage {
   content       String
   createdAt     DateTime    @default(now())
 }
+
+// Marketing / launch waitlist (landing + partners pages)
+model WaitlistEntry {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  email        String
+  fullName     String
+  source       String // landing | partners
+  businessName String?
+  partnerType  String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([email])
+  @@index([source])
+  @@index([createdAt])
+}

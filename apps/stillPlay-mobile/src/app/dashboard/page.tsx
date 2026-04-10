@@ -145,14 +145,26 @@ export default function DashboardPage() {
         flex: 1,
         display: "flex",
         flexDirection: "column",
-        height: "100%",
+        minHeight: 0,
         position: "relative",
-        pb: "calc(72px + env(safe-area-inset-bottom) + 160px)",
-        overflow: "hidden",
+        pb: {
+          xs: "calc(72px + env(safe-area-inset-bottom) + 160px)",
+          md: 0,
+        },
+        overflow: { xs: "hidden", md: "visible" },
         backgroundColor: "#F5F5F5",
       }}
     >
-      <Stack spacing={3} sx={{ p: 3 }}>
+      {/* Grows on desktop so Recent Activity sits at the bottom of the page column */}
+      <Stack
+        spacing={3}
+        sx={{
+          p: 3,
+          flexShrink: 0,
+          flex: { md: "1 1 auto" },
+          minHeight: { md: 0 },
+        }}
+      >
         {/* Header */}
         <Stack direction="row" alignItems="center" justifyContent="space-between">
           {profileLoading ? (
@@ -263,32 +275,45 @@ export default function DashboardPage() {
         </Paper>
       </Stack>
 
-      {/* Recent Activity panel */}
+      {/* Recent Activity: bottom sheet on mobile; pinned to bottom of column on desktop */}
       <Paper
         elevation={6}
         sx={{
           width: "100%",
-          position: "fixed",
-          left: 0,
-          right: 0,
-          bottom: "calc(72px + env(safe-area-inset-bottom))",
+          boxSizing: "border-box",
+          display: "flex",
+          flexDirection: "column",
+          overflow: "hidden",
+          flexShrink: 0,
+          position: { xs: "fixed", md: "relative" },
+          left: { xs: 0, md: "auto" },
+          right: { xs: 0, md: "auto" },
+          bottom: {
+            xs: "calc(72px + env(safe-area-inset-bottom))",
+            md: "auto",
+          },
           px: 3,
           pt: 2.5,
           pb: 3,
-          height: isExpanded ? "70vh" : "36vh",
-          borderTopLeftRadius: 28,
-          borderTopRightRadius: 28,
-          borderBottomLeftRadius: 0,
-          borderBottomRightRadius: 0,
-          zIndex: 0,
-          transition: "height 220ms ease",
+          height: { xs: isExpanded ? "70vh" : "36vh", md: "auto" },
+          maxHeight: {
+            md: isExpanded ? "min(70dvh, 640px)" : 400,
+          },
+          borderTopLeftRadius: { xs: 28, md: 3 },
+          borderTopRightRadius: { xs: 28, md: 3 },
+          borderBottomLeftRadius: { xs: 0, md: 3 },
+          borderBottomRightRadius: { xs: 0, md: 3 },
+          zIndex: { xs: 0 },
+          mb: { md: 2 },
+          transition: "height 220ms ease, max-height 220ms ease",
+          boxShadow: { md: 2 },
         }}
       >
         <Stack
           direction="row"
           alignItems="center"
           justifyContent="space-between"
-          sx={{ mb: 2 }}
+          sx={{ mb: 2, flexShrink: 0 }}
         >
           <Typography fontWeight={600}>Recent Activity</Typography>
           <Button
@@ -306,7 +331,15 @@ export default function DashboardPage() {
           </Button>
         </Stack>
 
-        <Stack spacing={2} sx={{ overflowY: "auto", pr: 0.5, height: "calc(100% - 48px)" }}>
+        <Stack
+          spacing={2}
+          sx={{
+            overflowY: "auto",
+            pr: 0.5,
+            height: { xs: "calc(100% - 48px)", md: "auto" },
+            maxHeight: { md: isExpanded ? "min(58dvh, 520px)" : 280 },
+          }}
+        >
           {activityLoading ? (
             [1, 2, 3].map((i) => (
               <Stack key={i} direction="row" alignItems="center" spacing={2}>

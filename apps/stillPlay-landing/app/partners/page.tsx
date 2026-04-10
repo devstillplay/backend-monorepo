@@ -1,6 +1,20 @@
 "use client";
 
-import { Box, Button, Container, FormControl, Grid, InputLabel, MenuItem, Select, Stack, TextField, Typography } from "@mui/material";
+import {
+  Alert,
+  Box,
+  Button,
+  CircularProgress,
+  Container,
+  FormControl,
+  Grid,
+  InputLabel,
+  MenuItem,
+  Select,
+  Stack,
+  TextField,
+  Typography,
+} from "@mui/material";
 import TrendingUpIcon from "@mui/icons-material/TrendingUp";
 import GroupAddIcon from "@mui/icons-material/GroupAdd";
 import BoltIcon from "@mui/icons-material/Bolt";
@@ -10,6 +24,7 @@ import LockIcon from "@mui/icons-material/Lock";
 import { useState } from "react";
 
 import { PARTNERSHIP_EMAIL } from "../../lib/config";
+import { joinWaitlist } from "../../lib/waitlist";
 
 const BETTING_PLATFORM_BENEFITS = [
   {
@@ -72,11 +87,29 @@ export default function PartnersPage() {
   const [businessName, setBusinessName] = useState("");
   const [partnerType, setPartnerType] = useState("");
   const [waitlistSubmitted, setWaitlistSubmitted] = useState(false);
+  const [waitlistSubmitting, setWaitlistSubmitting] = useState(false);
+  const [waitlistError, setWaitlistError] = useState<string | null>(null);
 
-  const handleWaitlistSubmit = (e: React.FormEvent) => {
+  const handleWaitlistSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Wire to backend API
-    setWaitlistSubmitted(true);
+    setWaitlistError(null);
+    setWaitlistSubmitting(true);
+    try {
+      await joinWaitlist({
+        fullName: waitlistName.trim(),
+        email: waitlistEmail.trim(),
+        source: "partners",
+        businessName: businessName.trim(),
+        partnerType: partnerType.trim(),
+      });
+      setWaitlistSubmitted(true);
+    } catch (err) {
+      setWaitlistError(
+        err instanceof Error ? err.message : "Something went wrong. Please try again."
+      );
+    } finally {
+      setWaitlistSubmitting(false);
+    }
   };
   return (
     <Box sx={{ minHeight: "100vh", bgcolor: "#fff" }}>
@@ -298,6 +331,11 @@ export default function PartnersPage() {
               }}
             >
               <Stack spacing={2}>
+                {waitlistError ? (
+                  <Alert severity="error" onClose={() => setWaitlistError(null)}>
+                    {waitlistError}
+                  </Alert>
+                ) : null}
                 <TextField
                   fullWidth
                   label="Contact Name"
@@ -329,6 +367,7 @@ export default function PartnersPage() {
                 />
                 <TextField
                   fullWidth
+                  required
                   label="Business Name"
                   placeholder="Enter your business name"
                   value={businessName}
@@ -370,6 +409,7 @@ export default function PartnersPage() {
                 </FormControl>
                 <Button
                   type="submit"
+                  disabled={waitlistSubmitting}
                   sx={{
                     textTransform: "none",
                     bgcolor: "#FFC107",
@@ -379,7 +419,11 @@ export default function PartnersPage() {
                     "&:hover": { bgcolor: "#e6ac00" },
                   }}
                 >
-                  Submit Partnership Inquiry
+                  {waitlistSubmitting ? (
+                    <CircularProgress size={22} color="inherit" />
+                  ) : (
+                    "Submit Partnership Inquiry"
+                  )}
                 </Button>
               </Stack>
             </Box>

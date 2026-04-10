@@ -44,6 +44,7 @@ export const endpoints = {
   admin: {
     users: () => `${getBaseUrl()}/admin/users`,
     userById: (id: string) => `${getBaseUrl()}/admin/users/${id}`,
+    waitlist: () => `${getBaseUrl()}/admin/waitlist`,
     employees: () => `${getBaseUrl()}/admin/employees`,
     employeeById: (id: string) => `${getBaseUrl()}/admin/employees/${id}`,
     activity: () => `${getBaseUrl()}/admin/activity`,

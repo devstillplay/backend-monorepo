@@ -11,6 +11,7 @@ import {
   Button,
   CircularProgress,
   IconButton,
+  Paper,
   Stack,
   Typography,
 } from "@mui/material";
@@ -18,7 +19,8 @@ import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 
-import MobileFrame from "@/components/MobileFrame";
+import AuthScreenShell from "@/components/AuthScreenShell";
+import { authCardWideSx, mergeSx } from "@/lib/desktopLayout";
 import { registerUser, uploadImage } from "@/lib/api";
 import { useSignupStore } from "@/store/useSignupStore";
 
@@ -96,13 +98,13 @@ export default function NationalIdentityPage() {
   // ── Success screen ─────────────────────────────────────────────────────────
   if (registered) {
     return (
-      <MobileFrame>
-        <Box className="screen-content" sx={{ overflow: "auto" }}>
+      <AuthScreenShell contentSx={{ justifyContent: "center" }}>
+        <Paper elevation={0} sx={mergeSx(authCardWideSx, { overflow: "hidden" })}>
           <Stack
             spacing={3}
             alignItems="center"
             justifyContent="center"
-            sx={{ minHeight: "100%", px: 4, textAlign: "center" }}
+            sx={{ minHeight: "100%", px: 4, py: 4, textAlign: "center" }}
           >
             <Box
               sx={{
@@ -136,15 +138,15 @@ export default function NationalIdentityPage() {
               Go to login
             </Button>
           </Stack>
-        </Box>
-      </MobileFrame>
+        </Paper>
+      </AuthScreenShell>
     );
   }
 
   // ── Form ───────────────────────────────────────────────────────────────────
   return (
-    <MobileFrame>
-      <Box className="screen-content" sx={{ overflow: "auto" }}>
+    <AuthScreenShell>
+      <Paper elevation={0} sx={mergeSx(authCardWideSx, { overflow: "hidden" })}>
         <Stack spacing={0} sx={{ minHeight: "100%" }}>
           {/* Header */}
           <Box sx={{ px: 3, pt: 3 }}>
@@ -156,7 +158,7 @@ export default function NationalIdentityPage() {
                 Upload NIN slip
               </Typography>
             </Stack>
-            <StepIndicator current={3} total={3} />
+            <StepIndicator current={4} total={4} />
           </Box>
 
           <Box sx={{ height: 1, backgroundColor: "#E4E7EC", mt: 2 }} />
@@ -284,7 +286,7 @@ export default function NationalIdentityPage() {
             )}
           </Stack>
         </Stack>
-      </Box>
-    </MobileFrame>
+      </Paper>
+    </AuthScreenShell>
   );
 }

@@ -31,6 +31,7 @@ import {
   getChatMessages,
   sendChatMessage,
   createChatThread,
+  listWaitlist,
   type AdminUser,
   type CreateProviderPayload,
   type CreateEmployeePayload,
@@ -39,6 +40,7 @@ import {
 export const adminKeys = {
   all: ["admin"] as const,
   users: () => [...adminKeys.all, "users"] as const,
+  waitlist: () => [...adminKeys.all, "waitlist"] as const,
   user: (id: string) => [...adminKeys.users(), id] as const,
   employees: () => [...adminKeys.all, "employees"] as const,
   activity: () => [...adminKeys.all, "activity"] as const,
@@ -71,6 +73,18 @@ export function useAdminUsers() {
     enabled: !!token,
     refetchOnWindowFocus: true,
     staleTime: 60 * 1000, // 1 min
+  });
+}
+
+/** Landing / partners waitlist entries (admin). */
+export function useWaitlist() {
+  const token = useAuthStore((s) => s.token);
+  return useQuery({
+    queryKey: adminKeys.waitlist(),
+    queryFn: () => listWaitlist(token!),
+    enabled: !!token,
+    refetchOnWindowFocus: true,
+    staleTime: 30 * 1000,
   });
 }
 

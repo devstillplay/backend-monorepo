@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 120" role="img" aria-labelledby="netflixTitle">
+  <title id="netflixTitle">Netflix</title>
+  <text
+    x="256"
+    y="88"
+    text-anchor="middle"
+    fill="#E50914"
+    font-family="Arial Black, Helvetica Neue, Helvetica, sans-serif"
+    font-size="84"
+    font-weight="900"
+    letter-spacing="0.04em"
+  >NETFLIX</text>
+</svg>

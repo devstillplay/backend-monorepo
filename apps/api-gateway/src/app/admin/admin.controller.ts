@@ -319,4 +319,9 @@ export class AdminController {
       handleLoanError(err);
     }
   }
+
+  @Get('waitlist')
+  listWaitlist() {
+    return firstValueFrom(this.adminClient.send('waitlist-list', {}));
+  }
 }

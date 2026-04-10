@@ -6,13 +6,15 @@ import {
   Box,
   Button,
   CircularProgress,
+  Paper,
   Stack,
   Typography,
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
-import MobileFrame from "@/components/MobileFrame";
+import AuthScreenShell from "@/components/AuthScreenShell";
+import { authCardMediumSx, mergeSx } from "@/lib/desktopLayout";
 import useAuthStore from "@/store/useAuthStore";
 import { isTokenExpired } from "@/lib/api";
 
@@ -31,7 +33,6 @@ export default function PendingVerificationPage() {
     setIsMounted(true);
   }, []);
 
-  // Guard: if not authenticated at all, send to login
   useEffect(() => {
     if (!isMounted) return;
     if (status !== "authenticated" || !token || isTokenExpired(token)) {
@@ -39,7 +40,6 @@ export default function PendingVerificationPage() {
       router.replace("/login");
       return;
     }
-    // If somehow they are now verified (e.g. token refreshed), push to dashboard
     if (user?.verified === true) {
       router.replace("/dashboard");
     }
@@ -52,30 +52,28 @@ export default function PendingVerificationPage() {
 
   if (!isMounted) {
     return (
-      <MobileFrame>
-        <Box
-          className="screen-content"
-          sx={{ display: "flex", alignItems: "center", justifyContent: "center" }}
+      <AuthScreenShell contentSx={{ justifyContent: "center" }}>
+        <Paper
+          elevation={0}
+          sx={mergeSx(authCardMediumSx, { py: 6, display: "flex", justifyContent: "center" })}
         >
           <CircularProgress color="primary" />
-        </Box>
-      </MobileFrame>
+        </Paper>
+      </AuthScreenShell>
     );
   }
 
-  const displayName = user?.firstName
-    ? `, ${user.firstName}`
-    : "";
+  const displayName = user?.firstName ? `, ${user.firstName}` : "";
 
   return (
-    <MobileFrame>
-      <Box className="screen-content" sx={{ overflow: "auto" }}>
-        <Stack
-          spacing={4}
-          alignItems="center"
-          sx={{ px: 3, pt: 5, pb: 4, minHeight: "100%" }}
-        >
-          {/* Icon */}
+    <AuthScreenShell
+      contentSx={{
+        justifyContent: "center",
+        py: { xs: 3, md: 5 },
+      }}
+    >
+      <Paper elevation={0} sx={authCardMediumSx}>
+        <Stack spacing={4} alignItems="center" sx={{ p: { xs: 3, md: 4 } }}>
           <Box
             sx={{
               width: 96,
@@ -91,19 +89,17 @@ export default function PendingVerificationPage() {
             <AccessTimeIcon sx={{ fontSize: 52, color: "#F59E0B" }} />
           </Box>
 
-          {/* Heading */}
           <Stack spacing={1} alignItems="center" textAlign="center">
             <Typography variant="h5" fontWeight={800}>
               Verification pending{displayName}
             </Typography>
-            <Typography color="text.secondary" sx={{ maxWidth: 320 }}>
-              Your registration was received. An admin will review your
-              details and activate your account shortly.
+            <Typography color="text.secondary" sx={{ maxWidth: 360 }}>
+              Your registration was received. An admin will review your details and activate your
+              account shortly.
             </Typography>
           </Stack>
 
-          {/* Progress steps */}
-          <Box sx={{ width: "100%", maxWidth: 320 }}>
+          <Box sx={{ width: "100%", maxWidth: 360 }}>
             {steps.map((step, i) => (
               <Stack
                 key={step}
@@ -112,7 +108,6 @@ export default function PendingVerificationPage() {
                 alignItems="center"
                 sx={{ mb: i < steps.length - 1 ? 0 : 0 }}
               >
-                {/* Connector + dot */}
                 <Stack alignItems="center" sx={{ width: 24 }}>
                   <Box
                     sx={{
@@ -120,11 +115,7 @@ export default function PendingVerificationPage() {
                       height: 12,
                       borderRadius: "50%",
                       backgroundColor:
-                        i === 0
-                          ? "primary.main"
-                          : i === 1
-                            ? "#F59E0B"
-                            : "#E4E7EC",
+                        i === 0 ? "primary.main" : i === 1 ? "#F59E0B" : "#E4E7EC",
                       flexShrink: 0,
                       zIndex: 1,
                     }}
@@ -152,11 +143,10 @@ export default function PendingVerificationPage() {
             ))}
           </Box>
 
-          {/* Info card */}
           <Box
             sx={{
               width: "100%",
-              maxWidth: 320,
+              maxWidth: 360,
               backgroundColor: "#F8F9FB",
               borderRadius: 3,
               p: 2.5,
@@ -164,14 +154,11 @@ export default function PendingVerificationPage() {
             }}
           >
             <Typography variant="body2" color="text.secondary" textAlign="center">
-              You will receive an email once your account is activated. You
-              can also try logging in again to check your status.
+              You will receive an email once your account is activated. You can also try logging in
+              again to check your status.
             </Typography>
           </Box>
 
-          <Box flex={1} />
-
-          {/* Actions */}
           <Stack spacing={1.5} sx={{ width: "100%" }}>
             <Button
               variant="outlined"
@@ -198,7 +185,7 @@ export default function PendingVerificationPage() {
             </Button>
           </Stack>
         </Stack>
-      </Box>
-    </MobileFrame>
+      </Paper>
+    </AuthScreenShell>
   );
 }

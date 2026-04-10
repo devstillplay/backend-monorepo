@@ -73,4 +73,14 @@ export class AppController {
   async listActivities(@Payload() payload: { userId: string; limit?: number }) {
     return this.appService.listActivitiesByUser(payload.userId, payload.limit);
   }
+
+  @MessagePattern('waitlist-create')
+  async createWaitlistEntry(@Payload() payload: unknown) {
+    return this.appService.createWaitlistEntry(payload as Parameters<AppService['createWaitlistEntry']>[0]);
+  }
+
+  @MessagePattern('waitlist-list')
+  async listWaitlistEntries() {
+    return this.appService.listWaitlistEntries();
+  }
 }

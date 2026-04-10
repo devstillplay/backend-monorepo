@@ -1,13 +1,20 @@
 "use client";
 
 import {
+  Alert,
   Box,
   Button,
+  Chip,
+  CircularProgress,
   Container,
+  FormControl,
+  Grid,
+  InputLabel,
+  MenuItem,
+  Select,
   Stack,
   Typography,
   TextField,
-  Grid,
 } from "@mui/material";
 import SecurityIcon from "@mui/icons-material/Security";
 import LockIcon from "@mui/icons-material/Lock";
@@ -30,6 +37,7 @@ import {
   RC_NUMBER,
   PARTNERSHIP_EMAIL,
 } from "../lib/config";
+import { joinWaitlist } from "../lib/waitlist";
 
 const SECURITY_ITEMS = [
   {
@@ -124,6 +132,30 @@ const BETTING_PLATFORMS = [
   { label: "NairaBet", src: "/assets/png/nairaBet.png", link: "https://www.nairabet.com" },
 ];
 
+const COMING_SOON_STREAMING = [
+  {
+    label: "Netflix",
+    src: "/assets/brands/netflix.svg",
+    logoSx: {
+      width: "min(94%, 300px)",
+      height: "auto",
+      maxHeight: { xs: 76, sm: 92 },
+      objectFit: "contain",
+    },
+  },
+  {
+    label: "Spotify",
+    src: "/assets/brands/spotify.svg",
+    logoSx: {
+      width: "auto",
+      height: "auto",
+      maxWidth: "82%",
+      maxHeight: { xs: 112, sm: 140 },
+      objectFit: "contain",
+    },
+  },
+] as const;
+
 const PARTNER_BENEFITS = [
   {
     title: "Massive Market Opportunity",
@@ -148,15 +180,87 @@ const EARLY_ACCESS_ITEMS = [
   "Early feature access",
 ];
 
+/** Optional — maps to admin Survey columns Business / Partner type for bettor waitlist */
+const LANDING_WAITLIST_PARTNER_TYPES = [
+  "Individual bettor",
+  "Betting syndicate / group",
+  "Affiliate or promoter",
+  "Other",
+] as const;
+
+const FINANCIAL_PARTNER_TYPES = [
+  "Financial Institution",
+  "Bank",
+  "Fund / asset manager",
+  "Microfinance",
+  "Other liquidity partner",
+] as const;
+
 export default function LandingPage() {
   const [waitlistName, setWaitlistName] = useState("");
   const [waitlistEmail, setWaitlistEmail] = useState("");
+  const [waitlistBusiness, setWaitlistBusiness] = useState("");
+  const [waitlistPartnerType, setWaitlistPartnerType] = useState("");
   const [waitlistSubmitted, setWaitlistSubmitted] = useState(false);
+  const [waitlistSubmitting, setWaitlistSubmitting] = useState(false);
+  const [waitlistError, setWaitlistError] = useState<string | null>(null);
 
-  const handleWaitlistSubmit = (e: React.FormEvent) => {
+  const handleWaitlistSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Wire to backend API
-    setWaitlistSubmitted(true);
+    setWaitlistError(null);
+    setWaitlistSubmitting(true);
+    try {
+      await joinWaitlist({
+        fullName: waitlistName.trim(),
+        email: waitlistEmail.trim(),
+        source: "landing",
+        ...(waitlistBusiness.trim()
+          ? { businessName: waitlistBusiness.trim() }
+          : {}),
+        ...(waitlistPartnerType.trim()
+          ? { partnerType: waitlistPartnerType.trim() }
+          : {}),
+      });
+      setWaitlistSubmitted(true);
+    } catch (err) {
+      setWaitlistError(
+        err instanceof Error ? err.message : "Something went wrong. Please try again."
+      );
+    } finally {
+      setWaitlistSubmitting(false);
+    }
+  };
+
+  const [financialName, setFinancialName] = useState("");
+  const [financialEmail, setFinancialEmail] = useState("");
+  const [financialBusiness, setFinancialBusiness] = useState("");
+  const [financialPartnerType, setFinancialPartnerType] = useState(
+    FINANCIAL_PARTNER_TYPES[0] as string
+  );
+  const [financialSubmitted, setFinancialSubmitted] = useState(false);
+  const [financialSubmitting, setFinancialSubmitting] = useState(false);
+  const [financialError, setFinancialError] = useState<string | null>(null);
+
+  const handleFinancialSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setFinancialError(null);
+    setFinancialSubmitting(true);
+    try {
+      await joinWaitlist({
+        fullName: financialName.trim(),
+        email: financialEmail.trim(),
+        source: "financial",
+        businessName: financialBusiness.trim(),
+        partnerType: financialPartnerType.trim(),
+      });
+      setFinancialSubmitted(true);
+    } catch (err) {
+      setFinancialError(
+        err instanceof Error ? err.message : "Something went wrong. Please try again."
+      );
+    } finally {
+      setFinancialSubmitting(false);
+    }
   };
 
   return (
@@ -226,8 +330,8 @@ export default function LandingPage() {
                     Join Bettor Waitlist
                   </Button>
                   <Button
-                    component="a"
-                    href={`mailto:${PARTNERSHIP_EMAIL}`}
+                    component={Link}
+                    href="#financial-partner"
                     variant="outlined"
                     size="large"
                     fullWidth
@@ -512,6 +616,97 @@ export default function LandingPage() {
               </Grid>
             ))}
           </Grid>
+
+          <Box
+            sx={{
+              mt: 8,
+              pt: 6,
+              borderTop: "1px solid rgba(255,255,255,0.25)",
+            }}
+          >
+            <Typography
+              variant="h6"
+              sx={{
+                fontWeight: 700,
+                textAlign: "center",
+                mb: 0.5,
+                color: "white",
+                letterSpacing: "0.02em",
+              }}
+            >
+              Coming soon
+            </Typography>
+            <Typography
+              variant="body2"
+              sx={{
+                textAlign: "center",
+                maxWidth: 560,
+                mx: "auto",
+                mb: 4,
+                color: "rgba(255,255,255,0.88)",
+              }}
+            >
+              Netflix, Spotify, and more streaming and entertainment partnerships.
+            </Typography>
+            <Grid container spacing={3} justifyContent="center">
+              {COMING_SOON_STREAMING.map((brand) => (
+                <Grid item xs={12} sm={6} md={4} key={brand.label}>
+                  <Box sx={{ position: "relative", maxWidth: 360, mx: "auto" }}>
+                    <Chip
+                      label="Coming soon"
+                      size="small"
+                      sx={{
+                        position: "absolute",
+                        top: 10,
+                        right: 10,
+                        zIndex: 1,
+                        fontWeight: 600,
+                        bgcolor: "rgba(255, 193, 7, 0.95)",
+                        color: "#1a1a1a",
+                        "& .MuiChip-label": { px: 1.25 },
+                      }}
+                    />
+                    <Box
+                      sx={{
+                        aspectRatio: "16/10",
+                        borderRadius: 2,
+                        bgcolor: "rgba(255,255,255,0.96)",
+                        border: "1px dashed rgba(255,255,255,0.45)",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        px: 2,
+                        py: 2.5,
+                        minHeight: { xs: 120, sm: 140 },
+                      }}
+                    >
+                      <Box
+                        component="img"
+                        src={brand.src}
+                        alt={brand.label}
+                        sx={brand.logoSx}
+                      />
+                    </Box>
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        display: "block",
+                        textAlign: "center",
+                        mt: 1.25,
+                        color: "rgba(255,255,255,0.92)",
+                        fontWeight: 600,
+                        letterSpacing: "0.04em",
+                        textTransform: "uppercase",
+                      }}
+                    >
+                      {brand.label}
+                    </Typography>
+                  </Box>
+                </Grid>
+              ))}
+            </Grid>
+          </Box>
+
           <Box sx={{ display: "flex", justifyContent: "center", mt: 6 }}>
             <Button
               component="a"
@@ -571,10 +766,10 @@ export default function LandingPage() {
               );
             })}
           </Grid>
-          <Box sx={{ display: "flex", justifyContent: "center", mt: 6 }}>
+          <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
             <Button
-              component="a"
-              href={`mailto:${PARTNERSHIP_EMAIL}`}
+              component={Link}
+              href="#financial-partner"
               sx={{
                 textTransform: "none",
                 bgcolor: "#FFC107",
@@ -588,6 +783,147 @@ export default function LandingPage() {
             >
               Become a Liquidity Partner
             </Button>
+          </Box>
+
+          <Box
+            id="financial-partner"
+            component="section"
+            sx={{ mt: 8, pt: 6, borderTop: "1px solid", borderColor: "rgba(0,0,0,0.08)" }}
+          >
+            <Typography
+              variant="h5"
+              sx={{ fontWeight: 700, textAlign: "center", mb: 1, color: "#1a1a1a" }}
+            >
+              Financial and liquidity partnerships
+            </Typography>
+            <Typography
+              variant="body2"
+              sx={{ textAlign: "center", mb: 4, color: "#4a4a4a", maxWidth: 520, mx: "auto" }}
+            >
+              Register interest as a bank, fund, or liquidity partner. Our team will follow up with next steps.
+            </Typography>
+            {financialSubmitted ? (
+              <Box sx={{ textAlign: "center", py: 3 }}>
+                <Typography variant="h6" sx={{ mb: 1, color: "#1a1a1a" }}>
+                  Thank you
+                </Typography>
+                <Typography variant="body2" sx={{ color: "#4a4a4a" }}>
+                  We&apos;ve received your details and will be in touch soon.
+                </Typography>
+              </Box>
+            ) : (
+              <Box
+                component="form"
+                onSubmit={handleFinancialSubmit}
+                sx={{
+                  maxWidth: 480,
+                  mx: "auto",
+                  p: 3,
+                  borderRadius: 2,
+                  border: "1px solid",
+                  borderColor: "rgba(0,0,0,0.12)",
+                  bgcolor: "#fafafa",
+                }}
+              >
+                <Stack spacing={2}>
+                  {financialError ? (
+                    <Alert severity="error" onClose={() => setFinancialError(null)}>
+                      {financialError}
+                    </Alert>
+                  ) : null}
+                  <TextField
+                    fullWidth
+                    required
+                    label="Contact name"
+                    value={financialName}
+                    onChange={(e) => setFinancialName(e.target.value)}
+                    sx={{
+                      "& .MuiOutlinedInput-root": {
+                        bgcolor: "white",
+                        "& fieldset": { borderColor: "rgba(0,0,0,0.12)" },
+                      },
+                    }}
+                  />
+                  <TextField
+                    fullWidth
+                    required
+                    type="email"
+                    label="Work email"
+                    value={financialEmail}
+                    onChange={(e) => setFinancialEmail(e.target.value)}
+                    sx={{
+                      "& .MuiOutlinedInput-root": {
+                        bgcolor: "white",
+                        "& fieldset": { borderColor: "rgba(0,0,0,0.12)" },
+                      },
+                    }}
+                  />
+                  <TextField
+                    fullWidth
+                    required
+                    label="Institution or company name"
+                    value={financialBusiness}
+                    onChange={(e) => setFinancialBusiness(e.target.value)}
+                    sx={{
+                      "& .MuiOutlinedInput-root": {
+                        bgcolor: "white",
+                        "& fieldset": { borderColor: "rgba(0,0,0,0.12)" },
+                      },
+                    }}
+                  />
+                  <FormControl
+                    fullWidth
+                    required
+                    sx={{
+                      "& .MuiOutlinedInput-root": {
+                        bgcolor: "white",
+                        "& fieldset": { borderColor: "rgba(0,0,0,0.12)" },
+                      },
+                    }}
+                  >
+                    <InputLabel id="financial-partner-type-label">Partner type</InputLabel>
+                    <Select
+                      labelId="financial-partner-type-label"
+                      label="Partner type"
+                      value={financialPartnerType}
+                      onChange={(e) => setFinancialPartnerType(e.target.value)}
+                    >
+                      {FINANCIAL_PARTNER_TYPES.map((t) => (
+                        <MenuItem key={t} value={t}>
+                          {t}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                  <Button
+                    type="submit"
+                    disabled={financialSubmitting}
+                    fullWidth
+                    sx={{
+                      textTransform: "none",
+                      bgcolor: "#0b7b4c",
+                      color: "#fff",
+                      py: 1.25,
+                      fontWeight: 600,
+                      "&:hover": { bgcolor: "#0a6b3a" },
+                    }}
+                  >
+                    {financialSubmitting ? (
+                      <CircularProgress size={22} color="inherit" />
+                    ) : (
+                      "Submit interest"
+                    )}
+                  </Button>
+                  <Typography variant="caption" sx={{ color: "#6b6b6b", textAlign: "center" }}>
+                    Prefer email? Reach us at{" "}
+                    <Box component="a" href={`mailto:${PARTNERSHIP_EMAIL}`} sx={{ color: "#0b7b4c" }}>
+                      {PARTNERSHIP_EMAIL}
+                    </Box>
+                    .
+                  </Typography>
+                </Stack>
+              </Box>
+            )}
           </Box>
         </Container>
       </Box>
@@ -686,6 +1022,11 @@ export default function LandingPage() {
               }}
             >
               <Stack spacing={2}>
+                {waitlistError ? (
+                  <Alert severity="error" onClose={() => setWaitlistError(null)}>
+                    {waitlistError}
+                  </Alert>
+                ) : null}
                 <TextField
                   fullWidth
                   label="Full Name"
@@ -715,8 +1056,49 @@ export default function LandingPage() {
                     },
                   }}
                 />
+                <TextField
+                  fullWidth
+                  label="Business or organization (optional)"
+                  placeholder="Company, team, or group name"
+                  value={waitlistBusiness}
+                  onChange={(e) => setWaitlistBusiness(e.target.value)}
+                  helperText="Leave blank if you are signing up only for yourself."
+                  sx={{
+                    "& .MuiOutlinedInput-root": {
+                      bgcolor: "#fafafa",
+                      "& fieldset": { borderColor: "rgba(0,0,0,0.12)" },
+                    },
+                  }}
+                />
+                <FormControl
+                  fullWidth
+                  sx={{
+                    "& .MuiOutlinedInput-root": {
+                      bgcolor: "#fafafa",
+                      "& fieldset": { borderColor: "rgba(0,0,0,0.12)" },
+                    },
+                  }}
+                >
+                  <InputLabel id="waitlist-partner-type-label">Partner type (optional)</InputLabel>
+                  <Select
+                    labelId="waitlist-partner-type-label"
+                    label="Partner type (optional)"
+                    value={waitlistPartnerType}
+                    onChange={(e) => setWaitlistPartnerType(e.target.value)}
+                  >
+                    <MenuItem value="">
+                      <em>— Not applicable —</em>
+                    </MenuItem>
+                    {LANDING_WAITLIST_PARTNER_TYPES.map((t) => (
+                      <MenuItem key={t} value={t}>
+                        {t}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
                 <Button
                   type="submit"
+                  disabled={waitlistSubmitting}
                   sx={{
                     textTransform: "none",
                     bgcolor: "#FFC107",
@@ -726,7 +1108,11 @@ export default function LandingPage() {
                     "&:hover": { bgcolor: "#e6ac00" },
                   }}
                 >
-                  Join Waitlist
+                  {waitlistSubmitting ? (
+                    <CircularProgress size={22} color="inherit" />
+                  ) : (
+                    "Join Waitlist"
+                  )}
                 </Button>
               </Stack>
             </Box>

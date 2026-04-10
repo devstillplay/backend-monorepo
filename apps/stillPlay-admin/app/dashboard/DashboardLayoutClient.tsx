@@ -17,6 +17,7 @@ const pathToAction: Record<string, string> = {
   "/dashboard/loan-request": "Viewed Loan Request",
   "/dashboard/loan-repayment": "Viewed Loan Repayment",
   "/dashboard/support": "Viewed Support",
+  "/dashboard/survey": "Viewed Survey",
   "/dashboard/settings": "Viewed Settings",
 };
 

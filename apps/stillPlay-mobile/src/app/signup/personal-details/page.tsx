@@ -9,6 +9,7 @@ import {
   Button,
   IconButton,
   InputAdornment,
+  Paper,
   Stack,
   TextField,
   Typography,
@@ -16,7 +17,8 @@ import {
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-import MobileFrame from "@/components/MobileFrame";
+import AuthScreenShell from "@/components/AuthScreenShell";
+import { authCardWideSx, mergeSx } from "@/lib/desktopLayout";
 import { useSignupStore } from "@/store/useSignupStore";
 
 const fieldSx = {
@@ -90,12 +92,12 @@ export default function PersonalDetailsPage() {
       email: email.trim().toLowerCase(),
       password,
     });
-    router.push("/signup/selfie");
+    router.push("/signup/verify-identity");
   };
 
   return (
-    <MobileFrame>
-      <Box className="screen-content" sx={{ overflow: "auto" }}>
+    <AuthScreenShell>
+      <Paper elevation={0} sx={mergeSx(authCardWideSx, { overflow: "hidden" })}>
         <Stack spacing={0} sx={{ minHeight: "100%" }}>
           {/* Header */}
           <Box sx={{ px: 3, pt: 3 }}>
@@ -107,7 +109,7 @@ export default function PersonalDetailsPage() {
                 Personal details
               </Typography>
             </Stack>
-            <StepIndicator current={1} total={3} />
+            <StepIndicator current={1} total={4} />
           </Box>
 
           <Box sx={{ height: 1, backgroundColor: "#E4E7EC", mt: 2 }} />
@@ -251,7 +253,7 @@ export default function PersonalDetailsPage() {
             </Button>
           </Stack>
         </Stack>
-      </Box>
-    </MobileFrame>
+      </Paper>
+    </AuthScreenShell>
   );
 }

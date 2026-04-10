@@ -300,6 +300,17 @@ exports.Prisma.ChatMessageScalarFieldEnum = {
   createdAt: 'createdAt'
 };
 
+exports.Prisma.WaitlistEntryScalarFieldEnum = {
+  id: 'id',
+  email: 'email',
+  fullName: 'fullName',
+  source: 'source',
+  businessName: 'businessName',
+  partnerType: 'partnerType',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -329,7 +340,8 @@ exports.Prisma.ModelName = {
   CompanyWallet: 'CompanyWallet',
   AppSetting: 'AppSetting',
   ChatSupport: 'ChatSupport',
-  ChatMessage: 'ChatMessage'
+  ChatMessage: 'ChatMessage',
+  WaitlistEntry: 'WaitlistEntry'
 };
 
 /**

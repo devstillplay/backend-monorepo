@@ -4,6 +4,7 @@ import {
   Alert,
   Box,
   Button,
+  Paper,
   Stack,
   Typography,
 } from "@mui/material";
@@ -12,7 +13,8 @@ import { useRouter, useSearchParams } from "next/navigation";
 import OTPInput from "react-otp-input";
 import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
 
-import MobileFrame from "@/components/MobileFrame";
+import AuthScreenShell from "@/components/AuthScreenShell";
+import { authCardNarrowSx, mergeSx } from "@/lib/desktopLayout";
 import { requestRegisterCode, verifyCode } from "@/lib/api";
 import useAuthStore from "@/store/useAuthStore";
 import type { UserProfile } from "@/store/useAuthStore";
@@ -143,9 +145,22 @@ function OtpPageContent() {
   );
 
   return (
-    <MobileFrame>
-      <Box className="screen-content" sx={{ p: 3 }}>
-        <Stack spacing={4} sx={{ height: "100%" }}>
+    <AuthScreenShell
+      contentSx={{
+        justifyContent: "center",
+        py: { xs: 3, md: 5 },
+      }}
+    >
+      <Paper elevation={0} sx={authCardNarrowSx}>
+        <Box
+          component="form"
+          onSubmit={(e) => {
+            e.preventDefault();
+            mutation.mutate();
+          }}
+          sx={{ p: { xs: 3, sm: 3.5, md: 4 } }}
+        >
+          <Stack spacing={4}>
           <Stack spacing={1}>
             <Typography variant="h4" fontWeight={700}>
               Enter your code
@@ -185,27 +200,26 @@ function OtpPageContent() {
             ) : null}
           </Stack>
 
-          <Box flex={1} />
+            <Stack spacing={2}>
+              <Button
+                type="submit"
+                variant="contained"
+                size="large"
+                fullWidth
+                disabled={mutation.isPending || otp.length !== OTP_LENGTH}
+              >
+                {mutation.isPending ? "Verifying..." : "Confirm"}
+              </Button>
 
-          <Stack spacing={2}>
-            <Button
-              variant="contained"
-              size="large"
-              fullWidth
-              disabled={mutation.isPending || otp.length !== OTP_LENGTH}
-              onClick={() => mutation.mutate()}
-            >
-              {mutation.isPending ? "Verifying..." : "Confirm"}
-            </Button>
-
-            <Button
-              variant="text"
-              size="large"
-              fullWidth
-              onClick={handleResend}
-              disabled={resendState === "sending"}
-              sx={{ color: "text.secondary" }}
-            >
+              <Button
+                type="button"
+                variant="text"
+                size="large"
+                fullWidth
+                onClick={handleResend}
+                disabled={resendState === "sending"}
+                sx={{ color: "text.secondary" }}
+              >
               {resendState === "sending"
                 ? "Sending…"
                 : resendState === "sent"
@@ -213,11 +227,12 @@ function OtpPageContent() {
                   : resendState === "error"
                     ? "Failed — try again"
                     : "Didn't receive a code? Resend"}
-            </Button>
+              </Button>
+            </Stack>
           </Stack>
-        </Stack>
-      </Box>
-    </MobileFrame>
+        </Box>
+      </Paper>
+    </AuthScreenShell>
   );
 }
 
@@ -225,14 +240,11 @@ export default function OtpPage() {
   return (
     <Suspense
       fallback={
-        <MobileFrame>
-          <Box
-            className="screen-content"
-            sx={{ display: "flex", alignItems: "center", justifyContent: "center" }}
-          >
+        <AuthScreenShell contentSx={{ justifyContent: "center" }}>
+          <Paper elevation={0} sx={mergeSx(authCardNarrowSx, { py: 6, textAlign: "center" })}>
             <Typography color="text.secondary">Loading...</Typography>
-          </Box>
-        </MobileFrame>
+          </Paper>
+        </AuthScreenShell>
       }
     >
       <OtpPageContent />

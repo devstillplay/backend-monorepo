@@ -7,6 +7,7 @@ import {
   CircularProgress,
   IconButton,
   InputAdornment,
+  Paper,
   Stack,
   TextField,
   Typography,
@@ -18,9 +19,18 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Suspense, useEffect, useState } from "react";
 
-import MobileFrame from "@/components/MobileFrame";
+import AuthScreenShell from "@/components/AuthScreenShell";
+import { authCardNarrowSx, mergeSx } from "@/lib/desktopLayout";
 import useAuthStore from "@/store/useAuthStore";
 import { login, decodeToken, isTokenExpired } from "@/lib/api";
+
+const loginShellContentSx = {
+  justifyContent: "center",
+  py: { xs: 3, md: 5 },
+};
+
+/** Tighter corners than shared `authCardNarrowSx` (login only). */
+const loginPaperRadiusSx = { borderRadius: { xs: 2, md: 2 } };
 
 function LoginPageContent() {
   const router = useRouter();
@@ -34,22 +44,17 @@ function LoginPageContent() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
-  // isMounted starts false on both server and client's first render, preventing
-  // a React hydration mismatch. The auth check only runs after mount, at which
-  // point Zustand has already fully synced from localStorage (sync storage).
   const [isMounted, setIsMounted] = useState(false);
   useEffect(() => {
     setIsMounted(true);
   }, []);
 
-  // If a valid session is already in the store, skip the login page entirely.
   const isValidSession =
     status === "authenticated" && !!token && !!user?.id && !isTokenExpired(token);
 
   useEffect(() => {
     if (!isMounted) return;
     if (isValidSession) {
-      // Verified users go to dashboard; unverified users wait for admin approval
       if (user?.verified === false) {
         router.replace("/pending-verification");
       } else {
@@ -58,7 +63,6 @@ function LoginPageContent() {
     }
   }, [isMounted, isValidSession, user?.verified, router]);
 
-  // All hooks must be declared before any conditional returns.
   const mutation = useMutation({
     mutationFn: () => login({ email: email.trim(), password }),
     onSuccess: (data) => {
@@ -72,7 +76,6 @@ function LoginPageContent() {
           }
         : null;
       setAuthenticated(data.token, userProfile);
-      // Unverified users must wait for admin approval before accessing the dashboard
       if (userProfile?.verified === false) {
         router.replace("/pending-verification");
       } else {
@@ -86,35 +89,43 @@ function LoginPageContent() {
     mutation.mutate();
   };
 
-  // While checking auth (before mount) or mid-redirect, show a neutral spinner
-  // so the user never sees a flash of the login form before being taken in.
   if (!isMounted || isValidSession) {
     return (
-      <MobileFrame>
-        <Box
-          className="screen-content"
-          sx={{ display: "flex", alignItems: "center", justifyContent: "center" }}
+      <AuthScreenShell contentSx={loginShellContentSx}>
+        <Paper
+          elevation={0}
+          sx={mergeSx(authCardNarrowSx, loginPaperRadiusSx, {
+            py: 6,
+            px: 3,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          })}
         >
           <CircularProgress color="primary" />
-        </Box>
-      </MobileFrame>
+        </Paper>
+      </AuthScreenShell>
     );
   }
 
   return (
-    <MobileFrame>
-      <Box className="screen-content" sx={{ p: 3 }}>
-        <Stack spacing={3} sx={{ height: "100%" }}>
-          <Stack spacing={1}>
-            <Typography variant="h4" fontWeight={700}>
-              Welcome back
-            </Typography>
-            <Typography color="text.secondary">
-              Your football space is waiting for you.
-            </Typography>
-          </Stack>
+    <AuthScreenShell contentSx={loginShellContentSx}>
+      <Paper elevation={0} sx={mergeSx(authCardNarrowSx, loginPaperRadiusSx)}>
+        <Box
+          component="form"
+          onSubmit={handleSubmit}
+          sx={{ p: { xs: 3, sm: 3.5, md: 4 } }}
+        >
+          <Stack spacing={3}>
+            <Stack spacing={1}>
+              <Typography variant="h4" fontWeight={700} color="text.primary">
+                Welcome back
+              </Typography>
+              <Typography color="text.secondary" variant="body2">
+                Your football space is waiting for you.
+              </Typography>
+            </Stack>
 
-          <Box component="form" onSubmit={handleSubmit}>
             <Stack spacing={2}>
               <Stack spacing={1}>
                 <Typography variant="body2" fontWeight={600}>
@@ -127,9 +138,10 @@ function LoginPageContent() {
                   type="email"
                   required
                   fullWidth
+                  autoComplete="email"
                   sx={{
                     "& .MuiOutlinedInput-root": {
-                      backgroundColor: "#f2f2f2",
+                      backgroundColor: "rgba(0,0,0,0.04)",
                       borderRadius: 999,
                       "& fieldset": { border: "none" },
                       "&:hover fieldset": { border: "none" },
@@ -150,6 +162,7 @@ function LoginPageContent() {
                   type={showPassword ? "text" : "password"}
                   required
                   fullWidth
+                  autoComplete="current-password"
                   slotProps={{
                     input: {
                       endAdornment: (
@@ -168,7 +181,7 @@ function LoginPageContent() {
                   }}
                   sx={{
                     "& .MuiOutlinedInput-root": {
-                      backgroundColor: "#f2f2f2",
+                      backgroundColor: "rgba(0,0,0,0.04)",
                       borderRadius: 999,
                       "& fieldset": { border: "none" },
                       "&:hover fieldset": { border: "none" },
@@ -193,41 +206,37 @@ function LoginPageContent() {
               </Typography>
 
               {mutation.isError ? (
-                <Alert severity="error">
-                  {(mutation.error as Error).message}
-                </Alert>
+                <Alert severity="error">{(mutation.error as Error).message}</Alert>
               ) : null}
             </Stack>
-          </Box>
 
-          <Box flex={1} />
-
-          <Stack spacing={2}>
-            <Button
-              variant="contained"
-              size="large"
-              fullWidth
-              disabled={mutation.isPending}
-              onClick={() => mutation.mutate()}
-            >
-              {mutation.isPending ? "Logging in..." : "Log in to Still Play"}
-            </Button>
-
-            <Typography variant="body2" textAlign="center" color="text.secondary">
-              Don&apos;t have an account?{" "}
-              <Typography
-                component={Link}
-                href="/signup"
-                variant="body2"
-                sx={{ color: "primary.main", fontWeight: 600, textDecoration: "none" }}
+            <Stack spacing={2}>
+              <Button
+                type="submit"
+                variant="contained"
+                size="large"
+                fullWidth
+                disabled={mutation.isPending}
               >
-                Sign up
+                {mutation.isPending ? "Logging in..." : "Log in to Still Play"}
+              </Button>
+
+              <Typography variant="body2" textAlign="center" color="text.secondary">
+                Don&apos;t have an account?{" "}
+                <Typography
+                  component={Link}
+                  href="/signup"
+                  variant="body2"
+                  sx={{ color: "primary.main", fontWeight: 600, textDecoration: "none" }}
+                >
+                  Sign up
+                </Typography>
               </Typography>
-            </Typography>
+            </Stack>
           </Stack>
-        </Stack>
-      </Box>
-    </MobileFrame>
+        </Box>
+      </Paper>
+    </AuthScreenShell>
   );
 }
 
@@ -235,14 +244,20 @@ export default function LoginPage() {
   return (
     <Suspense
       fallback={
-        <MobileFrame>
-          <Box
-            className="screen-content"
-            sx={{ display: "flex", alignItems: "center", justifyContent: "center" }}
+        <AuthScreenShell contentSx={loginShellContentSx}>
+          <Paper
+            elevation={0}
+            sx={mergeSx(authCardNarrowSx, loginPaperRadiusSx, {
+              py: 6,
+              px: 3,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            })}
           >
             <Typography color="text.secondary">Loading...</Typography>
-          </Box>
-        </MobileFrame>
+          </Paper>
+        </AuthScreenShell>
       }
     >
       <LoginPageContent />

@@ -66,6 +66,17 @@ export type UserProfile = {
   userNumber?: string;
 };
 
+export type WaitlistEntry = {
+  id: string;
+  email: string;
+  fullName: string;
+  source: string;
+  businessName: string | null;
+  partnerType: string | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
 export type AdminUser = {
   id: string;
   email: string;
@@ -766,6 +777,25 @@ export async function listAdminUsers(token: string): Promise<AdminUser[]> {
     );
   }
   return Array.isArray(data) ? data : data.users ?? [];
+}
+
+/** List waitlist signups (admin). */
+export async function listWaitlist(
+  token: string
+): Promise<WaitlistEntry[]> {
+  requireBaseUrl();
+  const res = await fetch(endpoints.admin.waitlist(), {
+    headers: getAuthHeaders(token),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    handleAuthError(res);
+    throw new Error(
+      typeof data.message === "string" ? data.message : "Failed to load waitlist"
+    );
+  }
+  const entries = (data as { entries?: WaitlistEntry[] }).entries;
+  return Array.isArray(entries) ? entries : [];
 }
 
 /** Get single admin user (requires token). */

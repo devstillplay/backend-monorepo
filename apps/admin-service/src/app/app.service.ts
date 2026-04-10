@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
   NotFoundException,
@@ -222,6 +223,70 @@ export class AppService {
       take: limit,
     });
     return { activities };
+  }
+
+  // ---------- Waitlist (public signup + admin list) ----------
+  async createWaitlistEntry(payload: {
+    fullName: string;
+    email: string;
+    source: 'landing' | 'partners' | 'financial';
+    businessName?: string;
+    partnerType?: string;
+  }) {
+    const email = payload?.email?.trim()?.toLowerCase();
+    const fullName = payload?.fullName?.trim();
+    const source = payload?.source;
+    if (!email || !fullName) {
+      throw new BadRequestException('fullName and email are required');
+    }
+    if (source !== 'landing' && source !== 'partners' && source !== 'financial') {
+      throw new BadRequestException('source must be landing, partners, or financial');
+    }
+    let businessName = payload.businessName?.trim() || null;
+    let partnerType = payload.partnerType?.trim() || null;
+    if (source === 'financial') {
+      if (!businessName) {
+        throw new BadRequestException('businessName is required for financial partner signups');
+      }
+      if (!partnerType) {
+        partnerType = 'Financial Institution';
+      }
+    }
+    if (source === 'partners' && (!businessName || !partnerType)) {
+      throw new BadRequestException('businessName and partnerType are required for partners');
+    }
+
+    const existing = await this.prisma.waitlistEntry.findFirst({ where: { email } });
+    if (existing) {
+      const updated = await this.prisma.waitlistEntry.update({
+        where: { id: existing.id },
+        data: {
+          fullName,
+          source,
+          businessName,
+          partnerType,
+        },
+      });
+      return { message: 'Waitlist entry updated', entry: updated };
+    }
+
+    const entry = await this.prisma.waitlistEntry.create({
+      data: {
+        email,
+        fullName,
+        source,
+        businessName,
+        partnerType,
+      },
+    });
+    return { message: 'Joined waitlist', entry };
+  }
+
+  async listWaitlistEntries() {
+    const entries = await this.prisma.waitlistEntry.findMany({
+      orderBy: { createdAt: 'desc' },
+    });
+    return { entries };
   }
 
   private async ensureUniqueUserNumber(

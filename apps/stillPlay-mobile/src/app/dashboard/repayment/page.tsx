@@ -27,6 +27,27 @@ import {
   recordLoanRepayment,
 } from '@/lib/api';
 
+/** Narrow column on desktop so CTAs and copy read as a focused panel, not full-bleed bars. */
+const DESKTOP_CONTENT_MAX = 520;
+
+const containedCtaSx = {
+  borderRadius: 999,
+  py: 1.5,
+  textTransform: 'none' as const,
+  fontWeight: 700,
+  fontSize: '1rem',
+  width: '100%',
+};
+
+const outlinedCtaSx = {
+  borderRadius: 999,
+  py: 1.5,
+  textTransform: 'none' as const,
+  fontWeight: 700,
+  fontSize: '1rem',
+  width: '100%',
+};
+
 const BUDPAY_PUBLIC_KEY =
   process.env.NEXT_PUBLIC_BUDPAY_PUBLIC_KEY ||
   'pk_test_ygdkehlstlctycduvnltb1xnq5yye594ev3qqg';
@@ -172,7 +193,19 @@ export default function RepaymentPage() {
   );
 
   const renderNoLoan = () => (
-    <Paper elevation={0} sx={{ borderRadius: 3, p: 3, backgroundColor: '#fff', textAlign: 'center' }}>
+    <Paper
+      elevation={0}
+      sx={{
+        borderRadius: 3,
+        p: 3,
+        backgroundColor: '#fff',
+        textAlign: 'center',
+        width: '100%',
+        boxShadow: { md: 1 },
+        border: { md: 1 },
+        borderColor: { md: 'divider' },
+      }}
+    >
       <Stack spacing={2} alignItems="center">
         <Box
           sx={{
@@ -197,7 +230,13 @@ export default function RepaymentPage() {
           variant="outlined"
           color="primary"
           onClick={() => router.push('/dashboard/loan')}
-          sx={{ borderRadius: 999, textTransform: 'none', fontWeight: 600 }}
+          sx={{
+            borderRadius: 999,
+            textTransform: 'none',
+            fontWeight: 600,
+            width: { xs: '100%', md: 'auto' },
+            px: { md: 3 },
+          }}
         >
           Request a loan
         </Button>
@@ -206,7 +245,19 @@ export default function RepaymentPage() {
   );
 
   const renderSuccess = () => (
-    <Paper elevation={0} sx={{ borderRadius: 3, p: 3, backgroundColor: '#E8F5EF', textAlign: 'center' }}>
+    <Paper
+      elevation={0}
+      sx={{
+        borderRadius: 3,
+        p: 3,
+        backgroundColor: '#E8F5EF',
+        textAlign: 'center',
+        width: '100%',
+        boxShadow: { md: 1 },
+        border: { md: 1 },
+        borderColor: { md: 'success.light' },
+      }}
+    >
       <Stack spacing={2} alignItems="center">
         <CheckCircleOutlineIcon sx={{ color: '#22C55E', fontSize: 48 }} />
         <Typography variant="subtitle1" fontWeight={700} color="#22C55E">
@@ -219,7 +270,13 @@ export default function RepaymentPage() {
         <Button
           variant="contained"
           onClick={() => router.replace('/dashboard')}
-          sx={{ borderRadius: 999, textTransform: 'none', fontWeight: 600 }}
+          sx={{
+            borderRadius: 999,
+            textTransform: 'none',
+            fontWeight: 600,
+            width: { xs: '100%', md: 'auto' },
+            px: { md: 4 },
+          }}
         >
           Back to dashboard
         </Button>
@@ -228,11 +285,18 @@ export default function RepaymentPage() {
   );
 
   const renderLoan = () => (
-    <Stack spacing={2}>
+    <Stack spacing={2} sx={{ width: '100%' }}>
       {/* ── Outstanding balance card ─────────────────────────────────────── */}
       <Paper
         elevation={0}
-        sx={{ borderRadius: 3, backgroundColor: '#fff', overflow: 'hidden' }}
+        sx={{
+          borderRadius: 3,
+          backgroundColor: '#fff',
+          overflow: 'hidden',
+          boxShadow: { md: 1 },
+          border: { md: 1 },
+          borderColor: { md: 'divider' },
+        }}
       >
         <Box sx={{ px: 3, pt: 3, pb: 2 }}>
           <Typography
@@ -292,7 +356,17 @@ export default function RepaymentPage() {
 
       {/* ── Overdue warning ──────────────────────────────────────────────── */}
       {isOverdue && (
-        <Paper elevation={0} sx={{ borderRadius: 3, backgroundColor: '#fff', p: 2.5 }}>
+        <Paper
+          elevation={0}
+          sx={{
+            borderRadius: 3,
+            backgroundColor: '#fff',
+            p: 2.5,
+            boxShadow: { md: 1 },
+            border: { md: 1 },
+            borderColor: { md: 'divider' },
+          }}
+        >
           <Stack direction="row" spacing={1.5} alignItems="flex-start">
             <Box
               sx={{
@@ -331,53 +405,43 @@ export default function RepaymentPage() {
 
       {/* ── CTA ─────────────────────────────────────────────────────────── */}
       <Box sx={{ pt: 1 }}>
-        <Button
-          fullWidth
-          variant="contained"
-          size="large"
-          disabled={
-            !isRepayable ||
-            amountToRepay <= 0 ||
-            repayMutation.isPending
-          }
-          onClick={initiateBudPayPayment}
-          sx={{
-            borderRadius: 999,
-            py: 1.5,
-            textTransform: 'none',
-            fontWeight: 700,
-            fontSize: '1rem',
-          }}
-        >
-          {repayMutation.isPending
-            ? 'Recording payment…'
-            : `Pay ${formatCurrency(amountToRepay)}`}
-        </Button>
-        {eligibility?.canRequest && (eligibility?.availableAmount ?? 0) > 0 && (
+        <Stack direction="column" spacing={1.5} alignItems="stretch">
           <Button
-            fullWidth
-            variant="outlined"
-            color="primary"
+            variant="contained"
             size="large"
-            onClick={() => router.push('/dashboard/loan')}
-            sx={{
-              borderRadius: 999,
-              py: 1.5,
-              textTransform: 'none',
-              fontWeight: 700,
-              fontSize: '1rem',
-              mt: 1.5,
-            }}
+            disabled={
+              !isRepayable ||
+              amountToRepay <= 0 ||
+              repayMutation.isPending
+            }
+            onClick={initiateBudPayPayment}
+            sx={containedCtaSx}
           >
-            Request a loan (up to {formatCurrency(eligibility.availableAmount)})
+            {repayMutation.isPending
+              ? 'Recording payment…'
+              : `Pay ${formatCurrency(amountToRepay)}`}
           </Button>
-        )}
+          {eligibility?.canRequest && (eligibility?.availableAmount ?? 0) > 0 && (
+            <Button
+              variant="outlined"
+              color="primary"
+              size="large"
+              onClick={() => router.push('/dashboard/loan')}
+              sx={{
+                ...outlinedCtaSx,
+                whiteSpace: 'normal',
+                textAlign: 'center',
+              }}
+            >
+              Request a loan (up to {formatCurrency(eligibility.availableAmount)})
+            </Button>
+          )}
+        </Stack>
         <Typography
           variant="caption"
           color="text.secondary"
-          textAlign="center"
           display="block"
-          sx={{ mt: 1 }}
+          sx={{ mt: 1.5, textAlign: 'center' }}
         >
           Secured by BudPay · Payments are non-refundable
         </Typography>
@@ -389,31 +453,54 @@ export default function RepaymentPage() {
   return (
     <Box
       className="screen-content"
-      sx={{ backgroundColor: '#F5F5F5', overflow: 'auto' }}
+      sx={{
+        backgroundColor: { xs: '#F5F5F5', md: 'transparent' },
+        overflow: 'auto',
+      }}
     >
-      <Stack sx={{ p: 3 }} spacing={3}>
+      <Stack
+        sx={{
+          p: { xs: 3, md: 0 },
+          pt: { md: 0.5 },
+          spacing: 3,
+          maxWidth: { md: DESKTOP_CONTENT_MAX },
+          mx: { md: 'auto' },
+          width: '100%',
+        }}
+      >
         {/* Header */}
-        <Stack direction="row" alignItems="center" spacing={1}>
-          <IconButton
-            aria-label="Back"
-            onClick={() => router.back()}
-            sx={{ borderRadius: 2 }}
+        <Stack spacing={0.5}>
+          <Stack direction="row" alignItems="center" spacing={1}>
+            <IconButton
+              aria-label="Back"
+              onClick={() => router.back()}
+              sx={{ borderRadius: 2 }}
+            >
+              <ArrowBackIcon />
+            </IconButton>
+            <Typography variant="h6" fontWeight={700} sx={{ fontSize: { md: '1.35rem' } }}>
+              Repayment
+            </Typography>
+          </Stack>
+          <Typography
+            variant="body2"
+            color="text.secondary"
+            sx={{ display: { xs: 'none', md: 'block' }, pl: { md: 7 } }}
           >
-            <ArrowBackIcon />
-          </IconButton>
-          <Typography variant="h6" fontWeight={700}>
-            Repayment
+            Pay down your active loan or check your balance.
           </Typography>
         </Stack>
 
         {/* Body */}
-        {isLoading
-          ? renderSkeleton()
-          : paymentSuccess
-            ? renderSuccess()
-            : !activeLoan || !isRepayable
-              ? renderNoLoan()
-              : renderLoan()}
+        {isLoading ? (
+          renderSkeleton()
+        ) : paymentSuccess ? (
+          renderSuccess()
+        ) : !activeLoan || !isRepayable ? (
+          renderNoLoan()
+        ) : (
+          renderLoan()
+        )}
       </Stack>
     </Box>
   );

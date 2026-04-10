@@ -10,13 +10,15 @@ import {
   Button,
   CircularProgress,
   IconButton,
+  Paper,
   Stack,
   Typography,
 } from "@mui/material";
 import { useRouter } from "next/navigation";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
-import MobileFrame from "@/components/MobileFrame";
+import AuthScreenShell from "@/components/AuthScreenShell";
+import { authCardWideSx, mergeSx } from "@/lib/desktopLayout";
 import { uploadImage } from "@/lib/api";
 import { useSignupStore } from "@/store/useSignupStore";
 
@@ -47,7 +49,13 @@ const tips = [
 
 export default function SelfiePage() {
   const router = useRouter();
-  const { setPicture, email } = useSignupStore();
+  const { setPicture, dojahCompleted } = useSignupStore();
+
+  useEffect(() => {
+    if (!dojahCompleted) {
+      router.replace("/signup/verify-identity");
+    }
+  }, [dojahCompleted, router]);
 
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const galleryInputRef = useRef<HTMLInputElement>(null);
@@ -93,8 +101,8 @@ export default function SelfiePage() {
   };
 
   return (
-    <MobileFrame>
-      <Box className="screen-content" sx={{ overflow: "auto" }}>
+    <AuthScreenShell>
+      <Paper elevation={0} sx={mergeSx(authCardWideSx, { overflow: "hidden" })}>
         <Stack spacing={0} sx={{ minHeight: "100%" }}>
           {/* Header */}
           <Box sx={{ px: 3, pt: 3 }}>
@@ -106,7 +114,7 @@ export default function SelfiePage() {
                 Take a selfie
               </Typography>
             </Stack>
-            <StepIndicator current={2} total={3} />
+            <StepIndicator current={3} total={4} />
           </Box>
 
           <Box sx={{ height: 1, backgroundColor: "#E4E7EC", mt: 2 }} />
@@ -269,7 +277,7 @@ export default function SelfiePage() {
             )}
           </Stack>
         </Stack>
-      </Box>
-    </MobileFrame>
+      </Paper>
+    </AuthScreenShell>
   );
 }

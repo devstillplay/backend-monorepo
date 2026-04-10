@@ -69,7 +69,13 @@ export default function HomePage() {
           >
             <Stack
               spacing={4}
-              sx={{ minHeight: "100vh", p: 3 }}
+              sx={{
+                minHeight: "100vh",
+                p: 3,
+                width: "100%",
+                maxWidth: { md: 520 },
+                mx: "auto",
+              }}
               alignItems="center"
               justifyContent="center"
               textAlign="center"
@@ -93,7 +99,7 @@ export default function HomePage() {
                   </Typography>
                 </Stack>
               </Stack>
-              <Stack spacing={2} width="100%" maxWidth={320}>
+              <Stack spacing={2} width="100%" maxWidth={{ xs: 320, md: 380 }}>
                 <Button
                   variant="contained"
                   size="large"

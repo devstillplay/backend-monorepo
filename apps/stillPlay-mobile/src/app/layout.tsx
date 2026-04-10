@@ -1,12 +1,11 @@
 import type { Metadata } from "next";
 
-import DesktopOnlyDialog from "@/components/DesktopOnlyDialog";
 import Providers from "./providers";
 import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Still Play",
-  description: "Still Play mobile web experience"
+  description: "Still Play — responsive web app for mobile and desktop",
 };
 
 export default function RootLayout({
@@ -17,10 +16,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body suppressHydrationWarning>
-        <Providers>
-          <DesktopOnlyDialog />
-          {children}
-        </Providers>
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

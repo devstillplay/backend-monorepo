@@ -21,10 +21,17 @@ body {
 .app-root {
   width: 100%;
   min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
   flex-direction: column;
   background: #ffffff;
   overflow: hidden;
+}
+
+@media (min-width: 900px) {
+  .app-root {
+    overflow: auto;
+  }
 }
 
 .screen-content {

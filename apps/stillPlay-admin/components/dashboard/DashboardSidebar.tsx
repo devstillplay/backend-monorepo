@@ -10,6 +10,7 @@ import PeopleAltOutlinedIcon from "@mui/icons-material/PeopleAltOutlined";
 import RequestQuoteOutlinedIcon from "@mui/icons-material/RequestQuoteOutlined";
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 import SupportAgentOutlinedIcon from "@mui/icons-material/SupportAgentOutlined";
+import PollOutlinedIcon from "@mui/icons-material/PollOutlined";
 import {
   Badge,
   Box,
@@ -58,6 +59,11 @@ const navItems = [
     label: "Loan Repayment",
     href: "/dashboard/loan-repayment",
     icon: <PaymentsOutlinedIcon />,
+  },
+  {
+    label: "Survey",
+    href: "/dashboard/survey?tab=waitlist",
+    icon: <PollOutlinedIcon />,
   },
   {
     label: "Support",
@@ -246,11 +252,15 @@ export default function DashboardSidebar({
           {navItems.map((item) => {
             const isOverview = item.href === "/dashboard" && !item.href.includes("?");
             const isUsers = item.href.includes("tab=users");
+            const hrefPath = item.href.split("?")[0];
+            const isSurvey = hrefPath === "/dashboard/survey";
             const isActive = isOverview
               ? pathname === "/dashboard" && tab !== "users"
               : isUsers
                 ? pathname === "/dashboard" && tab === "users"
-                : pathname === item.href.split("?")[0];
+                : isSurvey
+                  ? pathname === "/dashboard/survey"
+                  : pathname === hrefPath;
             const showBadge =
               item.href === "/dashboard/loan-request" && pendingLoanCount > 0;
             return (

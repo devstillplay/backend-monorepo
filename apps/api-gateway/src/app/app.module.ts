@@ -18,6 +18,7 @@ import {
   PROVIDER_SERVICE,
 } from './provider/provider.controller';
 import { ChatController, CHAT_SERVICE } from './chat/chat.controller';
+import { WaitlistController } from './waitlist/waitlist.controller';
 
 @Module({
   imports: [
@@ -157,6 +158,7 @@ import { ChatController, CHAT_SERVICE } from './chat/chat.controller';
     LoanController,
     ProviderController,
     ChatController,
+    WaitlistController,
   ],
   providers: [AppService, AuthService],
 })
