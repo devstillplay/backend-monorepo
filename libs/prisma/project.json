@@ -1,0 +1,19 @@
+{
+  "name": "workspace-prisma",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/prisma/src",
+  "projectType": "library",
+  "tags": ["type:data-access", "scope:shared"],
+  "targets": {
+    "generate": {
+      "executor": "nx:run-commands",
+      "cache": true,
+      "inputs": ["{workspaceRoot}/prisma/schema.prisma"],
+      "outputs": ["{workspaceRoot}/libs/prisma/generated"],
+      "options": {
+        "command": "prisma generate --schema=prisma/schema.prisma",
+        "cwd": "{workspaceRoot}"
+      }
+    }
+  }
+}

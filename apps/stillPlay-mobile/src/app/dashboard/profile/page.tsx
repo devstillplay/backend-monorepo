@@ -1,19 +1,38 @@
 "use client";
 
-import { Avatar, Box, Divider, Stack, Typography } from "@mui/material";
+import {
+  Alert,
+  Avatar,
+  Box,
+  Badge,
+  CircularProgress,
+  Divider,
+  IconButton,
+  Stack,
+  Tooltip,
+  Typography,
+} from "@mui/material";
 import PersonIcon from "@mui/icons-material/Person";
 import CreditCardIcon from "@mui/icons-material/CreditCard";
 import GroupAddIcon from "@mui/icons-material/GroupAdd";
 import ChatBubbleIcon from "@mui/icons-material/ChatBubble";
 import LogoutIcon from "@mui/icons-material/Logout";
 import BadgeIcon from "@mui/icons-material/Badge";
-import { useQuery } from "@tanstack/react-query";
+import PhotoCameraIcon from "@mui/icons-material/PhotoCamera";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
+import { useRef, useState } from "react";
 import useAuthStore from "@/store/useAuthStore";
-import { getProfile } from "@/lib/api";
+import { getProfile, updateProfile, uploadImage } from "@/lib/api";
+
+const MAX_AVATAR_BYTES = 5 * 1024 * 1024;
 
 export default function ProfilePage() {
   const router = useRouter();
+  const queryClient = useQueryClient();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [photoError, setPhotoError] = useState<string | null>(null);
+
   const logout = useAuthStore((state) => state.reset);
   const user = useAuthStore((state) => state.user);
   const setUser = useAuthStore((state) => state.setUser);
@@ -40,6 +59,55 @@ export default function ProfilePage() {
     staleTime: 5 * 60 * 1000,
   });
 
+  const updatePictureMutation = useMutation({
+    mutationFn: async (file: File) => {
+      if (!token) throw new Error("Not signed in");
+      if (!file.type.startsWith("image/")) {
+        throw new Error("Please choose an image file (JPEG, PNG, or WebP).");
+      }
+      if (file.size > MAX_AVATAR_BYTES) {
+        throw new Error("Image must be 5 MB or smaller.");
+      }
+      const uploaded = await uploadImage(file, {
+        folder: "profile-pictures",
+        token,
+      });
+      const url = uploaded.secureUrl ?? uploaded.url;
+      return updateProfile(token, { picture: url });
+    },
+    onSuccess: (p) => {
+      setPhotoError(null);
+      setUser({
+        id: p.id,
+        email: p.email,
+        role: p.role,
+        firstName: p.firstName,
+        lastName: p.lastName,
+        picture: p.picture ?? null,
+        verified: p.verified,
+        userNumber: p.userNumber,
+        createdAt: p.createdAt,
+      });
+      queryClient.setQueryData(["user-profile"], p);
+    },
+    onError: (err: Error) => {
+      setPhotoError(err.message ?? "Could not update photo");
+    },
+  });
+
+  const displayPicture = profile?.picture ?? user?.picture ?? undefined;
+
+  const openFilePicker = () => {
+    setPhotoError(null);
+    fileInputRef.current?.click();
+  };
+
+  const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (file) updatePictureMutation.mutate(file);
+  };
+
   const ninSlip = profile?.ninSlip ?? null;
   const userNumber = profile?.userNumber ?? user?.userNumber ?? "—";
   const createdAt = profile?.createdAt ?? user?.createdAt;
@@ -58,7 +126,19 @@ export default function ProfilePage() {
 
   return (
     <Box sx={{ flex: 1, backgroundColor: "#FFFFFF" }}>
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/jpeg,image/png,image/webp,image/gif"
+        hidden
+        onChange={onFileChange}
+      />
       <Stack spacing={3} sx={{ p: 3 }}>
+        {photoError && (
+          <Alert severity="error" onClose={() => setPhotoError(null)}>
+            {photoError}
+          </Alert>
+        )}
         <Box
           sx={{
             borderRadius: 3,
@@ -81,17 +161,53 @@ export default function ProfilePage() {
             >
               Account
             </Typography>
-            <Avatar
-              src={user?.picture ?? "https://i.pravatar.cc/120?img=12"}
-              sx={{
-                width: 68,
-                height: 68,
-                border: "3px solid #FFFFFF",
-                position: "absolute",
-                top: 15,
-                zIndex: 1,
-              }}
-            />
+            <Tooltip title="Change profile photo">
+              <Badge
+                overlap="circular"
+                anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+                sx={{ position: "absolute", top: 15, zIndex: 1 }}
+                badgeContent={
+                  <IconButton
+                    size="small"
+                    aria-label="Change profile photo"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      openFilePicker();
+                    }}
+                    disabled={updatePictureMutation.isPending || !token}
+                    sx={{
+                      bgcolor: "#0F8B4C",
+                      color: "#fff",
+                      width: 28,
+                      height: 28,
+                      border: "2px solid #fff",
+                      "&:hover": { bgcolor: "#0a6d3c" },
+                      "&.Mui-disabled": { bgcolor: "action.disabledBackground" },
+                    }}
+                  >
+                    {updatePictureMutation.isPending ? (
+                      <CircularProgress size={14} sx={{ color: "#fff" }} />
+                    ) : (
+                      <PhotoCameraIcon sx={{ fontSize: 16 }} />
+                    )}
+                  </IconButton>
+                }
+              >
+                <Avatar
+                  src={displayPicture}
+                  alt=""
+                  sx={{
+                    width: 68,
+                    height: 68,
+                    border: "3px solid #FFFFFF",
+                  }}
+                >
+                  {!displayPicture ? (
+                    <PersonIcon sx={{ fontSize: 36, color: "grey.600" }} />
+                  ) : undefined}
+                </Avatar>
+              </Badge>
+            </Tooltip>
             <Box
               sx={{
                 width: "100%",

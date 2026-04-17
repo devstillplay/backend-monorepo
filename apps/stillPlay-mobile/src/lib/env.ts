@@ -51,4 +51,8 @@ export const endpoints = {
       `${getBaseUrl()}/chat/threads/${chatSupportId}/messages`,
     sendMessage: () => `${getBaseUrl()}/chat/messages`,
   },
+  kyc: {
+    dojahVerification: (referenceId: string) =>
+      `${getBaseUrl()}/kyc/dojah-verification?referenceId=${encodeURIComponent(referenceId)}`,
+  },
 } as const;

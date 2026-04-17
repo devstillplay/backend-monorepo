@@ -20,6 +20,8 @@ model User {
   nin         String   @unique
   picture     String?
   ninSlip     String?
+  /// Dojah Easy Onboard `reference_id` after KYC (audit); set at registration when KYC completed.
+  dojahReferenceId String?
   role        String   @default("Customer")
   verified    Boolean  @default(false)
   suspended   Boolean  @default(false) // when true, user cannot log in

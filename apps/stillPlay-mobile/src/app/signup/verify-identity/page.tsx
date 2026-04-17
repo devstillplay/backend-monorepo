@@ -12,14 +12,26 @@ import {
   Typography,
 } from "@mui/material";
 import { useRouter } from "next/navigation";
-import { startTransition, useCallback, useMemo, useRef, useState } from "react";
+import {
+  startTransition,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 
 import AuthScreenShell from "@/components/AuthScreenShell";
 import DojahWebSdkButton, {
   type DojahLauncherHandle,
+  type DojahSdkLoadStatus,
 } from "@/components/DojahWebSdkButton";
+import { fetchDojahVerificationFromGateway } from "@/lib/api";
 import { authCardWideSx, mergeSx } from "@/lib/desktopLayout";
-import { getDojahWebSdkConfig } from "@/lib/dojahConfig";
+import { postDeviceFingerprint } from "@/lib/deviceGuard";
+import { dojahDebugLog, getDojahWebSdkConfig } from "@/lib/dojahConfig";
+import { loadDojahReferenceForEmail, saveDojahReferenceForEmail } from "@/lib/dojahLocalCache";
+import { extractDojahReference, summarizeDojahVerificationForUi } from "@/lib/dojahPayload";
 import { useSignupStore } from "@/store/useSignupStore";
 
 function StepIndicator({ current, total }: { current: number; total: number }) {
@@ -41,13 +53,6 @@ function StepIndicator({ current, total }: { current: number; total: number }) {
   );
 }
 
-function extractReference(data: unknown): string | null {
-  if (!data || typeof data !== "object") return null;
-  const o = data as Record<string, unknown>;
-  const ref = o.reference_id ?? o.referenceId;
-  return typeof ref === "string" && ref.length > 0 ? ref : null;
-}
-
 /** Dojah reference_id should be long enough for tracking (see Dojah docs). */
 function buildReferenceId(email: string): string {
   const safe = email.replace(/[^a-zA-Z0-9@._-]/g, "").slice(0, 32);
@@ -56,85 +61,181 @@ function buildReferenceId(email: string): string {
 
 export default function VerifyIdentityPage() {
   const router = useRouter();
-  const firstName = useSignupStore((s) => s.firstName);
-  const lastName = useSignupStore((s) => s.lastName);
-  const nin = useSignupStore((s) => s.nin);
   const email = useSignupStore((s) => s.email);
   const setDojahResult = useSignupStore((s) => s.setDojahResult);
 
   const [error, setError] = useState<string | null>(null);
-  const [sdkReady, setSdkReady] = useState(false);
+  const [sdkLoadStatus, setSdkLoadStatus] = useState<DojahSdkLoadStatus>("loading");
+  const [sdkLoadMessage, setSdkLoadMessage] = useState<string | null>(null);
+  const [deviceGuard, setDeviceGuard] = useState<Awaited<
+    ReturnType<typeof postDeviceFingerprint>
+  > | null>(null);
+  const [cachedDojahRef, setCachedDojahRef] = useState<string | null>(null);
+  const [restoredDojah, setRestoredDojah] = useState<unknown>(null);
+  const [restoreLoading, setRestoreLoading] = useState(false);
+  const [restoreError, setRestoreError] = useState<string | null>(null);
   const dojahRef = useRef<DojahLauncherHandle>(null);
+  /** Same referenceId passed to `open()` — fallback if widget payload omits `reference_id`. */
+  const lastOpenedReferenceRef = useRef<string | null>(null);
 
   const { widgetId, isReady } = useMemo(() => getDojahWebSdkConfig(), []);
 
-  const userData = useMemo(
-    () => ({
-      first_name: firstName || undefined,
-      last_name: lastName || undefined,
-      email: email || undefined,
-      residence_country: "NG",
-    }),
-    [firstName, lastName, email]
-  );
-
-  const govData = useMemo(
-    () => ({
-      nin: nin || "",
-      bvn: "",
-      dl: "",
-      mobile: "",
-    }),
-    [nin]
-  );
-
-  const onSdkReady = useCallback(() => {
-    setSdkReady(true);
+  const onSdkStatus = useCallback((status: DojahSdkLoadStatus, message?: string) => {
+    setSdkLoadStatus(status);
+    setSdkLoadMessage(status === "error" ? (message ?? null) : null);
   }, []);
 
-  const onDojahSuccess = useCallback(
-    (data: unknown) => {
-      console.log("[Dojah] onSuccess response:", data);
-      const ref = extractReference(data);
-      setDojahResult(ref, true);
-      // Defer client navigation out of Dojah’s global callback to avoid re-entrancy with
-      // Next’s lazy chunk loader (can otherwise request `/_next/undefined` in dev).
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const fp = await postDeviceFingerprint({
+        email: email || undefined,
+        flow: "signup_verify_identity",
+      });
+      if (!cancelled) {
+        setDeviceGuard(fp);
+        dojahDebugLog("DeviceGuard fingerprint:", fp);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [email]);
+
+  useEffect(() => {
+    if (!email?.trim()) {
+      setCachedDojahRef(null);
+      return;
+    }
+    const ref = loadDojahReferenceForEmail(email);
+    setCachedDojahRef(ref);
+    dojahDebugLog("Cached Dojah reference for email:", ref ? `${ref.slice(0, 12)}…` : null);
+  }, [email]);
+
+  useEffect(() => {
+    if (!cachedDojahRef) {
+      setRestoredDojah(null);
+      setRestoreError(null);
+      return;
+    }
+
+    let cancelled = false;
+    (async () => {
+      setRestoreLoading(true);
+      setRestoreError(null);
+      try {
+        const { dojah } = await fetchDojahVerificationFromGateway(cachedDojahRef);
+        if (!cancelled) {
+          setRestoredDojah(dojah);
+          dojahDebugLog("Restored Dojah verification from API:", dojah);
+        }
+      } catch (e) {
+        if (!cancelled) {
+          setRestoredDojah(null);
+          setRestoreError(e instanceof Error ? e.message : "Could not load Dojah verification");
+          dojahDebugLog("Restore from Dojah failed:", e);
+        }
+      } finally {
+        if (!cancelled) setRestoreLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [cachedDojahRef]);
+
+  const continueWithRestoredKyc = useCallback(() => {
+    if (!cachedDojahRef) return;
+    setDojahResult(cachedDojahRef, true);
+    window.setTimeout(() => {
       startTransition(() => {
         router.push("/signup/selfie");
       });
+    }, 0);
+  }, [cachedDojahRef, router, setDojahResult]);
+
+  const onDojahSuccess = useCallback(
+    (data: unknown) => {
+      dojahDebugLog("onSuccess raw payload:", data);
+      const ref = extractDojahReference(data);
+      const sentRef = lastOpenedReferenceRef.current;
+      dojahDebugLog("onSuccess extracted reference_id:", ref, "| client referenceId sent:", sentRef);
+      const finalRef = ref ?? sentRef;
+      if (!finalRef?.trim()) {
+        setError(
+          "Dojah reported success but no reference id was returned. Check the browser console (enable NEXT_PUBLIC_DEBUG_DOJAH=true), complete the flow again, or contact support with a screenshot of the last Dojah screen."
+        );
+        return;
+      }
+      if (email?.trim()) saveDojahReferenceForEmail(email, finalRef);
+      setDojahResult(finalRef, true);
+      setError(null);
+      // Signup: KYC only advances the flow (selfie → register). It does not create a login session.
+      // Defer navigation out of Dojah’s postMessage stack so Next/Zustand apply cleanly.
+      window.setTimeout(() => {
+        startTransition(() => {
+          router.push("/signup/selfie");
+        });
+      }, 0);
     },
-    [router, setDojahResult]
+    [email, router, setDojahResult]
   );
 
   const onDojahError = useCallback((message?: string) => {
+    dojahDebugLog("onError:", message);
     setError(message ?? "Verification could not be completed. Please try again.");
   }, []);
 
   const onDojahClose = useCallback(() => {
-    setError(null);
+    dojahDebugLog("onClose (widget closed without success)");
+    setError(
+      "Verification was closed before completion. Tap Start verification again when you’re ready to continue."
+    );
   }, []);
 
   const startVerification = () => {
     setError(null);
-    if (!firstName || !email || !nin) {
+    if (!email?.trim()) {
       router.replace("/signup/personal-details");
       return;
     }
     if (!isReady) {
       setError(
-        "Dojah is not configured. Set NEXT_PUBLIC_DOJAH_WIDGET_ID (Easy Onboard widget id) in your environment."
+        "Dojah is not configured. Set NEXT_PUBLIC_DOJAH_WIDGET_ID (or DOJAH_WIDGET_ID with our next.config fallback) to your Easy Onboard widget id, then restart `next dev`."
+      );
+      return;
+    }
+    if (sdkLoadStatus === "loading") {
+      setError(
+        "Dojah’s script is still loading. Wait a second and try again — if this persists, hard-refresh the page or check that widget.dojah.io is not blocked."
+      );
+      return;
+    }
+    if (sdkLoadStatus === "error") {
+      setError(
+        sdkLoadMessage ??
+          "Dojah failed to load. Check your network, disable blockers for widget.dojah.io, and refresh the page."
       );
       return;
     }
     const referenceId = buildReferenceId(email || "signup");
+    lastOpenedReferenceRef.current = referenceId;
     const metadata = {
       flow: "stillplay_signup",
       email: email || undefined,
       cache_bust: `${Date.now()}_${Math.random().toString(36).slice(2, 12)}`,
     };
+    dojahDebugLog("open() params", {
+      widgetId,
+      referenceId,
+      collectInWidget: true,
+      metadata,
+    });
     const opened = dojahRef.current?.open({ referenceId, metadata }) ?? false;
     if (!opened) {
-      setError("Dojah is still loading. Wait a few seconds and try again.");
+      setError(
+        "Could not open Dojah from this page (launcher not ready). Refresh and try again, or open the browser console for [Dojah] logs."
+      );
     }
   };
 
@@ -175,8 +276,10 @@ export default function VerifyIdentityPage() {
               <Box>
                 <Typography fontWeight={600}>Dojah KYC</Typography>
                 <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-                  Use the button below to open Dojah (hidden Web SDK embed — each attempt uses a new
-                  session). Confirm the result on your backend.
+                  You&apos;ll enter name, ID, and liveness in <strong>Dojah&apos;s own screens</strong>{" "}
+                  (we don&apos;t send your signup form into the widget). After KYC, continue with
+                  selfie and registration. KYC does <strong>not</strong> log you in — use{" "}
+                  <strong>Login</strong> after you register.
                 </Typography>
               </Box>
             </Stack>
@@ -193,10 +296,94 @@ export default function VerifyIdentityPage() {
               </Alert>
             )}
 
+            {sdkLoadStatus === "loading" && (
+              <Alert severity="info">
+                Loading Dojah script (widget.dojah.io)… You can tap <strong>Start verification</strong> once
+                this finishes.
+              </Alert>
+            )}
+
+            {sdkLoadStatus === "error" && sdkLoadMessage && (
+              <Alert severity="error">
+                <strong>Dojah script error:</strong> {sdkLoadMessage}
+              </Alert>
+            )}
+
             {error && (
               <Alert severity="error" onClose={() => setError(null)}>
                 {error}
               </Alert>
+            )}
+
+            {deviceGuard && deviceGuard.isNewDevice === false && (
+              <Alert severity="info">
+                This device is already registered with your fingerprint provider (
+                {deviceGuard.country ?? "unknown country"}, device{" "}
+                {deviceGuard.deviceId ? `${deviceGuard.deviceId.slice(0, 8)}…` : "—"}). If you
+                completed Dojah KYC on this browser before, your verification may appear below.
+              </Alert>
+            )}
+
+            {cachedDojahRef && (
+              <Paper variant="outlined" sx={{ p: 2, bgcolor: "#F8FAFC" }}>
+                <Typography fontWeight={700} gutterBottom>
+                  Saved verification (this browser)
+                </Typography>
+                <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                  Reference: <code>{cachedDojahRef}</code>
+                </Typography>
+                {restoreLoading && (
+                  <Typography variant="body2" color="text.secondary">
+                    Loading details from Dojah…
+                  </Typography>
+                )}
+                {restoreError && (
+                  <Alert severity="warning" sx={{ mt: 1 }}>
+                    {restoreError} — run <strong>Start verification</strong> again, or ensure the API
+                    gateway has <code>DOJAH_APP_ID</code> and <code>DOJAH_SECRET_KEY</code>.
+                  </Alert>
+                )}
+                {restoredDojah != null && !restoreLoading && (
+                  <>
+                    {(() => {
+                      const lines = summarizeDojahVerificationForUi(restoredDojah);
+                      return lines.length > 0 ? (
+                        <Stack spacing={0.5} sx={{ mb: 1 }}>
+                          {lines.map((line, i) => (
+                            <Typography key={`${i}-${line.slice(0, 24)}`} variant="body2">
+                              {line}
+                            </Typography>
+                          ))}
+                        </Stack>
+                      ) : null;
+                    })()}
+                    <Box
+                      component="pre"
+                      sx={{
+                        m: 0,
+                        p: 1,
+                        borderRadius: 1,
+                        bgcolor: "#fff",
+                        fontSize: "0.7rem",
+                        maxHeight: 200,
+                        overflow: "auto",
+                        border: "1px solid #E4E7EC",
+                      }}
+                    >
+                      {JSON.stringify(restoredDojah, null, 2)}
+                    </Box>
+                    <Button
+                      variant="contained"
+                      color="success"
+                      fullWidth
+                      sx={{ mt: 2, borderRadius: 999, textTransform: "none", fontWeight: 700 }}
+                      onClick={continueWithRestoredKyc}
+                    >
+                      Continue with this verification
+                    </Button>
+                  </>
+                )}
+              </Paper>
             )}
 
             <Button
@@ -204,7 +391,7 @@ export default function VerifyIdentityPage() {
               size="large"
               fullWidth
               onClick={startVerification}
-              disabled={!isReady || !sdkReady}
+              disabled={!isReady}
               sx={{
                 borderRadius: 999,
                 py: 1.4,
@@ -215,15 +402,23 @@ export default function VerifyIdentityPage() {
               Start verification
             </Button>
 
+            <Typography variant="caption" color="text.secondary" display="block" sx={{ mt: -1 }}>
+              Dojah SDK:{" "}
+              {sdkLoadStatus === "loading"
+                ? "loading…"
+                : sdkLoadStatus === "ready"
+                  ? "ready"
+                  : "error — see message above"}
+            </Typography>
+
             <DojahWebSdkButton
               ref={dojahRef}
               widgetId={widgetId}
-              userData={userData}
-              govData={govData}
+              prefillFromParent={false}
               onSuccess={onDojahSuccess}
               onError={onDojahError}
               onClose={onDojahClose}
-              onSdkReady={onSdkReady}
+              onSdkStatus={onSdkStatus}
             />
 
             <Typography variant="caption" color="text.secondary" display="block">
@@ -237,7 +432,15 @@ export default function VerifyIdentityPage() {
               </a>
               . Overview:{" "}
               <a href="https://docs.dojah.io/overview/quickstart" target="_blank" rel="noopener noreferrer">
-                Dojah quickstart
+                quickstart
+              </a>
+              ,{" "}
+              <a
+                href="https://docs.dojah.io/sdks/javascript-library"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                JS SDK (optional <code>user_data</code> / <code>gov_data</code>)
               </a>
               .
             </Typography>

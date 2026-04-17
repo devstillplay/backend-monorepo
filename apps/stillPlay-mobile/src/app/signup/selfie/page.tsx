@@ -52,9 +52,13 @@ export default function SelfiePage() {
   const { setPicture, dojahCompleted } = useSignupStore();
 
   useEffect(() => {
-    if (!dojahCompleted) {
-      router.replace("/signup/verify-identity");
-    }
+    if (dojahCompleted) return;
+    const t = window.setTimeout(() => {
+      if (!useSignupStore.getState().dojahCompleted) {
+        router.replace("/signup/verify-identity");
+      }
+    }, 200);
+    return () => clearTimeout(t);
   }, [dojahCompleted, router]);
 
   const cameraInputRef = useRef<HTMLInputElement>(null);

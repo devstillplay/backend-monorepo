@@ -2571,6 +2571,7 @@ export namespace Prisma {
     nin: string | null
     picture: string | null
     ninSlip: string | null
+    dojahReferenceId: string | null
     role: string | null
     verified: boolean | null
     suspended: boolean | null
@@ -2589,6 +2590,7 @@ export namespace Prisma {
     nin: string | null
     picture: string | null
     ninSlip: string | null
+    dojahReferenceId: string | null
     role: string | null
     verified: boolean | null
     suspended: boolean | null
@@ -2607,6 +2609,7 @@ export namespace Prisma {
     nin: number
     picture: number
     ninSlip: number
+    dojahReferenceId: number
     role: number
     verified: number
     suspended: number
@@ -2635,6 +2638,7 @@ export namespace Prisma {
     nin?: true
     picture?: true
     ninSlip?: true
+    dojahReferenceId?: true
     role?: true
     verified?: true
     suspended?: true
@@ -2653,6 +2657,7 @@ export namespace Prisma {
     nin?: true
     picture?: true
     ninSlip?: true
+    dojahReferenceId?: true
     role?: true
     verified?: true
     suspended?: true
@@ -2671,6 +2676,7 @@ export namespace Prisma {
     nin?: true
     picture?: true
     ninSlip?: true
+    dojahReferenceId?: true
     role?: true
     verified?: true
     suspended?: true
@@ -2776,6 +2782,7 @@ export namespace Prisma {
     nin: string
     picture: string | null
     ninSlip: string | null
+    dojahReferenceId: string | null
     role: string
     verified: boolean
     suspended: boolean
@@ -2813,6 +2820,7 @@ export namespace Prisma {
     nin?: boolean
     picture?: boolean
     ninSlip?: boolean
+    dojahReferenceId?: boolean
     role?: boolean
     verified?: boolean
     suspended?: boolean
@@ -2833,6 +2841,7 @@ export namespace Prisma {
     nin?: boolean
     picture?: boolean
     ninSlip?: boolean
+    dojahReferenceId?: boolean
     role?: boolean
     verified?: boolean
     suspended?: boolean
@@ -2841,7 +2850,7 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userNumber" | "email" | "password" | "firstName" | "lastName" | "nin" | "picture" | "ninSlip" | "role" | "verified" | "suspended" | "creditLimit" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userNumber" | "email" | "password" | "firstName" | "lastName" | "nin" | "picture" | "ninSlip" | "dojahReferenceId" | "role" | "verified" | "suspended" | "creditLimit" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
 
   export type $UserPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "User"
@@ -2856,6 +2865,10 @@ export namespace Prisma {
       nin: string
       picture: string | null
       ninSlip: string | null
+      /**
+       * Dojah Easy Onboard `reference_id` after KYC (audit); set at registration when KYC completed.
+       */
+      dojahReferenceId: string | null
       role: string
       verified: boolean
       suspended: boolean
@@ -3263,6 +3276,7 @@ export namespace Prisma {
     readonly nin: FieldRef<"User", 'String'>
     readonly picture: FieldRef<"User", 'String'>
     readonly ninSlip: FieldRef<"User", 'String'>
+    readonly dojahReferenceId: FieldRef<"User", 'String'>
     readonly role: FieldRef<"User", 'String'>
     readonly verified: FieldRef<"User", 'Boolean'>
     readonly suspended: FieldRef<"User", 'Boolean'>
@@ -21474,6 +21488,7 @@ export namespace Prisma {
     nin: 'nin',
     picture: 'picture',
     ninSlip: 'ninSlip',
+    dojahReferenceId: 'dojahReferenceId',
     role: 'role',
     verified: 'verified',
     suspended: 'suspended',
@@ -21818,6 +21833,7 @@ export namespace Prisma {
     nin?: StringFilter<"User"> | string
     picture?: StringNullableFilter<"User"> | string | null
     ninSlip?: StringNullableFilter<"User"> | string | null
+    dojahReferenceId?: StringNullableFilter<"User"> | string | null
     role?: StringFilter<"User"> | string
     verified?: BoolFilter<"User"> | boolean
     suspended?: BoolFilter<"User"> | boolean
@@ -21836,6 +21852,7 @@ export namespace Prisma {
     nin?: SortOrder
     picture?: SortOrder
     ninSlip?: SortOrder
+    dojahReferenceId?: SortOrder
     role?: SortOrder
     verified?: SortOrder
     suspended?: SortOrder
@@ -21857,6 +21874,7 @@ export namespace Prisma {
     lastName?: StringFilter<"User"> | string
     picture?: StringNullableFilter<"User"> | string | null
     ninSlip?: StringNullableFilter<"User"> | string | null
+    dojahReferenceId?: StringNullableFilter<"User"> | string | null
     role?: StringFilter<"User"> | string
     verified?: BoolFilter<"User"> | boolean
     suspended?: BoolFilter<"User"> | boolean
@@ -21875,6 +21893,7 @@ export namespace Prisma {
     nin?: SortOrder
     picture?: SortOrder
     ninSlip?: SortOrder
+    dojahReferenceId?: SortOrder
     role?: SortOrder
     verified?: SortOrder
     suspended?: SortOrder
@@ -21901,6 +21920,7 @@ export namespace Prisma {
     nin?: StringWithAggregatesFilter<"User"> | string
     picture?: StringNullableWithAggregatesFilter<"User"> | string | null
     ninSlip?: StringNullableWithAggregatesFilter<"User"> | string | null
+    dojahReferenceId?: StringNullableWithAggregatesFilter<"User"> | string | null
     role?: StringWithAggregatesFilter<"User"> | string
     verified?: BoolWithAggregatesFilter<"User"> | boolean
     suspended?: BoolWithAggregatesFilter<"User"> | boolean
@@ -23066,6 +23086,7 @@ export namespace Prisma {
     nin: string
     picture?: string | null
     ninSlip?: string | null
+    dojahReferenceId?: string | null
     role?: string
     verified?: boolean
     suspended?: boolean
@@ -23084,6 +23105,7 @@ export namespace Prisma {
     nin: string
     picture?: string | null
     ninSlip?: string | null
+    dojahReferenceId?: string | null
     role?: string
     verified?: boolean
     suspended?: boolean
@@ -23101,6 +23123,7 @@ export namespace Prisma {
     nin?: StringFieldUpdateOperationsInput | string
     picture?: NullableStringFieldUpdateOperationsInput | string | null
     ninSlip?: NullableStringFieldUpdateOperationsInput | string | null
+    dojahReferenceId?: NullableStringFieldUpdateOperationsInput | string | null
     role?: StringFieldUpdateOperationsInput | string
     verified?: BoolFieldUpdateOperationsInput | boolean
     suspended?: BoolFieldUpdateOperationsInput | boolean
@@ -23118,6 +23141,7 @@ export namespace Prisma {
     nin?: StringFieldUpdateOperationsInput | string
     picture?: NullableStringFieldUpdateOperationsInput | string | null
     ninSlip?: NullableStringFieldUpdateOperationsInput | string | null
+    dojahReferenceId?: NullableStringFieldUpdateOperationsInput | string | null
     role?: StringFieldUpdateOperationsInput | string
     verified?: BoolFieldUpdateOperationsInput | boolean
     suspended?: BoolFieldUpdateOperationsInput | boolean
@@ -23136,6 +23160,7 @@ export namespace Prisma {
     nin: string
     picture?: string | null
     ninSlip?: string | null
+    dojahReferenceId?: string | null
     role?: string
     verified?: boolean
     suspended?: boolean
@@ -23153,6 +23178,7 @@ export namespace Prisma {
     nin?: StringFieldUpdateOperationsInput | string
     picture?: NullableStringFieldUpdateOperationsInput | string | null
     ninSlip?: NullableStringFieldUpdateOperationsInput | string | null
+    dojahReferenceId?: NullableStringFieldUpdateOperationsInput | string | null
     role?: StringFieldUpdateOperationsInput | string
     verified?: BoolFieldUpdateOperationsInput | boolean
     suspended?: BoolFieldUpdateOperationsInput | boolean
@@ -23170,6 +23196,7 @@ export namespace Prisma {
     nin?: StringFieldUpdateOperationsInput | string
     picture?: NullableStringFieldUpdateOperationsInput | string | null
     ninSlip?: NullableStringFieldUpdateOperationsInput | string | null
+    dojahReferenceId?: NullableStringFieldUpdateOperationsInput | string | null
     role?: StringFieldUpdateOperationsInput | string
     verified?: BoolFieldUpdateOperationsInput | boolean
     suspended?: BoolFieldUpdateOperationsInput | boolean
@@ -24437,6 +24464,7 @@ export namespace Prisma {
     nin?: SortOrder
     picture?: SortOrder
     ninSlip?: SortOrder
+    dojahReferenceId?: SortOrder
     role?: SortOrder
     verified?: SortOrder
     suspended?: SortOrder
@@ -24459,6 +24487,7 @@ export namespace Prisma {
     nin?: SortOrder
     picture?: SortOrder
     ninSlip?: SortOrder
+    dojahReferenceId?: SortOrder
     role?: SortOrder
     verified?: SortOrder
     suspended?: SortOrder
@@ -24477,6 +24506,7 @@ export namespace Prisma {
     nin?: SortOrder
     picture?: SortOrder
     ninSlip?: SortOrder
+    dojahReferenceId?: SortOrder
     role?: SortOrder
     verified?: SortOrder
     suspended?: SortOrder

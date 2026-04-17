@@ -474,6 +474,8 @@ export class AppService {
       throw new ConflictException('Could not generate user number');
     }
     const hashedPassword = await bcrypt.hash(registerDto.password, SALT_ROUNDS);
+    const dojahRef = registerDto.dojahReferenceId?.trim();
+    const kycVerified = Boolean(dojahRef);
     const user = await this.prisma.user.create({
       data: {
         userNumber,
@@ -484,6 +486,8 @@ export class AppService {
         nin: registerDto.nin,
         picture: registerDto.picture ?? null,
         ninSlip: registerDto.ninSlip ?? null,
+        dojahReferenceId: dojahRef ?? null,
+        verified: kycVerified,
         role: Role.Customer,
       },
     });
@@ -498,6 +502,7 @@ export class AppService {
         email: user.email,
         firstName: user.firstName,
         lastName: user.lastName,
+        verified: user.verified,
       },
     };
   }

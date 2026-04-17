@@ -158,6 +158,27 @@ export async function getProfile(token: string): Promise<UserProfileResponse> {
   return profile as UserProfileResponse;
 }
 
+/** Update the authenticated user's profile (e.g. after uploading a photo to Cloudinary). */
+export async function updateProfile(
+  token: string,
+  payload: { picture: string }
+): Promise<UserProfileResponse> {
+  const res = await fetch(endpoints.user.profile(), {
+    method: "PATCH",
+    headers: getAuthHeaders(token),
+    body: JSON.stringify(payload),
+  });
+  const data = await res.json().catch(() => ({}));
+  handleAuthError(res);
+  if (!res.ok) {
+    throw new Error(
+      typeof data.message === "string" ? data.message : "Failed to update profile"
+    );
+  }
+  const profile = (data as { user?: UserProfileResponse }).user ?? data;
+  return profile as UserProfileResponse;
+}
+
 /** Fetch a user's wallet balance by userId. */
 export async function getWallet(
   token: string,
@@ -262,6 +283,24 @@ export async function requestLoan(
   return data as { message: string; loan: LoanItem };
 }
 
+// ─── KYC (Dojah via gateway) ───────────────────────────────────────────────────
+
+/** Load verification payload from Dojah through api-gateway (uses server secret). */
+export async function fetchDojahVerificationFromGateway(
+  referenceId: string
+): Promise<{ referenceId: string; dojah: unknown }> {
+  const res = await fetch(endpoints.kyc.dojahVerification(referenceId), { method: "GET" });
+  const data = (await res.json().catch(() => ({}))) as Record<string, unknown>;
+  if (!res.ok) {
+    const msg =
+      typeof data.message === "string"
+        ? data.message
+        : "Could not load verification from Dojah";
+    throw new Error(msg);
+  }
+  return data as { referenceId: string; dojah: unknown };
+}
+
 // ─── Registration ──────────────────────────────────────────────────────────────
 
 /** Direct registration — creates user immediately without OTP. User starts unverified. */
@@ -274,8 +313,20 @@ export async function registerUser(
     nin: string;
     picture?: string | null;
     ninSlip?: string | null;
+    /** Dojah KYC reference — when sent, backend marks user verified (see auth-service register). */
+    dojahReferenceId?: string | null;
   }
-): Promise<{ message: string; user: { id: string; email: string; firstName: string; lastName: string; userNumber?: string } }> {
+): Promise<{
+  message: string;
+  user: {
+    id: string;
+    email: string;
+    firstName: string;
+    lastName: string;
+    userNumber?: string;
+    verified?: boolean;
+  };
+}> {
   const res = await fetch(endpoints.auth.register(), {
     method: "POST",
     headers: getAuthHeaders(),
@@ -291,7 +342,17 @@ export async function registerUser(
           : "Registration failed"
     );
   }
-  return data as { message: string; user: { id: string; email: string; firstName: string; lastName: string; userNumber?: string } };
+  return data as {
+    message: string;
+    user: {
+      id: string;
+      email: string;
+      firstName: string;
+      lastName: string;
+      userNumber?: string;
+      verified?: boolean;
+    };
+  };
 }
 
 export type RegisterCodePayload = {

@@ -26,9 +26,7 @@ import {
   listLoans,
   recordLoanRepayment,
 } from '@/lib/api';
-
-/** Narrow column on desktop so CTAs and copy read as a focused panel, not full-bleed bars. */
-const DESKTOP_CONTENT_MAX = 520;
+import { mergeSx } from '@/lib/desktopLayout';
 
 const containedCtaSx = {
   borderRadius: 999,
@@ -201,6 +199,8 @@ export default function RepaymentPage() {
         backgroundColor: '#fff',
         textAlign: 'center',
         width: '100%',
+        maxWidth: { xs: '100%', md: 560 },
+        mx: { md: 'auto' },
         boxShadow: { md: 1 },
         border: { md: 1 },
         borderColor: { md: 'divider' },
@@ -253,6 +253,8 @@ export default function RepaymentPage() {
         backgroundColor: '#E8F5EF',
         textAlign: 'center',
         width: '100%',
+        maxWidth: { xs: '100%', md: 560 },
+        mx: { md: 'auto' },
         boxShadow: { md: 1 },
         border: { md: 1 },
         borderColor: { md: 'success.light' },
@@ -284,21 +286,32 @@ export default function RepaymentPage() {
     </Paper>
   );
 
+  const cardPaperSx = {
+    borderRadius: 3,
+    backgroundColor: '#fff',
+    boxShadow: { md: 1 },
+    border: { md: 1 },
+    borderColor: { md: 'divider' },
+  };
+
   const renderLoan = () => (
-    <Stack spacing={2} sx={{ width: '100%' }}>
-      {/* ── Outstanding balance card ─────────────────────────────────────── */}
+    <Stack
+      direction={{ xs: 'column', md: 'row' }}
+      spacing={{ xs: 2, md: 3 }}
+      alignItems={{ xs: 'stretch', md: 'flex-start' }}
+      sx={{ width: '100%' }}
+    >
+      {/* Mobile: balance + breakdown stacked; Desktop: left column = hero balance only */}
       <Paper
         elevation={0}
-        sx={{
-          borderRadius: 3,
-          backgroundColor: '#fff',
+        sx={mergeSx(cardPaperSx, {
           overflow: 'hidden',
-          boxShadow: { md: 1 },
-          border: { md: 1 },
-          borderColor: { md: 'divider' },
-        }}
+          flex: { md: '1 1 42%' },
+          minWidth: 0,
+          width: '100%',
+        })}
       >
-        <Box sx={{ px: 3, pt: 3, pb: 2 }}>
+        <Box sx={{ px: { xs: 3, md: 3.5 }, pt: { xs: 3, md: 3.5 }, pb: { xs: 2, md: 3 } }}>
           <Typography
             variant="caption"
             color="text.secondary"
@@ -309,143 +322,191 @@ export default function RepaymentPage() {
           <Typography
             variant="h4"
             fontWeight={700}
-            sx={{ mt: 0.5, color: isOverdue ? '#EF4444' : 'text.primary' }}
+            sx={{
+              mt: 0.5,
+              color: isOverdue ? '#EF4444' : 'text.primary',
+              fontSize: { xs: '2rem', md: '2.75rem' },
+            }}
           >
             {formatCurrency(outstanding)}
           </Typography>
           {isOverdue && (
-            <Typography variant="caption" color="error" fontWeight={600}>
+            <Typography variant="caption" color="error" fontWeight={600} sx={{ display: 'block', mt: 0.5 }}>
               {overdueDays} day{overdueDays !== 1 ? 's' : ''} overdue
             </Typography>
           )}
         </Box>
 
-        <Divider />
-
-        <Box sx={{ px: 3, py: 2 }}>
-          <Stack spacing={1.5}>
-            <InfoRow
-              label="Loan amount"
-              value={formatCurrency(activeLoan?.amount ?? 0)}
-            />
-            <InfoRow
-              label="Amount repaid"
-              value={formatCurrency(activeLoan?.amountRepaid ?? 0)}
-              valueColor="#22C55E"
-            />
-            <InfoRow
-              label="Remaining"
-              value={formatCurrency(outstanding)}
-              valueColor={isOverdue ? '#EF4444' : undefined}
-            />
-            <Divider />
-            <InfoRow
-              label="Due date"
-              value={formatDate(loanDetail?.dueDate)}
-              valueColor={isOverdue ? '#EF4444' : undefined}
-            />
-            <InfoRow
-              label="Credited on"
-              value={formatDate(
-                loanDetail?.disbursedAt ?? loanDetail?.approvedAt ?? loanDetail?.createdAt
-              )}
-            />
-          </Stack>
+        {/* Loan breakdown: show under balance on mobile only; desktop shows in right column */}
+        <Box sx={{ display: { xs: 'block', md: 'none' } }}>
+          <Divider />
+          <Box sx={{ px: 3, py: 2 }}>
+            <Stack spacing={1.5}>
+              <InfoRow
+                label="Loan amount"
+                value={formatCurrency(activeLoan?.amount ?? 0)}
+              />
+              <InfoRow
+                label="Amount repaid"
+                value={formatCurrency(activeLoan?.amountRepaid ?? 0)}
+                valueColor="#22C55E"
+              />
+              <InfoRow
+                label="Remaining"
+                value={formatCurrency(outstanding)}
+                valueColor={isOverdue ? '#EF4444' : undefined}
+              />
+              <Divider />
+              <InfoRow
+                label="Due date"
+                value={formatDate(loanDetail?.dueDate)}
+                valueColor={isOverdue ? '#EF4444' : undefined}
+              />
+              <InfoRow
+                label="Credited on"
+                value={formatDate(
+                  loanDetail?.disbursedAt ?? loanDetail?.approvedAt ?? loanDetail?.createdAt
+                )}
+              />
+            </Stack>
+          </Box>
         </Box>
       </Paper>
 
-      {/* ── Overdue warning ──────────────────────────────────────────────── */}
-      {isOverdue && (
+      {/* Right column (desktop): details, warnings, pay CTA — full width stack on mobile */}
+      <Stack spacing={2} sx={{ flex: { md: '1 1 58%' }, minWidth: 0, width: '100%' }}>
         <Paper
           elevation={0}
-          sx={{
-            borderRadius: 3,
-            backgroundColor: '#fff',
-            p: 2.5,
-            boxShadow: { md: 1 },
-            border: { md: 1 },
-            borderColor: { md: 'divider' },
-          }}
+          sx={mergeSx(cardPaperSx, {
+            display: { xs: 'none', md: 'block' },
+            p: 0,
+            overflow: 'hidden',
+          })}
         >
-          <Stack direction="row" spacing={1.5} alignItems="flex-start">
-            <Box
-              sx={{
-                width: 36,
-                height: 36,
-                borderRadius: '50%',
-                backgroundColor: '#FFE5E5',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                flexShrink: 0,
-              }}
-            >
-              <ErrorOutlineIcon sx={{ color: '#E53935', fontSize: 20 }} />
-            </Box>
-            <Box>
-              <Typography variant="subtitle2" fontWeight={700} gutterBottom>
-                Loan overdue
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                Your loan is {overdueDays} day{overdueDays !== 1 ? 's' : ''} past
-                its due date. Defaulting can negatively impact your ability to
-                borrow in the future. Please make a repayment as soon as possible.
-              </Typography>
-            </Box>
-          </Stack>
+          <Box sx={{ px: 3, py: 2.5 }}>
+            <Typography variant="subtitle2" fontWeight={700} color="text.secondary" gutterBottom>
+              Loan details
+            </Typography>
+            <Stack spacing={1.5}>
+              <InfoRow
+                label="Loan amount"
+                value={formatCurrency(activeLoan?.amount ?? 0)}
+              />
+              <InfoRow
+                label="Amount repaid"
+                value={formatCurrency(activeLoan?.amountRepaid ?? 0)}
+                valueColor="#22C55E"
+              />
+              <InfoRow
+                label="Remaining"
+                value={formatCurrency(outstanding)}
+                valueColor={isOverdue ? '#EF4444' : undefined}
+              />
+              <Divider />
+              <InfoRow
+                label="Due date"
+                value={formatDate(loanDetail?.dueDate)}
+                valueColor={isOverdue ? '#EF4444' : undefined}
+              />
+              <InfoRow
+                label="Credited on"
+                value={formatDate(
+                  loanDetail?.disbursedAt ?? loanDetail?.approvedAt ?? loanDetail?.createdAt
+                )}
+              />
+            </Stack>
+          </Box>
         </Paper>
-      )}
 
-      {/* ── Error alert ──────────────────────────────────────────────────── */}
-      {paymentError && (
-        <Alert severity="error" onClose={() => setPaymentError(null)}>
-          {paymentError}
-        </Alert>
-      )}
-
-      {/* ── CTA ─────────────────────────────────────────────────────────── */}
-      <Box sx={{ pt: 1 }}>
-        <Stack direction="column" spacing={1.5} alignItems="stretch">
-          <Button
-            variant="contained"
-            size="large"
-            disabled={
-              !isRepayable ||
-              amountToRepay <= 0 ||
-              repayMutation.isPending
-            }
-            onClick={initiateBudPayPayment}
-            sx={containedCtaSx}
+        {isOverdue && (
+          <Paper
+            elevation={0}
+            sx={mergeSx(cardPaperSx, {
+              p: 2.5,
+            })}
           >
-            {repayMutation.isPending
-              ? 'Recording payment…'
-              : `Pay ${formatCurrency(amountToRepay)}`}
-          </Button>
-          {eligibility?.canRequest && (eligibility?.availableAmount ?? 0) > 0 && (
+            <Stack direction="row" spacing={1.5} alignItems="flex-start">
+              <Box
+                sx={{
+                  width: 36,
+                  height: 36,
+                  borderRadius: '50%',
+                  backgroundColor: '#FFE5E5',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0,
+                }}
+              >
+                <ErrorOutlineIcon sx={{ color: '#E53935', fontSize: 20 }} />
+              </Box>
+              <Box sx={{ minWidth: 0 }}>
+                <Typography variant="subtitle2" fontWeight={700} gutterBottom>
+                  Loan overdue
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  Your loan is {overdueDays} day{overdueDays !== 1 ? 's' : ''} past
+                  its due date. Defaulting can negatively impact your ability to
+                  borrow in the future. Please make a repayment as soon as possible.
+                </Typography>
+              </Box>
+            </Stack>
+          </Paper>
+        )}
+
+        {paymentError && (
+          <Alert severity="error" onClose={() => setPaymentError(null)}>
+            {paymentError}
+          </Alert>
+        )}
+
+        <Box sx={{ pt: { xs: 0, md: 0.5 } }}>
+          <Stack direction="column" spacing={1.5} alignItems="stretch">
             <Button
-              variant="outlined"
-              color="primary"
+              variant="contained"
               size="large"
-              onClick={() => router.push('/dashboard/loan')}
-              sx={{
-                ...outlinedCtaSx,
-                whiteSpace: 'normal',
-                textAlign: 'center',
-              }}
+              disabled={
+                !isRepayable ||
+                amountToRepay <= 0 ||
+                repayMutation.isPending
+              }
+              onClick={initiateBudPayPayment}
+              sx={mergeSx(containedCtaSx, {
+                width: '100%',
+                py: { md: 1.75 },
+                fontSize: { md: '1.05rem' },
+              })}
             >
-              Request a loan (up to {formatCurrency(eligibility.availableAmount)})
+              {repayMutation.isPending
+                ? 'Recording payment…'
+                : `Pay ${formatCurrency(amountToRepay)}`}
             </Button>
-          )}
-        </Stack>
-        <Typography
-          variant="caption"
-          color="text.secondary"
-          display="block"
-          sx={{ mt: 1.5, textAlign: 'center' }}
-        >
-          Secured by BudPay · Payments are non-refundable
-        </Typography>
-      </Box>
+            {eligibility?.canRequest && (eligibility?.availableAmount ?? 0) > 0 && (
+              <Button
+                variant="outlined"
+                color="primary"
+                size="large"
+                onClick={() => router.push('/dashboard/loan')}
+                sx={mergeSx(outlinedCtaSx, {
+                  whiteSpace: 'normal',
+                  textAlign: 'center',
+                  py: { md: 1.75 },
+                })}
+              >
+                Request a loan (up to {formatCurrency(eligibility.availableAmount)})
+              </Button>
+            )}
+          </Stack>
+          <Typography
+            variant="caption"
+            color="text.secondary"
+            display="block"
+            sx={{ mt: 1.5, textAlign: { xs: 'center', md: 'left' } }}
+          >
+            Secured by BudPay · Payments are non-refundable
+          </Typography>
+        </Box>
+      </Stack>
     </Stack>
   );
 
@@ -456,20 +517,23 @@ export default function RepaymentPage() {
       sx={{
         backgroundColor: { xs: '#F5F5F5', md: 'transparent' },
         overflow: 'auto',
+        width: '100%',
+        flex: 1,
+        display: 'flex',
+        flexDirection: 'column',
+        minHeight: 0,
       }}
     >
       <Stack
         sx={{
-          p: { xs: 3, md: 0 },
-          pt: { md: 0.5 },
-          spacing: 3,
-          maxWidth: { md: DESKTOP_CONTENT_MAX },
-          mx: { md: 'auto' },
+          spacing: { xs: 2.5, md: 3 },
           width: '100%',
+          maxWidth: '100%',
+          flex: 1,
         }}
       >
-        {/* Header */}
-        <Stack spacing={0.5}>
+        {/* Header — full width on desktop to match dashboard column */}
+        <Stack spacing={0.5} sx={{ width: '100%' }}>
           <Stack direction="row" alignItems="center" spacing={1}>
             <IconButton
               aria-label="Back"
@@ -478,29 +542,33 @@ export default function RepaymentPage() {
             >
               <ArrowBackIcon />
             </IconButton>
-            <Typography variant="h6" fontWeight={700} sx={{ fontSize: { md: '1.35rem' } }}>
-              Repayment
-            </Typography>
+            <Box sx={{ minWidth: 0 }}>
+              <Typography variant="h6" fontWeight={700} sx={{ fontSize: { xs: '1.15rem', md: '1.5rem' } }}>
+                Repayment
+              </Typography>
+              <Typography
+                variant="body2"
+                color="text.secondary"
+                sx={{ display: { xs: 'none', md: 'block' }, mt: 0.25 }}
+              >
+                Pay down your active loan or check your balance.
+              </Typography>
+            </Box>
           </Stack>
-          <Typography
-            variant="body2"
-            color="text.secondary"
-            sx={{ display: { xs: 'none', md: 'block' }, pl: { md: 7 } }}
-          >
-            Pay down your active loan or check your balance.
-          </Typography>
         </Stack>
 
         {/* Body */}
-        {isLoading ? (
-          renderSkeleton()
-        ) : paymentSuccess ? (
-          renderSuccess()
-        ) : !activeLoan || !isRepayable ? (
-          renderNoLoan()
-        ) : (
-          renderLoan()
-        )}
+        <Box sx={{ width: '100%', flex: 1 }}>
+          {isLoading ? (
+            renderSkeleton()
+          ) : paymentSuccess ? (
+            renderSuccess()
+          ) : !activeLoan || !isRepayable ? (
+            renderNoLoan()
+          ) : (
+            renderLoan()
+          )}
+        </Box>
       </Stack>
     </Box>
   );

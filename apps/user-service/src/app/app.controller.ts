@@ -15,4 +15,13 @@ export class AppController {
   async getAllUsers() {
     return await this.appService.getAllUsers();
   }
+
+  @MessagePattern('update-user-profile')
+  async updateUser(
+    @Payload() payload: { userId: string; picture: string },
+  ) {
+    return await this.appService.updateUserProfile(payload.userId, {
+      picture: payload.picture,
+    });
+  }
 }

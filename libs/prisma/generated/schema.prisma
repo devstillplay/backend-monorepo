@@ -11,21 +11,23 @@ datasource db {
 }
 
 model User {
-  id          String   @id @default(auto()) @map("_id") @db.ObjectId
-  userNumber  String   @unique // SP-XXXXX (5 chars after SP-)
-  email       String   @unique
-  password    String
-  firstName   String
-  lastName    String
-  nin         String   @unique
-  picture     String?
-  ninSlip     String?
-  role        String   @default("Customer")
-  verified    Boolean  @default(false)
-  suspended   Boolean  @default(false) // when true, user cannot log in
-  creditLimit Float? // max total outstanding (naira); null = use AppSetting default
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id               String   @id @default(auto()) @map("_id") @db.ObjectId
+  userNumber       String   @unique // SP-XXXXX (5 chars after SP-)
+  email            String   @unique
+  password         String
+  firstName        String
+  lastName         String
+  nin              String   @unique
+  picture          String?
+  ninSlip          String?
+  /// Dojah Easy Onboard `reference_id` after KYC (audit); set at registration when KYC completed.
+  dojahReferenceId String?
+  role             String   @default("Customer")
+  verified         Boolean  @default(false)
+  suspended        Boolean  @default(false) // when true, user cannot log in
+  creditLimit      Float? // max total outstanding (naira); null = use AppSetting default
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 }
 
 // 4-digit login codes sent to email; verify before issuing JWT
@@ -222,7 +224,7 @@ model WaitlistEntry {
   id           String   @id @default(auto()) @map("_id") @db.ObjectId
   email        String
   fullName     String
-  source       String // landing | partners
+  source       String // landing | partners | financial
   businessName String?
   partnerType  String?
   createdAt    DateTime @default(now())

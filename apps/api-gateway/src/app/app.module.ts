@@ -19,6 +19,8 @@ import {
 } from './provider/provider.controller';
 import { ChatController, CHAT_SERVICE } from './chat/chat.controller';
 import { WaitlistController } from './waitlist/waitlist.controller';
+import { KycController } from './kyc/kyc.controller';
+import { KycService } from './kyc/kyc.service';
 
 @Module({
   imports: [
@@ -159,7 +161,8 @@ import { WaitlistController } from './waitlist/waitlist.controller';
     ProviderController,
     ChatController,
     WaitlistController,
+    KycController,
   ],
-  providers: [AppService, AuthService],
+  providers: [AppService, AuthService, KycService],
 })
 export class AppModule {}

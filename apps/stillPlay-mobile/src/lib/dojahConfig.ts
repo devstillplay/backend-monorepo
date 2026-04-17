@@ -14,13 +14,16 @@ function sanitizePublicEnv(value: string | undefined): string {
  *
  * **Easy Onboard Web SDK (`websdk.js` + `<dojah-button>`):**
  * - `NEXT_PUBLIC_DOJAH_WIDGET_ID` — required in the browser (embed snippet from Easy Onboard).
+ * - `user_data` / `gov_data` are optional in the JS SDK: omit or pass `{}` so users fill Dojah’s own pages.
+ *   Set `prefillFromParent` on `DojahWebSdkButton` if you want to skip those steps from your form.
  *
  * **Connect / REST (optional in browser):**
  * - `NEXT_PUBLIC_DOJAH_APP_ID`, `NEXT_PUBLIC_DOJAH_PUBLIC_KEY` — used if you call `widget.js` / Connect directly.
  *
  * **Server:** `DOJAH_SECRET_KEY` for REST/webhooks only — never `NEXT_PUBLIC_`.
  *
- * Final verification must be confirmed on your backend (webhook or verification-details API).
+ * **Registration:** send `dojahReferenceId` from the widget success payload on `POST /auth/register`;
+ * auth-service stores it and sets `verified: true` when present (ideally re-validate with Dojah API / webhooks in production).
  */
 export function getDojahClientConfig(): {
   appID: string;
@@ -55,4 +58,14 @@ export function getDojahConnectEnvProp(): "development" | undefined {
 export function getDojahWebSdkConfig(): { widgetId: string; isReady: boolean } {
   const widgetId = sanitizePublicEnv(process.env.NEXT_PUBLIC_DOJAH_WIDGET_ID);
   return { widgetId, isReady: Boolean(widgetId) };
+}
+
+/** Verbose Dojah logs in dev or when `NEXT_PUBLIC_DEBUG_DOJAH=true`. */
+export function dojahDebugLog(...args: unknown[]): void {
+  if (
+    typeof process !== "undefined" &&
+    (process.env.NODE_ENV === "development" || process.env.NEXT_PUBLIC_DEBUG_DOJAH === "true")
+  ) {
+    console.log("[Dojah]", ...args);
+  }
 }

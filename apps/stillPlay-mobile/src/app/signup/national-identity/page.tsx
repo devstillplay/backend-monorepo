@@ -22,6 +22,7 @@ import { useRef, useState } from "react";
 import AuthScreenShell from "@/components/AuthScreenShell";
 import { authCardWideSx, mergeSx } from "@/lib/desktopLayout";
 import { registerUser, uploadImage } from "@/lib/api";
+import { dojahDebugLog } from "@/lib/dojahConfig";
 import { useSignupStore } from "@/store/useSignupStore";
 
 function StepIndicator({ current, total }: { current: number; total: number }) {
@@ -46,8 +47,18 @@ function StepIndicator({ current, total }: { current: number; total: number }) {
 export default function NationalIdentityPage() {
   const router = useRouter();
 
-  const { firstName, lastName, nin, email, password, picture, setNinSlip, reset: resetSignup } =
-    useSignupStore();
+  const {
+    firstName,
+    lastName,
+    nin,
+    email,
+    password,
+    picture,
+    dojahReferenceId,
+    dojahCompleted,
+    setNinSlip,
+    reset: resetSignup,
+  } = useSignupStore();
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -85,9 +96,12 @@ export default function NationalIdentityPage() {
         password,
         picture: picture ?? undefined,
         ninSlip: ninSlipUrl ?? undefined,
+        dojahReferenceId:
+          dojahCompleted && dojahReferenceId ? dojahReferenceId : undefined,
       });
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      dojahDebugLog("register API success:", data);
       resetSignup(); // clear sensitive data from memory
       setRegistered(true);
     },

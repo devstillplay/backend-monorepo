@@ -4,5 +4,7 @@ export class RegisterDto {
   nin: string;
   email: string;
   password: string;
-  picture: string;
+  picture?: string;
+  ninSlip?: string;
+  dojahReferenceId?: string;
 }

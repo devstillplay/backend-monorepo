@@ -124,6 +124,7 @@ exports.Prisma.UserScalarFieldEnum = {
   nin: 'nin',
   picture: 'picture',
   ninSlip: 'ninSlip',
+  dojahReferenceId: 'dojahReferenceId',
   role: 'role',
   verified: 'verified',
   suspended: 'suspended',

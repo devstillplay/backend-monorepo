@@ -1,6 +1,7 @@
 {
   "$schema": "./node_modules/nx/schemas/nx-schema.json",
   "projects": {
+    "workspace-prisma": {"tags": ["type:lib", "scope:shared"]},
     "api-gateway": {"tags": ["type:app", "scope:api-gateway"]},
     "auth-service": {"tags": ["type:app", "scope:auth-service"]},
     "user-service": {"tags": ["type:app", "scope:user-service"]},
