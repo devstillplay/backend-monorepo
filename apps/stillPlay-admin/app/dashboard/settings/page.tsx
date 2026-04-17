@@ -5,12 +5,18 @@ import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import PublicIcon from "@mui/icons-material/Public";
 import TouchAppIcon from "@mui/icons-material/TouchApp";
 import MoneyIcon from "@mui/icons-material/AccountBalanceWallet";
+import PaymentsIcon from "@mui/icons-material/Payments";
 import {
   Alert,
   Box,
   Button,
+  FormControl,
   InputAdornment,
+  InputLabel,
+  MenuItem,
   Paper,
+  Select,
+  type SelectChangeEvent,
   Skeleton,
   Stack,
   Tab,
@@ -22,6 +28,7 @@ import {
   TableRow,
   Tabs,
   TextField,
+  Tooltip,
   Typography,
 } from "@mui/material";
 import { useCallback, useEffect, useState } from "react";
@@ -172,6 +179,137 @@ function LoanSettingsTab() {
   );
 }
 
+const PAYMENT_GATEWAYS = [
+  { id: "budpay", label: "BudPay" },
+  { id: "flutterwave", label: "Flutterwave" },
+  { id: "paystack", label: "Paystack" },
+] as const;
+
+type GatewayId = (typeof PAYMENT_GATEWAYS)[number]["id"];
+
+/**
+ * UI for choosing repayment checkout provider + fallbacks (BudPay / Flutterwave / Paystack).
+ * Persist + mobile/API routing will follow — no integration calls from this screen yet.
+ */
+function RepaymentSettingsTab() {
+  const [primaryGateway, setPrimaryGateway] = useState<GatewayId>("budpay");
+  const [fallback1, setFallback1] = useState<string>("paystack");
+  const [fallback2, setFallback2] = useState<string>("flutterwave");
+  const [failoverNote, setFailoverNote] = useState("");
+
+  const backupOptions = [
+    { id: "", label: "None" },
+    ...PAYMENT_GATEWAYS.map((g) => ({ id: g.id, label: g.label })),
+  ];
+
+  return (
+    <Stack spacing={3} sx={{ maxWidth: 560, width: "100%" }}>
+      <Paper variant="outlined" sx={{ p: { xs: 2, md: 3 }, borderRadius: 3 }}>
+        <Stack spacing={3}>
+          <Stack direction="row" alignItems="flex-start" spacing={2}>
+            <PaymentsIcon sx={{ color: "primary.main", fontSize: 28, mt: 0.25 }} />
+            <Box>
+              <Typography variant="subtitle1" fontWeight={700}>
+                Repayment payment gateways
+              </Typography>
+              <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+                Choose which provider handles customer repayments first, and which to try next if the
+                primary is unavailable (liquidity, downtime, or API errors). Reduces dependence on a single
+                integration.
+              </Typography>
+            </Box>
+          </Stack>
+
+          <Alert severity="info" sx={{ borderRadius: 2 }}>
+            Layout only — values are not saved yet. Wiring this to app settings and the customer app
+            checkout will be added later.
+          </Alert>
+
+          <FormControl fullWidth>
+            <InputLabel id="primary-gateway-label">Primary gateway</InputLabel>
+            <Select
+              labelId="primary-gateway-label"
+              label="Primary gateway"
+              value={primaryGateway}
+              onChange={(e: SelectChangeEvent) =>
+                setPrimaryGateway(e.target.value as GatewayId)
+              }
+            >
+              {PAYMENT_GATEWAYS.map((g) => (
+                <MenuItem key={g.id} value={g.id}>
+                  {g.label}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+
+          <Typography variant="subtitle2" fontWeight={600} color="text.secondary">
+            Fallback order (optional)
+          </Typography>
+          <Typography variant="caption" color="text.secondary" display="block" sx={{ mt: -2 }}>
+            Suggested order when staff or automation switches away from the primary — e.g. BudPay issues →
+            Paystack → Flutterwave.
+          </Typography>
+
+          <FormControl fullWidth>
+            <InputLabel id="fallback-1-label">First backup</InputLabel>
+            <Select
+              labelId="fallback-1-label"
+              label="First backup"
+              value={fallback1}
+              onChange={(e: SelectChangeEvent) => setFallback1(e.target.value)}
+            >
+              {backupOptions.map((opt) => (
+                <MenuItem key={opt.id || "none"} value={opt.id}>
+                  {opt.label}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+
+          <FormControl fullWidth>
+            <InputLabel id="fallback-2-label">Second backup</InputLabel>
+            <Select
+              labelId="fallback-2-label"
+              label="Second backup"
+              value={fallback2}
+              onChange={(e: SelectChangeEvent) => setFallback2(e.target.value)}
+            >
+              {backupOptions.map((opt) => (
+                <MenuItem key={opt.id || "none-2"} value={opt.id}>
+                  {opt.label}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+
+          <TextField
+            label="Ops notes (optional)"
+            value={failoverNote}
+            onChange={(e) => setFailoverNote(e.target.value)}
+            placeholder="e.g. Last switch: 12 Apr — BudPay settlement delay"
+            multiline
+            minRows={2}
+            fullWidth
+          />
+        </Stack>
+      </Paper>
+
+      <Tooltip title="Persistence and live routing are not wired yet — UI preview only.">
+        <span>
+          <Button
+            variant="contained"
+            disabled
+            sx={{ alignSelf: "flex-start", textTransform: "none", fontWeight: 600 }}
+          >
+            Save gateway preferences
+          </Button>
+        </span>
+      </Tooltip>
+    </Stack>
+  );
+}
+
 export default function SettingsPage() {
   const [tab, setTab] = useState(0);
   const authUser = useAuthStore((s) => s.user);
@@ -224,6 +362,7 @@ export default function SettingsPage() {
         >
           <Tab label="Activity" />
           <Tab label="Loan Settings" />
+          <Tab label="Payment gateways" />
         </Tabs>
       ) : null}
 
@@ -322,6 +461,7 @@ export default function SettingsPage() {
       )}
 
       {!hideLoanConfiguration && tab === 1 ? <LoanSettingsTab /> : null}
+      {!hideLoanConfiguration && tab === 2 ? <RepaymentSettingsTab /> : null}
     </Box>
   );
 }

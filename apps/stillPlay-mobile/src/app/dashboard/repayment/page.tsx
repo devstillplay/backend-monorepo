@@ -8,6 +8,7 @@ import {
   Alert,
   Box,
   Button,
+  Chip,
   Divider,
   IconButton,
   Paper,
@@ -18,7 +19,7 @@ import {
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useBudPayPayment } from '@budpay/react';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 import useAuthStore from '@/store/useAuthStore';
 import {
@@ -73,6 +74,51 @@ function formatDate(iso: string | null | undefined): string {
   });
 }
 
+function round2(n: number): number {
+  return Math.round(n * 100) / 100;
+}
+
+/** BudPay rejects duplicate references — must be unique per checkout attempt (including retries). */
+function makeBudPayReference(loanId: string, amount: number): string {
+  const suffix =
+    typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
+      ? crypto.randomUUID().replace(/-/g, '')
+      : `${Date.now()}_${Math.random().toString(36).slice(2, 14)}`;
+  return `REPAY_${loanId}_${round2(amount)}_${suffix}`;
+}
+
+/**
+ * Partial repayment amounts: equal slices of the original loan total (how the obligation is structured),
+ * capped so each chip is at most what's left. Excludes the full payoff (handled separately).
+ */
+function buildInstallmentChipAmounts(
+  loanAmount: number,
+  remaining: number,
+  segments = 4
+): number[] {
+  if (remaining <= 0 || loanAmount <= 0) return [];
+  const n = Math.min(Math.max(2, segments), 12);
+  const unit = round2(loanAmount / n);
+  if (unit < 1) return [];
+  const chips = new Set<number>();
+  for (let k = 1; k < n; k++) {
+    const pay = round2(Math.min(k * unit, remaining));
+    if (pay >= 1 && pay < remaining - 0.005) {
+      chips.add(pay);
+    }
+  }
+  const single = round2(Math.min(unit, remaining));
+  if (single >= 1 && single < remaining - 0.005) {
+    chips.add(single);
+  }
+  return Array.from(chips).sort((a, b) => a - b);
+}
+
+/** Total-outstanding chip vs an installment amount — avoids ambiguity with numeric state. */
+type PaySelection =
+  | { kind: 'totalOutstanding' }
+  | { kind: 'installment'; amount: number };
+
 function InfoRow({
   label,
   value,
@@ -103,6 +149,16 @@ export default function RepaymentPage() {
 
   const [paymentError, setPaymentError] = useState<string | null>(null);
   const [paymentSuccess, setPaymentSuccess] = useState(false);
+  const [paySelection, setPaySelection] = useState<PaySelection>({
+    kind: 'totalOutstanding',
+  });
+  const [lastPaidAmount, setLastPaidAmount] = useState(0);
+  /** New value before each BudPay open so the iframe always gets a fresh reference (avoids “Reference Already Exist”). */
+  const [checkoutReference, setCheckoutReference] = useState(() =>
+    makeBudPayReference('pending', 0)
+  );
+  const paymentCommitRef = useRef({ loanId: '', amount: 0 });
+  const initiatePaymentRef = useRef<(() => void) | null>(null);
 
   const userId = user?.id ?? '';
 
@@ -127,8 +183,8 @@ export default function RepaymentPage() {
   // APPROVED or DISBURSED = customer has received funds (wallet credited at approval)
   const isRepayable =
     activeLoan?.status === 'APPROVED' || activeLoan?.status === 'DISBURSED';
-  // Use totalOutstanding (sum across all active loans) so it reflects full amount owed, not just most recent loan
-  const outstanding =
+  /** Sum of remaining principal on every active loan (PENDING/APPROVED/DISBURSED) — from eligibility. */
+  const totalOwedAllActiveLoans =
     eligibility?.totalOutstanding ?? activeLoan?.remaining ?? 0;
   const overdueDays = daysOverdue(loanDetail?.dueDate);
   const isOverdue = overdueDays > 0;
@@ -137,7 +193,8 @@ export default function RepaymentPage() {
   const repayMutation = useMutation({
     mutationFn: (payload: { loanId: string; amount: number }) =>
       recordLoanRepayment(token!, payload),
-    onSuccess: () => {
+    onSuccess: (_data, variables) => {
+      setLastPaidAmount(variables.amount);
       setPaymentSuccess(true);
       setPaymentError(null);
       queryClient.invalidateQueries({ queryKey: ['loan-eligibility'] });
@@ -151,19 +208,57 @@ export default function RepaymentPage() {
   });
 
   // ── BudPay ─────────────────────────────────────────────────────────────────
-  // Repay amount: cap at active loan's remaining to avoid overpaying a single loan
-  const amountToRepay = Math.min(
-    outstanding,
-    activeLoan?.remaining ?? outstanding
+  const loanRemaining = activeLoan?.remaining ?? 0;
+  const loanAmountNominal = activeLoan?.amount ?? 0;
+  /** Max we can apply to this loan in one checkout (this loan’s remaining, capped by API totals if ever inconsistent). */
+  const payAllAmount = round2(
+    Math.min(totalOwedAllActiveLoans, loanRemaining)
   );
+  const installmentChipAmounts = useMemo(
+    () => buildInstallmentChipAmounts(loanAmountNominal, loanRemaining, 4),
+    [loanAmountNominal, loanRemaining]
+  );
+  /** Eligibility total across loans is higher than this loan’s balance alone. */
+  const hasMultipleActiveLoansOwed =
+    totalOwedAllActiveLoans > loanRemaining + 0.01;
+
+  // Only reset when switching to a different loan — do NOT depend on loanRemaining or refetches
+  // would constantly reset chips and make the Pay button appear stuck or fight the user’s tap.
+  useEffect(() => {
+    setPaySelection({ kind: 'totalOutstanding' });
+  }, [activeLoan?.id]);
+
+  // If this loan’s remaining drops below the chosen installment, fall back to total-outstanding mode.
+  useEffect(() => {
+    setPaySelection((prev) => {
+      if (prev.kind !== 'installment') return prev;
+      if (prev.amount > loanRemaining + 0.01) {
+        return { kind: 'totalOutstanding' };
+      }
+      return prev;
+    });
+  }, [loanRemaining]);
+
+  const payAmount =
+    paySelection.kind === 'totalOutstanding'
+      ? payAllAmount
+      : round2(Math.min(paySelection.amount, loanRemaining));
+
+  /** Shown on the Pay CTA — always the amount BudPay / record repayment will use for this checkout. */
+  const selectedCheckoutAmount = round2(payAmount);
+
+  const payButtonSelectionKey =
+    paySelection.kind === 'totalOutstanding'
+      ? 'total'
+      : `installment-${round2(paySelection.amount)}`;
 
   // Always call the hook unconditionally; we guard the button click instead.
   const initiateBudPayPayment = useBudPayPayment({
     api_key: BUDPAY_PUBLIC_KEY,
     // Pass at least 1 so the hook never receives 0 (disabled state guards the button)
-    amount: Math.max(amountToRepay, 1),
+    amount: Math.max(payAmount, 1),
     currency: 'NGN',
-    reference: `REPAY_${activeLoan?.id ?? 'NONE'}_${Date.now()}`,
+    reference: checkoutReference,
     customer: {
       email: user?.email ?? 'customer@example.com',
       first_name: user?.firstName ?? 'Customer',
@@ -171,15 +266,35 @@ export default function RepaymentPage() {
       phone: '08000000000',
     },
     onComplete: (data) => {
-      if (data?.status === 'success' && activeLoan?.id && amountToRepay > 0) {
+      const { loanId, amount } = paymentCommitRef.current;
+      if (data?.status === 'success' && loanId && amount > 0) {
         setPaymentError(null);
-        repayMutation.mutate({ loanId: activeLoan.id, amount: amountToRepay });
+        repayMutation.mutate({ loanId, amount });
       }
     },
     onCancel: () => {
       // User closed the modal — no action needed
     },
   });
+
+  initiatePaymentRef.current = initiateBudPayPayment;
+
+  const handleStartRepayment = () => {
+    if (!activeLoan?.id || payAmount <= 0 || !isRepayable) return;
+    paymentCommitRef.current = {
+      loanId: activeLoan.id,
+      amount: payAmount,
+    };
+    const uniqueRef = makeBudPayReference(activeLoan.id, payAmount);
+    setCheckoutReference(uniqueRef);
+    // @budpay/react registers the postMessage handler in useEffect([config]). Calling initiate()
+    // in the same synchronous turn as setState can leave the iframe using the *previous* reference.
+    // Defer opening checkout until after commit + effect so BudPay receives the new reference (fixes
+    // “Reference Already Exist” on retry after cancel / failed payment).
+    window.setTimeout(() => {
+      initiatePaymentRef.current?.();
+    }, 0);
+  };
 
   // ── Render helpers ─────────────────────────────────────────────────────────
   const renderSkeleton = () => (
@@ -266,7 +381,7 @@ export default function RepaymentPage() {
           Repayment recorded!
         </Typography>
         <Typography variant="body2" color="text.secondary">
-          Your payment of {formatCurrency(amountToRepay)} has been applied to
+          Your payment of {formatCurrency(lastPaidAmount)} has been applied to
           your loan.
         </Typography>
         <Button
@@ -317,7 +432,7 @@ export default function RepaymentPage() {
             color="text.secondary"
             sx={{ textTransform: 'uppercase', letterSpacing: 0.5 }}
           >
-            Outstanding balance
+            Due on this loan
           </Typography>
           <Typography
             variant="h4"
@@ -328,8 +443,17 @@ export default function RepaymentPage() {
               fontSize: { xs: '2rem', md: '2.75rem' },
             }}
           >
-            {formatCurrency(outstanding)}
+            {formatCurrency(loanRemaining)}
           </Typography>
+          {hasMultipleActiveLoansOwed && (
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 1, lineHeight: 1.4 }}>
+              Total across all your active loans:{' '}
+              <Box component="span" fontWeight={700} color="text.primary">
+                {formatCurrency(totalOwedAllActiveLoans)}
+              </Box>
+              . This screen repays the loan shown in your details below.
+            </Typography>
+          )}
           {isOverdue && (
             <Typography variant="caption" color="error" fontWeight={600} sx={{ display: 'block', mt: 0.5 }}>
               {overdueDays} day{overdueDays !== 1 ? 's' : ''} overdue
@@ -352,10 +476,21 @@ export default function RepaymentPage() {
                 valueColor="#22C55E"
               />
               <InfoRow
-                label="Remaining"
-                value={formatCurrency(outstanding)}
+                label={
+                  hasMultipleActiveLoansOwed
+                    ? 'Remaining on this loan'
+                    : 'Remaining'
+                }
+                value={formatCurrency(loanRemaining)}
                 valueColor={isOverdue ? '#EF4444' : undefined}
               />
+              {hasMultipleActiveLoansOwed && (
+                <InfoRow
+                  label="Total owed (all active loans)"
+                  value={formatCurrency(totalOwedAllActiveLoans)}
+                  valueColor={isOverdue ? '#EF4444' : undefined}
+                />
+              )}
               <Divider />
               <InfoRow
                 label="Due date"
@@ -398,10 +533,21 @@ export default function RepaymentPage() {
                 valueColor="#22C55E"
               />
               <InfoRow
-                label="Remaining"
-                value={formatCurrency(outstanding)}
+                label={
+                  hasMultipleActiveLoansOwed
+                    ? 'Remaining on this loan'
+                    : 'Remaining'
+                }
+                value={formatCurrency(loanRemaining)}
                 valueColor={isOverdue ? '#EF4444' : undefined}
               />
+              {hasMultipleActiveLoansOwed && (
+                <InfoRow
+                  label="Total owed (all active loans)"
+                  value={formatCurrency(totalOwedAllActiveLoans)}
+                  valueColor={isOverdue ? '#EF4444' : undefined}
+                />
+              )}
               <Divider />
               <InfoRow
                 label="Due date"
@@ -460,26 +606,123 @@ export default function RepaymentPage() {
           </Alert>
         )}
 
+        {isRepayable && loanRemaining > 0 && (
+          <Paper
+            elevation={0}
+            sx={mergeSx(cardPaperSx, {
+              p: 2,
+            })}
+          >
+            <Typography variant="subtitle2" fontWeight={700} gutterBottom>
+              Choose amount
+            </Typography>
+            <Typography variant="caption" color="text.secondary" display="block" sx={{ mb: 1.5 }}>
+              Pay this loan in full or in smaller amounts — each smaller badge is a share of this loan’s original amount.
+            </Typography>
+            <Stack direction="row" flexWrap="wrap" gap={1}>
+              <Chip
+                label={`Full payment (this loan) · ${formatCurrency(payAllAmount)}`}
+                onClick={() => setPaySelection({ kind: 'totalOutstanding' })}
+                color={
+                  paySelection.kind === 'totalOutstanding' ? 'primary' : 'default'
+                }
+                variant={
+                  paySelection.kind === 'totalOutstanding' ? 'filled' : 'outlined'
+                }
+                sx={{ fontWeight: 600 }}
+              />
+              {installmentChipAmounts.map((amt) => (
+                <Chip
+                  key={amt}
+                  label={formatCurrency(amt)}
+                  onClick={() =>
+                    setPaySelection({ kind: 'installment', amount: amt })
+                  }
+                  color={
+                    paySelection.kind === 'installment' &&
+                    round2(paySelection.amount) === round2(amt)
+                      ? 'primary'
+                      : 'default'
+                  }
+                  variant={
+                    paySelection.kind === 'installment' &&
+                    round2(paySelection.amount) === round2(amt)
+                      ? 'filled'
+                      : 'outlined'
+                  }
+                  sx={{ fontWeight: 600 }}
+                />
+              ))}
+            </Stack>
+            {hasMultipleActiveLoansOwed && (
+              <Typography variant="caption" color="text.secondary" display="block" sx={{ mt: 1.5 }}>
+                You owe {formatCurrency(totalOwedAllActiveLoans)} across all active loans. Each payment here
+                only reduces this loan (up to {formatCurrency(loanRemaining)}).
+              </Typography>
+            )}
+          </Paper>
+        )}
+
         <Box sx={{ pt: { xs: 0, md: 0.5 } }}>
           <Stack direction="column" spacing={1.5} alignItems="stretch">
             <Button
+              key={payButtonSelectionKey}
               variant="contained"
               size="large"
               disabled={
                 !isRepayable ||
-                amountToRepay <= 0 ||
+                payAmount <= 0 ||
                 repayMutation.isPending
               }
-              onClick={initiateBudPayPayment}
+              onClick={handleStartRepayment}
               sx={mergeSx(containedCtaSx, {
                 width: '100%',
                 py: { md: 1.75 },
                 fontSize: { md: '1.05rem' },
+                whiteSpace: 'normal',
               })}
             >
-              {repayMutation.isPending
-                ? 'Recording payment…'
-                : `Pay ${formatCurrency(amountToRepay)}`}
+              {repayMutation.isPending ? (
+                'Recording payment…'
+              ) : (
+                <Box
+                  component="span"
+                  sx={{
+                    display: 'inline-flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: 0.25,
+                    py: 0.25,
+                  }}
+                >
+                  <Box
+                    component="span"
+                    sx={{
+                      fontSize: '0.75rem',
+                      fontWeight: 600,
+                      opacity: 0.92,
+                      textTransform: 'none',
+                      letterSpacing: 0.2,
+                      lineHeight: 1.2,
+                    }}
+                  >
+                    {paySelection.kind === 'totalOutstanding'
+                      ? 'Pay full balance'
+                      : 'Pay selected amount'}
+                  </Box>
+                  <Box
+                    component="span"
+                    sx={{
+                      fontWeight: 800,
+                      fontSize: { xs: '1.15rem', md: '1.25rem' },
+                      textTransform: 'none',
+                      lineHeight: 1.2,
+                    }}
+                  >
+                    {formatCurrency(selectedCheckoutAmount)}
+                  </Box>
+                </Box>
+              )}
             </Button>
             {eligibility?.canRequest && (eligibility?.availableAmount ?? 0) > 0 && (
               <Button

@@ -195,12 +195,15 @@ export default function DashboardSidebar({
       transition={{ duration: 0.45, ease: "easeOut" }}
       sx={{
         padding: { xs: 2, md: 3 },
-        height: "100%",
-        minHeight: "100vh",
-        justifyContent: "space-between",
+        height: "100vh",
+        maxHeight: "100dvh",
+        boxSizing: "border-box",
+        overflow: "hidden",
+        display: "flex",
+        flexDirection: "column",
       }}
     >
-      <Stack spacing={3}>
+      <Stack spacing={3} sx={{ flexShrink: 0 }}>
         <Box
           component="img"
           src="/assets/svg/STILL PLAYLOGOBL.svg"
@@ -272,83 +275,92 @@ export default function DashboardSidebar({
           </Typography>
         </Box>
         <Divider sx={{ opacity: 0.5 }} />
-        <Stack spacing={1}>
-          {visibleNavItems.map((item) => {
-            const isOverview = item.href === "/dashboard" && !item.href.includes("?");
-            const isUsers = item.href.includes("tab=users");
-            const hrefPath = item.href.split("?")[0];
-            const isSurvey = hrefPath === "/dashboard/survey";
-            const isActive = isOverview
-              ? pathname === "/dashboard" && tab !== "users"
-              : isUsers
-                ? pathname === "/dashboard" && tab === "users"
-                : isSurvey
-                  ? pathname === "/dashboard/survey"
-                  : pathname === hrefPath;
-            const showLoanBadge =
-              item.href === "/dashboard/loan-request" && pendingLoanCount > 0;
-            const showUsersBadge =
-              isUsers && pendingVerificationCount > 0;
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                style={{ textDecoration: "none" }}
+      </Stack>
+
+      <Stack
+        spacing={1}
+        sx={{
+          flex: 1,
+          minHeight: 0,
+          overflow: "hidden",
+          py: 1,
+        }}
+      >
+        {visibleNavItems.map((item) => {
+          const isOverview = item.href === "/dashboard" && !item.href.includes("?");
+          const isUsers = item.href.includes("tab=users");
+          const hrefPath = item.href.split("?")[0];
+          const isSurvey = hrefPath === "/dashboard/survey";
+          const isActive = isOverview
+            ? pathname === "/dashboard" && tab !== "users"
+            : isUsers
+              ? pathname === "/dashboard" && tab === "users"
+              : isSurvey
+                ? pathname === "/dashboard/survey"
+                : pathname === hrefPath;
+          const showLoanBadge =
+            item.href === "/dashboard/loan-request" && pendingLoanCount > 0;
+          const showUsersBadge =
+            isUsers && pendingVerificationCount > 0;
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              style={{ textDecoration: "none" }}
+            >
+              <Button
+                fullWidth
+                variant="text"
+                startIcon={
+                  showLoanBadge ? (
+                    <Badge
+                      badgeContent={pendingLoanCount}
+                      color="error"
+                      sx={{
+                        "& .MuiBadge-badge": {
+                          fontSize: 11,
+                          fontWeight: 700,
+                          minWidth: 18,
+                          height: 18,
+                        },
+                      }}
+                    >
+                      {item.icon}
+                    </Badge>
+                  ) : showUsersBadge ? (
+                    <Badge
+                      badgeContent={pendingVerificationCount}
+                      color="warning"
+                      sx={{
+                        "& .MuiBadge-badge": {
+                          fontSize: 11,
+                          fontWeight: 700,
+                          minWidth: 18,
+                          height: 18,
+                        },
+                      }}
+                    >
+                      {item.icon}
+                    </Badge>
+                  ) : (
+                    item.icon
+                  )
+                }
+                onClick={onNavigate}
+                sx={{
+                  justifyContent: "flex-start",
+                  color: isActive ? "#f59e0b" : "text.primary",
+                  backgroundColor: isActive ? "#f3f3f3" : "transparent",
+                  borderRadius: 999,
+                  paddingY: 1,
+                  paddingX: 2,
+                }}
               >
-                <Button
-                  fullWidth
-                  variant="text"
-                  startIcon={
-                    showLoanBadge ? (
-                      <Badge
-                        badgeContent={pendingLoanCount}
-                        color="error"
-                        sx={{
-                          "& .MuiBadge-badge": {
-                            fontSize: 11,
-                            fontWeight: 700,
-                            minWidth: 18,
-                            height: 18,
-                          },
-                        }}
-                      >
-                        {item.icon}
-                      </Badge>
-                    ) : showUsersBadge ? (
-                      <Badge
-                        badgeContent={pendingVerificationCount}
-                        color="warning"
-                        sx={{
-                          "& .MuiBadge-badge": {
-                            fontSize: 11,
-                            fontWeight: 700,
-                            minWidth: 18,
-                            height: 18,
-                          },
-                        }}
-                      >
-                        {item.icon}
-                      </Badge>
-                    ) : (
-                      item.icon
-                    )
-                  }
-                  onClick={onNavigate}
-                  sx={{
-                    justifyContent: "flex-start",
-                    color: isActive ? "#f59e0b" : "text.primary",
-                    backgroundColor: isActive ? "#f3f3f3" : "transparent",
-                    borderRadius: 999,
-                    paddingY: 1,
-                    paddingX: 2,
-                  }}
-                >
-                  {item.label}
-                </Button>
-              </Link>
-            );
-          })}
-        </Stack>
+                {item.label}
+              </Button>
+            </Link>
+          );
+        })}
         {!hideAdminOnlyNav ? (
           <Link href="/dashboard/staff" style={{ textDecoration: "none" }}>
             <Button variant="contained" size="small" fullWidth onClick={onNavigate}>
@@ -358,7 +370,7 @@ export default function DashboardSidebar({
         ) : null}
       </Stack>
 
-      <Stack spacing={2}>
+      <Stack spacing={2} sx={{ flexShrink: 0, pt: 2 }}>
         <Divider sx={{ opacity: 0.5 }} />
         <Button
           variant="text"

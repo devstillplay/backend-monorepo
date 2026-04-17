@@ -11,8 +11,10 @@ function SidebarSuspenseFallback() {
       sx={{
         display: { xs: "none", md: "block" },
         width: 260,
-        minHeight: "100vh",
+        height: "100vh",
+        maxHeight: "100dvh",
         flexShrink: 0,
+        overflow: "hidden",
         bgcolor: "#fafafa",
         borderRight: "1px solid #edf2ef",
       }}
@@ -78,26 +80,46 @@ export default function DashboardLayoutClient({ children }: DashboardLayoutClien
   return (
     <Box
       sx={{
-        minHeight: "100vh",
         backgroundColor: "#fff",
         display: { xs: "flex", md: "grid" },
         flexDirection: { xs: "column", md: "unset" },
+        minHeight: { xs: "100dvh", md: "unset" },
+        height: { md: "100dvh" },
+        maxHeight: { md: "100dvh" },
+        overflow: { md: "hidden" },
         gridTemplateColumns: { md: "260px 1fr" },
+        gridTemplateRows: { md: "minmax(0, 1fr)" },
       }}
     >
-      <Box sx={{ display: { xs: "none", md: "block" } }}>
+      <Box
+        sx={{
+          display: { xs: "none", md: "block" },
+          height: "100%",
+          minHeight: 0,
+          overflow: "hidden",
+        }}
+      >
         <Suspense fallback={<SidebarSuspenseFallback />}>
           <DashboardSidebar />
         </Suspense>
       </Box>
 
-      <Stack sx={{ flex: 1 }}>
+      <Stack
+        sx={{
+          flex: 1,
+          minWidth: 0,
+          minHeight: 0,
+          height: { md: "100%" },
+          overflow: { xs: "visible", md: "hidden" },
+        }}
+      >
         <Stack
           direction="row"
           alignItems="center"
           justifyContent="space-between"
           sx={{
             display: { xs: "flex", md: "none" },
+            flexShrink: 0,
             paddingX: 2,
             paddingY: 1.5,
             borderBottom: "1px solid #edf2ef",
@@ -111,7 +133,17 @@ export default function DashboardLayoutClient({ children }: DashboardLayoutClien
           </IconButton>
         </Stack>
 
-        <Box sx={{ padding: { xs: 2, md: 3 }, flex: 1 }}>{children}</Box>
+        <Box
+          sx={{
+            flex: 1,
+            minHeight: 0,
+            overflowY: { xs: "visible", md: "auto" },
+            WebkitOverflowScrolling: "touch",
+            padding: { xs: 2, md: 3 },
+          }}
+        >
+          {children}
+        </Box>
       </Stack>
 
       <Drawer
