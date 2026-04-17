@@ -25,8 +25,9 @@ import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 
 import DashboardHeader from "../../../components/dashboard/DashboardHeader";
-import { useEmployees, useCreateEmployee } from "../../../lib/queries";
-import { useAuthStore } from "../../../store/auth";
+import { useEmployees, useCreateEmployee, useUpdateEmployee } from "../../../lib/queries";
+import { isCustomerSupportRole, useAuthStore } from "../../../store/auth";
+import { useUserStore } from "../../../store/user";
 import {
   STAFF_ROLES,
   type Employee,
@@ -35,6 +36,14 @@ import {
 export default function StaffPage() {
   const router = useRouter();
   const token = useAuthStore((s) => s.token);
+  const authUser = useAuthStore((s) => s.user);
+  const profile = useUserStore((s) => s.profile);
+  const currentUserId = authUser?.id;
+  useEffect(() => {
+    if (isCustomerSupportRole(profile?.role ?? authUser?.role)) {
+      router.replace("/dashboard");
+    }
+  }, [router, profile?.role, authUser?.role]);
   const [search, setSearch] = useState("");
   const [openCreate, setOpenCreate] = useState(false);
   const [formFirstName, setFormFirstName] = useState("");
@@ -45,6 +54,7 @@ export default function StaffPage() {
 
   const { data: employees = [], isLoading, isError, error, refetch, isFetching } = useEmployees();
   const createMutation = useCreateEmployee();
+  const updateEmployeeMutation = useUpdateEmployee();
 
   // If staff request failed due to invalid token (401), auth store was reset — lock out to login
   useEffect(() => {
@@ -96,7 +106,7 @@ export default function StaffPage() {
   return (
     <Box
       component={motion.div}
-      initial={{ opacity: 0, y: 12 }}
+      initial={false}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.45, ease: "easeOut" }}
     >
@@ -116,6 +126,11 @@ export default function StaffPage() {
         }}
       >
         <Stack spacing={2}>
+          {updateEmployeeMutation.isError && (
+            <Alert severity="error" onClose={() => updateEmployeeMutation.reset()}>
+              {(updateEmployeeMutation.error as Error).message}
+            </Alert>
+          )}
           <Box
             sx={{
               borderRadius: 3,
@@ -167,7 +182,7 @@ export default function StaffPage() {
                 paddingY: 1.2,
                 paddingX: 3,
                 display: { xs: "none", md: "grid" },
-                gridTemplateColumns: { md: "1.5fr 1.2fr 0.9fr 1.2fr 0.6fr" },
+                gridTemplateColumns: { md: "1.4fr 1.1fr 0.85fr 1fr 0.55fr 1fr" },
                 alignItems: "center",
                 gap: 1,
               }}
@@ -177,6 +192,7 @@ export default function StaffPage() {
               <Box>Employee #</Box>
               <Box>Role</Box>
               <Box>Status</Box>
+              <Box>Actions</Box>
             </Box>
 
             <Box
@@ -216,7 +232,7 @@ export default function StaffPage() {
                         paddingX: { xs: 2, md: 3 },
                         borderBottom: { xs: "none", md: "1px solid #fff" },
                         display: { xs: "block", md: "grid" },
-                        gridTemplateColumns: { md: "1.5fr 1.2fr 0.9fr 1.2fr 0.6fr" },
+                        gridTemplateColumns: { md: "1.4fr 1.1fr 0.85fr 1fr 0.55fr 1fr" },
                         alignItems: { md: "center" },
                         gap: { md: 1 },
                         backgroundColor: "#ffffff",
@@ -251,11 +267,49 @@ export default function StaffPage() {
                         <span
                           className="value"
                           style={{
-                            color: e.active ? "#0b7b4c" : undefined,
+                            color: e.active ? "#0b7b4c" : "#c62828",
                             fontWeight: 500,
                           }}
                         >
-                          {e.active ? "Active" : "Inactive"}
+                          {e.active ? "Active" : "Suspended"}
+                        </span>
+                        <span className="label">Actions</span>
+                        <span className="value">
+                          {e.id === currentUserId ? (
+                            <Typography variant="caption" color="text.secondary">
+                              Current account
+                            </Typography>
+                          ) : e.active ? (
+                            <Button
+                              size="small"
+                              color="error"
+                              variant="outlined"
+                              disabled={updateEmployeeMutation.isPending}
+                              onClick={() =>
+                                updateEmployeeMutation.mutate({
+                                  id: e.id,
+                                  payload: { active: false },
+                                })
+                              }
+                            >
+                              Suspend
+                            </Button>
+                          ) : (
+                            <Button
+                              size="small"
+                              variant="contained"
+                              disabled={updateEmployeeMutation.isPending}
+                              onClick={() =>
+                                updateEmployeeMutation.mutate({
+                                  id: e.id,
+                                  payload: { active: true },
+                                })
+                              }
+                              sx={{ backgroundColor: "#0b7b4c" }}
+                            >
+                              Reinstate
+                            </Button>
+                          )}
                         </span>
                       </Box>
                       {/* Desktop: table row */}
@@ -284,12 +338,56 @@ export default function StaffPage() {
                           <Typography
                             variant="body2"
                             sx={{
-                              color: e.active ? "#0b7b4c" : "text.secondary",
+                              color: e.active ? "#0b7b4c" : "#c62828",
                               fontWeight: 500,
                             }}
                           >
-                            {e.active ? "Active" : "Inactive"}
+                            {e.active ? "Active" : "Suspended"}
                           </Typography>
+                        </Box>
+                        <Box
+                          sx={{
+                            display: { xs: "none", md: "flex" },
+                            alignItems: "center",
+                            gap: 0.5,
+                            flexWrap: "wrap",
+                          }}
+                        >
+                          {e.id === currentUserId ? (
+                            <Typography variant="caption" color="text.secondary">
+                              Current account
+                            </Typography>
+                          ) : e.active ? (
+                            <Button
+                              size="small"
+                              color="error"
+                              variant="outlined"
+                              disabled={updateEmployeeMutation.isPending}
+                              onClick={() =>
+                                updateEmployeeMutation.mutate({
+                                  id: e.id,
+                                  payload: { active: false },
+                                })
+                              }
+                            >
+                              Suspend
+                            </Button>
+                          ) : (
+                            <Button
+                              size="small"
+                              variant="contained"
+                              disabled={updateEmployeeMutation.isPending}
+                              onClick={() =>
+                                updateEmployeeMutation.mutate({
+                                  id: e.id,
+                                  payload: { active: true },
+                                })
+                              }
+                              sx={{ backgroundColor: "#0b7b4c" }}
+                            >
+                              Reinstate
+                            </Button>
+                          )}
                         </Box>
                       </>
                     </Box>

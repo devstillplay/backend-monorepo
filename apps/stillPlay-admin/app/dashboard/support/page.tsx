@@ -33,12 +33,15 @@ function getUserDisplay(u: { id: string; firstName?: string; lastName?: string; 
 
 export default function SupportPage() {
   const searchParams = useSearchParams();
+  const [mounted, setMounted] = useState(false);
   const [search, setSearch] = useState("");
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const [selectedThreadId, setSelectedThreadId] = useState<string | null>(null);
   const [inputValue, setInputValue] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const pusherRef = useRef<Pusher | null>(null);
+
+  useEffect(() => setMounted(true), []);
 
   const { data: threadsData, isLoading: threadsLoading, refetch: refetchThreads } = useChatThreads();
   const { data: usersData } = useAdminUsers();
@@ -85,7 +88,7 @@ export default function SupportPage() {
   const selectedUser = users.find((u) => String(u.id) === String(selectedUserId));
 
   // Pre-select user from ?userId= query (runs when URL has userId and users loaded)
-  const urlUserId = searchParams.get("userId");
+  const urlUserId = mounted ? searchParams.get("userId") : null;
   const urlProcessedRef = useRef<string | null>(null);
   if (urlUserId !== urlProcessedRef.current && urlProcessedRef.current !== null) {
     urlProcessedRef.current = null;

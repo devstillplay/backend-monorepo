@@ -7496,11 +7496,17 @@ export namespace Prisma {
   export type LoanAvgAggregateOutputType = {
     amount: number | null
     amountRepaid: number | null
+    interestRatePercent: number | null
+    interestWithheld: number | null
+    netDisbursed: number | null
   }
 
   export type LoanSumAggregateOutputType = {
     amount: number | null
     amountRepaid: number | null
+    interestRatePercent: number | null
+    interestWithheld: number | null
+    netDisbursed: number | null
   }
 
   export type LoanMinAggregateOutputType = {
@@ -7514,6 +7520,9 @@ export namespace Prisma {
     disbursedAt: Date | null
     amountRepaid: number | null
     repaidAt: Date | null
+    interestRatePercent: number | null
+    interestWithheld: number | null
+    netDisbursed: number | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -7529,6 +7538,9 @@ export namespace Prisma {
     disbursedAt: Date | null
     amountRepaid: number | null
     repaidAt: Date | null
+    interestRatePercent: number | null
+    interestWithheld: number | null
+    netDisbursed: number | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -7544,6 +7556,9 @@ export namespace Prisma {
     disbursedAt: number
     amountRepaid: number
     repaidAt: number
+    interestRatePercent: number
+    interestWithheld: number
+    netDisbursed: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -7553,11 +7568,17 @@ export namespace Prisma {
   export type LoanAvgAggregateInputType = {
     amount?: true
     amountRepaid?: true
+    interestRatePercent?: true
+    interestWithheld?: true
+    netDisbursed?: true
   }
 
   export type LoanSumAggregateInputType = {
     amount?: true
     amountRepaid?: true
+    interestRatePercent?: true
+    interestWithheld?: true
+    netDisbursed?: true
   }
 
   export type LoanMinAggregateInputType = {
@@ -7571,6 +7592,9 @@ export namespace Prisma {
     disbursedAt?: true
     amountRepaid?: true
     repaidAt?: true
+    interestRatePercent?: true
+    interestWithheld?: true
+    netDisbursed?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -7586,6 +7610,9 @@ export namespace Prisma {
     disbursedAt?: true
     amountRepaid?: true
     repaidAt?: true
+    interestRatePercent?: true
+    interestWithheld?: true
+    netDisbursed?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -7601,6 +7628,9 @@ export namespace Prisma {
     disbursedAt?: true
     amountRepaid?: true
     repaidAt?: true
+    interestRatePercent?: true
+    interestWithheld?: true
+    netDisbursed?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -7703,6 +7733,9 @@ export namespace Prisma {
     disbursedAt: Date | null
     amountRepaid: number
     repaidAt: Date | null
+    interestRatePercent: number | null
+    interestWithheld: number | null
+    netDisbursed: number | null
     createdAt: Date
     updatedAt: Date
     _count: LoanCountAggregateOutputType | null
@@ -7737,6 +7770,9 @@ export namespace Prisma {
     disbursedAt?: boolean
     amountRepaid?: boolean
     repaidAt?: boolean
+    interestRatePercent?: boolean
+    interestWithheld?: boolean
+    netDisbursed?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     repayments?: boolean | Loan$repaymentsArgs<ExtArgs>
@@ -7756,11 +7792,14 @@ export namespace Prisma {
     disbursedAt?: boolean
     amountRepaid?: boolean
     repaidAt?: boolean
+    interestRatePercent?: boolean
+    interestWithheld?: boolean
+    netDisbursed?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type LoanOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "amount" | "purpose" | "status" | "dueDate" | "approvedAt" | "disbursedAt" | "amountRepaid" | "repaidAt" | "createdAt" | "updatedAt", ExtArgs["result"]["loan"]>
+  export type LoanOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "amount" | "purpose" | "status" | "dueDate" | "approvedAt" | "disbursedAt" | "amountRepaid" | "repaidAt" | "interestRatePercent" | "interestWithheld" | "netDisbursed" | "createdAt" | "updatedAt", ExtArgs["result"]["loan"]>
   export type LoanInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     repayments?: boolean | Loan$repaymentsArgs<ExtArgs>
     _count?: boolean | LoanCountOutputTypeDefaultArgs<ExtArgs>
@@ -7774,6 +7813,9 @@ export namespace Prisma {
     scalars: $Extensions.GetPayloadResult<{
       id: string
       userId: string
+      /**
+       * Principal / total amount the customer must repay (nominal loan).
+       */
       amount: number
       purpose: string | null
       status: string
@@ -7782,6 +7824,18 @@ export namespace Prisma {
       disbursedAt: Date | null
       amountRepaid: number
       repaidAt: Date | null
+      /**
+       * Interest % applied at disbursement (snapshot). Legacy loans may omit.
+       */
+      interestRatePercent: number | null
+      /**
+       * Interest taken from principal before crediting wallet (company keeps this upfront).
+       */
+      interestWithheld: number | null
+      /**
+       * Net amount credited to the user wallet. Legacy: omit = full `amount` was credited.
+       */
+      netDisbursed: number | null
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["loan"]>
@@ -8187,6 +8241,9 @@ export namespace Prisma {
     readonly disbursedAt: FieldRef<"Loan", 'DateTime'>
     readonly amountRepaid: FieldRef<"Loan", 'Float'>
     readonly repaidAt: FieldRef<"Loan", 'DateTime'>
+    readonly interestRatePercent: FieldRef<"Loan", 'Float'>
+    readonly interestWithheld: FieldRef<"Loan", 'Float'>
+    readonly netDisbursed: FieldRef<"Loan", 'Float'>
     readonly createdAt: FieldRef<"Loan", 'DateTime'>
     readonly updatedAt: FieldRef<"Loan", 'DateTime'>
   }
@@ -21563,6 +21620,9 @@ export namespace Prisma {
     disbursedAt: 'disbursedAt',
     amountRepaid: 'amountRepaid',
     repaidAt: 'repaidAt',
+    interestRatePercent: 'interestRatePercent',
+    interestWithheld: 'interestWithheld',
+    netDisbursed: 'netDisbursed',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
@@ -22193,6 +22253,9 @@ export namespace Prisma {
     disbursedAt?: DateTimeNullableFilter<"Loan"> | Date | string | null
     amountRepaid?: FloatFilter<"Loan"> | number
     repaidAt?: DateTimeNullableFilter<"Loan"> | Date | string | null
+    interestRatePercent?: FloatNullableFilter<"Loan"> | number | null
+    interestWithheld?: FloatNullableFilter<"Loan"> | number | null
+    netDisbursed?: FloatNullableFilter<"Loan"> | number | null
     createdAt?: DateTimeFilter<"Loan"> | Date | string
     updatedAt?: DateTimeFilter<"Loan"> | Date | string
     repayments?: LoanRepaymentListRelationFilter
@@ -22209,6 +22272,9 @@ export namespace Prisma {
     disbursedAt?: SortOrder
     amountRepaid?: SortOrder
     repaidAt?: SortOrder
+    interestRatePercent?: SortOrder
+    interestWithheld?: SortOrder
+    netDisbursed?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     repayments?: LoanRepaymentOrderByRelationAggregateInput
@@ -22228,6 +22294,9 @@ export namespace Prisma {
     disbursedAt?: DateTimeNullableFilter<"Loan"> | Date | string | null
     amountRepaid?: FloatFilter<"Loan"> | number
     repaidAt?: DateTimeNullableFilter<"Loan"> | Date | string | null
+    interestRatePercent?: FloatNullableFilter<"Loan"> | number | null
+    interestWithheld?: FloatNullableFilter<"Loan"> | number | null
+    netDisbursed?: FloatNullableFilter<"Loan"> | number | null
     createdAt?: DateTimeFilter<"Loan"> | Date | string
     updatedAt?: DateTimeFilter<"Loan"> | Date | string
     repayments?: LoanRepaymentListRelationFilter
@@ -22244,6 +22313,9 @@ export namespace Prisma {
     disbursedAt?: SortOrder
     amountRepaid?: SortOrder
     repaidAt?: SortOrder
+    interestRatePercent?: SortOrder
+    interestWithheld?: SortOrder
+    netDisbursed?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: LoanCountOrderByAggregateInput
@@ -22267,6 +22339,9 @@ export namespace Prisma {
     disbursedAt?: DateTimeNullableWithAggregatesFilter<"Loan"> | Date | string | null
     amountRepaid?: FloatWithAggregatesFilter<"Loan"> | number
     repaidAt?: DateTimeNullableWithAggregatesFilter<"Loan"> | Date | string | null
+    interestRatePercent?: FloatNullableWithAggregatesFilter<"Loan"> | number | null
+    interestWithheld?: FloatNullableWithAggregatesFilter<"Loan"> | number | null
+    netDisbursed?: FloatNullableWithAggregatesFilter<"Loan"> | number | null
     createdAt?: DateTimeWithAggregatesFilter<"Loan"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Loan"> | Date | string
   }
@@ -23480,6 +23555,9 @@ export namespace Prisma {
     disbursedAt?: Date | string | null
     amountRepaid?: number
     repaidAt?: Date | string | null
+    interestRatePercent?: number | null
+    interestWithheld?: number | null
+    netDisbursed?: number | null
     createdAt?: Date | string
     updatedAt?: Date | string
     repayments?: LoanRepaymentCreateNestedManyWithoutLoanInput
@@ -23496,6 +23574,9 @@ export namespace Prisma {
     disbursedAt?: Date | string | null
     amountRepaid?: number
     repaidAt?: Date | string | null
+    interestRatePercent?: number | null
+    interestWithheld?: number | null
+    netDisbursed?: number | null
     createdAt?: Date | string
     updatedAt?: Date | string
     repayments?: LoanRepaymentUncheckedCreateNestedManyWithoutLoanInput
@@ -23511,6 +23592,9 @@ export namespace Prisma {
     disbursedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     amountRepaid?: FloatFieldUpdateOperationsInput | number
     repaidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    interestRatePercent?: NullableFloatFieldUpdateOperationsInput | number | null
+    interestWithheld?: NullableFloatFieldUpdateOperationsInput | number | null
+    netDisbursed?: NullableFloatFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     repayments?: LoanRepaymentUpdateManyWithoutLoanNestedInput
@@ -23526,6 +23610,9 @@ export namespace Prisma {
     disbursedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     amountRepaid?: FloatFieldUpdateOperationsInput | number
     repaidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    interestRatePercent?: NullableFloatFieldUpdateOperationsInput | number | null
+    interestWithheld?: NullableFloatFieldUpdateOperationsInput | number | null
+    netDisbursed?: NullableFloatFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     repayments?: LoanRepaymentUncheckedUpdateManyWithoutLoanNestedInput
@@ -23542,6 +23629,9 @@ export namespace Prisma {
     disbursedAt?: Date | string | null
     amountRepaid?: number
     repaidAt?: Date | string | null
+    interestRatePercent?: number | null
+    interestWithheld?: number | null
+    netDisbursed?: number | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -23556,6 +23646,9 @@ export namespace Prisma {
     disbursedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     amountRepaid?: FloatFieldUpdateOperationsInput | number
     repaidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    interestRatePercent?: NullableFloatFieldUpdateOperationsInput | number | null
+    interestWithheld?: NullableFloatFieldUpdateOperationsInput | number | null
+    netDisbursed?: NullableFloatFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -23570,6 +23663,9 @@ export namespace Prisma {
     disbursedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     amountRepaid?: FloatFieldUpdateOperationsInput | number
     repaidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    interestRatePercent?: NullableFloatFieldUpdateOperationsInput | number | null
+    interestWithheld?: NullableFloatFieldUpdateOperationsInput | number | null
+    netDisbursed?: NullableFloatFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -24783,6 +24879,9 @@ export namespace Prisma {
     disbursedAt?: SortOrder
     amountRepaid?: SortOrder
     repaidAt?: SortOrder
+    interestRatePercent?: SortOrder
+    interestWithheld?: SortOrder
+    netDisbursed?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -24790,6 +24889,9 @@ export namespace Prisma {
   export type LoanAvgOrderByAggregateInput = {
     amount?: SortOrder
     amountRepaid?: SortOrder
+    interestRatePercent?: SortOrder
+    interestWithheld?: SortOrder
+    netDisbursed?: SortOrder
   }
 
   export type LoanMaxOrderByAggregateInput = {
@@ -24803,6 +24905,9 @@ export namespace Prisma {
     disbursedAt?: SortOrder
     amountRepaid?: SortOrder
     repaidAt?: SortOrder
+    interestRatePercent?: SortOrder
+    interestWithheld?: SortOrder
+    netDisbursed?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -24818,6 +24923,9 @@ export namespace Prisma {
     disbursedAt?: SortOrder
     amountRepaid?: SortOrder
     repaidAt?: SortOrder
+    interestRatePercent?: SortOrder
+    interestWithheld?: SortOrder
+    netDisbursed?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -24825,6 +24933,9 @@ export namespace Prisma {
   export type LoanSumOrderByAggregateInput = {
     amount?: SortOrder
     amountRepaid?: SortOrder
+    interestRatePercent?: SortOrder
+    interestWithheld?: SortOrder
+    netDisbursed?: SortOrder
   }
 
   export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
@@ -25787,6 +25898,9 @@ export namespace Prisma {
     disbursedAt?: Date | string | null
     amountRepaid?: number
     repaidAt?: Date | string | null
+    interestRatePercent?: number | null
+    interestWithheld?: number | null
+    netDisbursed?: number | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -25802,6 +25916,9 @@ export namespace Prisma {
     disbursedAt?: Date | string | null
     amountRepaid?: number
     repaidAt?: Date | string | null
+    interestRatePercent?: number | null
+    interestWithheld?: number | null
+    netDisbursed?: number | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -25832,6 +25949,9 @@ export namespace Prisma {
     disbursedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     amountRepaid?: FloatFieldUpdateOperationsInput | number
     repaidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    interestRatePercent?: NullableFloatFieldUpdateOperationsInput | number | null
+    interestWithheld?: NullableFloatFieldUpdateOperationsInput | number | null
+    netDisbursed?: NullableFloatFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -25846,6 +25966,9 @@ export namespace Prisma {
     disbursedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     amountRepaid?: FloatFieldUpdateOperationsInput | number
     repaidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    interestRatePercent?: NullableFloatFieldUpdateOperationsInput | number | null
+    interestWithheld?: NullableFloatFieldUpdateOperationsInput | number | null
+    netDisbursed?: NullableFloatFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }

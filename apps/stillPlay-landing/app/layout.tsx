@@ -9,7 +9,7 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "Still Play – Betting Credit Platform",
   description:
-    "Still Play provides instant betting credit to verified sports bettors, delivered directly into betting wallets through secure integrations with betting platforms. Sure Odds, No Funds? STILL PLAY.",
+    "Still Play provides instant betting credit to verified sports bettors, delivered directly into betting wallets through secure integrations with betting platforms. Sure Odds, No Funds? Still Play.",
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {

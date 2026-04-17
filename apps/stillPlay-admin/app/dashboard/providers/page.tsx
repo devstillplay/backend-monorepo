@@ -21,11 +21,14 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 
 import DashboardHeader from "../../../components/dashboard/DashboardHeader";
 import { useProviders, useCreateProvider, useDeleteProvider, useBudpayBanks } from "../../../lib/queries";
+import { isCustomerSupportRole, useAuthStore } from "../../../store/auth";
+import { useUserStore } from "../../../store/user";
 import { getProviderFinalAmount, getCompanyCutAmount, type Provider } from "../../../lib/api";
 
 function formatDate(iso: string | null | undefined): string {
@@ -181,6 +184,15 @@ function ProviderRow({
 }
 
 export default function ProvidersPage() {
+  const router = useRouter();
+  const authUser = useAuthStore((s) => s.user);
+  const profile = useUserStore((s) => s.profile);
+  useEffect(() => {
+    if (isCustomerSupportRole(profile?.role ?? authUser?.role)) {
+      router.replace("/dashboard");
+    }
+  }, [router, profile?.role, authUser?.role]);
+
   const [search, setSearch] = useState("");
   const [openCreate, setOpenCreate] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<Provider | null>(null);

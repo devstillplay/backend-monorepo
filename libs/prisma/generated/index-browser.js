@@ -184,6 +184,9 @@ exports.Prisma.LoanScalarFieldEnum = {
   disbursedAt: 'disbursedAt',
   amountRepaid: 'amountRepaid',
   repaidAt: 'repaidAt',
+  interestRatePercent: 'interestRatePercent',
+  interestWithheld: 'interestWithheld',
+  netDisbursed: 'netDisbursed',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };

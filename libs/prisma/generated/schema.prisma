@@ -74,19 +74,26 @@ model Wallet {
 }
 
 model Loan {
-  id           String          @id @default(auto()) @map("_id") @db.ObjectId
-  userId       String          @db.ObjectId
-  amount       Float
-  purpose      String?
-  status       String // PENDING | APPROVED | REJECTED | DISBURSED | REPAID
-  dueDate      DateTime?
-  approvedAt   DateTime? // when admin approved (for activity timeline)
-  disbursedAt  DateTime?
-  amountRepaid Float           @default(0)
-  repaidAt     DateTime?
-  createdAt    DateTime        @default(now())
-  updatedAt    DateTime        @updatedAt
-  repayments   LoanRepayment[]
+  id                  String          @id @default(auto()) @map("_id") @db.ObjectId
+  userId              String          @db.ObjectId
+  /// Principal / total amount the customer must repay (nominal loan).
+  amount              Float
+  purpose             String?
+  status              String // PENDING | APPROVED | REJECTED | DISBURSED | REPAID
+  dueDate             DateTime?
+  approvedAt          DateTime? // when admin approved (for activity timeline)
+  disbursedAt         DateTime?
+  amountRepaid        Float           @default(0)
+  repaidAt            DateTime?
+  /// Interest % applied at disbursement (snapshot). Legacy loans may omit.
+  interestRatePercent Float?
+  /// Interest taken from principal before crediting wallet (company keeps this upfront).
+  interestWithheld    Float?
+  /// Net amount credited to the user wallet. Legacy: omit = full `amount` was credited.
+  netDisbursed        Float?
+  createdAt           DateTime        @default(now())
+  updatedAt           DateTime        @updatedAt
+  repayments          LoanRepayment[]
 }
 
 // One record per repayment (for history)

@@ -18,6 +18,7 @@ import { firstValueFrom } from 'rxjs';
 import { AuthGuard } from '../guards/auth/auth.guard';
 import type { RequestWithUser } from '../types/request.types';
 import { LOAN_SERVICE } from '../loan/loan.controller';
+import { rethrowAdminMicroserviceError } from '../utils/microservice-error';
 
 function isConnectionOrAggregateError(err: unknown): boolean {
   if (err instanceof Error) {
@@ -85,93 +86,157 @@ export class AdminController {
   ) {}
 
   @Get('users')
-  listUsers() {
-    return firstValueFrom(this.adminClient.send('admin-users-list', {}));
+  async listUsers() {
+    try {
+      return await firstValueFrom(
+        this.adminClient.send('admin-users-list', {})
+      );
+    } catch (err) {
+      rethrowAdminMicroserviceError(err);
+    }
   }
 
   @Get('users/:id')
-  getUser(@Param('id') id: string) {
-    return firstValueFrom(this.adminClient.send('admin-users-get', id));
+  async getUser(@Param('id') id: string) {
+    try {
+      return await firstValueFrom(this.adminClient.send('admin-users-get', id));
+    } catch (err) {
+      rethrowAdminMicroserviceError(err);
+    }
   }
 
   @Post('users')
-  createUser(@Body() body: unknown) {
-    return firstValueFrom(this.adminClient.send('admin-users-create', body));
+  async createUser(@Body() body: unknown) {
+    try {
+      return await firstValueFrom(
+        this.adminClient.send('admin-users-create', body)
+      );
+    } catch (err) {
+      rethrowAdminMicroserviceError(err);
+    }
   }
 
   @Patch('users/:id')
-  updateUser(@Param('id') id: string, @Body() body: unknown) {
-    return firstValueFrom(
-      this.adminClient.send('admin-users-update', { id, data: body })
-    );
+  async updateUser(@Param('id') id: string, @Body() body: unknown) {
+    try {
+      return await firstValueFrom(
+        this.adminClient.send('admin-users-update', { id, data: body })
+      );
+    } catch (err) {
+      rethrowAdminMicroserviceError(err);
+    }
   }
 
   @Delete('users/:id')
-  deleteUser(@Param('id') id: string) {
-    return firstValueFrom(this.adminClient.send('admin-users-delete', id));
+  async deleteUser(@Param('id') id: string) {
+    try {
+      return await firstValueFrom(
+        this.adminClient.send('admin-users-delete', id)
+      );
+    } catch (err) {
+      rethrowAdminMicroserviceError(err);
+    }
   }
 
   @Post('users/:id/verify')
-  verifyUser(@Param('id') id: string) {
-    return firstValueFrom(this.adminClient.send('admin-users-verify', id));
+  async verifyUser(@Param('id') id: string) {
+    try {
+      return await firstValueFrom(
+        this.adminClient.send('admin-users-verify', id)
+      );
+    } catch (err) {
+      rethrowAdminMicroserviceError(err);
+    }
   }
 
   @Get('employees')
-  listEmployees() {
-    return firstValueFrom(this.adminClient.send('admin-employees-list', {}));
+  async listEmployees() {
+    try {
+      return await firstValueFrom(
+        this.adminClient.send('admin-employees-list', {})
+      );
+    } catch (err) {
+      rethrowAdminMicroserviceError(err);
+    }
   }
 
   @Get('employees/:id')
-  getEmployee(@Param('id') id: string) {
-    return firstValueFrom(this.adminClient.send('admin-employees-get', id));
+  async getEmployee(@Param('id') id: string) {
+    try {
+      return await firstValueFrom(
+        this.adminClient.send('admin-employees-get', id)
+      );
+    } catch (err) {
+      rethrowAdminMicroserviceError(err);
+    }
   }
 
   @Post('employees')
-  createEmployee(@Body() body: unknown) {
-    return firstValueFrom(
-      this.adminClient.send('admin-employees-create', body)
-    );
+  async createEmployee(@Body() body: unknown) {
+    try {
+      return await firstValueFrom(
+        this.adminClient.send('admin-employees-create', body)
+      );
+    } catch (err) {
+      rethrowAdminMicroserviceError(err);
+    }
   }
 
   @Patch('employees/:id')
-  updateEmployee(@Param('id') id: string, @Body() body: unknown) {
-    return firstValueFrom(
-      this.adminClient.send('admin-employees-update', { id, data: body })
-    );
+  async updateEmployee(@Param('id') id: string, @Body() body: unknown) {
+    try {
+      return await firstValueFrom(
+        this.adminClient.send('admin-employees-update', { id, data: body })
+      );
+    } catch (err) {
+      rethrowAdminMicroserviceError(err);
+    }
   }
 
   @Delete('employees/:id')
-  deleteEmployee(@Param('id') id: string) {
-    return firstValueFrom(
-      this.adminClient.send('admin-employees-delete', id)
-    );
+  async deleteEmployee(@Param('id') id: string) {
+    try {
+      return await firstValueFrom(
+        this.adminClient.send('admin-employees-delete', id)
+      );
+    } catch (err) {
+      rethrowAdminMicroserviceError(err);
+    }
   }
 
   @Post('activity')
-  createActivity(
+  async createActivity(
     @Req() req: RequestWithUser,
     @Body() body: { action: string; ip?: string }
   ) {
-    return firstValueFrom(
-      this.adminClient.send('admin-activity-create', {
-        userId: req.user.id,
-        action: body.action,
-        ip: body.ip,
-      })
-    );
+    try {
+      return await firstValueFrom(
+        this.adminClient.send('admin-activity-create', {
+          userId: req.user.id,
+          action: body.action,
+          ip: body.ip,
+        })
+      );
+    } catch (err) {
+      rethrowAdminMicroserviceError(err);
+    }
   }
 
   @Get('activity')
-  listActivity(
+  async listActivity(
     @Req() req: RequestWithUser,
     @Query('limit') limit?: string
   ) {
-    return firstValueFrom(
-      this.adminClient.send('admin-activity-list', {
-        userId: req.user.id,
-        limit: limit != null ? parseInt(limit, 10) : 50,
-      })
-    );
+    try {
+      return await firstValueFrom(
+        this.adminClient.send('admin-activity-list', {
+          userId: req.user.id,
+          limit: limit != null ? parseInt(limit, 10) : 50,
+        })
+      );
+    } catch (err) {
+      rethrowAdminMicroserviceError(err);
+    }
   }
 
   // ---------- Admin: loans (request for user, view user loan history & repayments) ----------
@@ -321,7 +386,11 @@ export class AdminController {
   }
 
   @Get('waitlist')
-  listWaitlist() {
-    return firstValueFrom(this.adminClient.send('waitlist-list', {}));
+  async listWaitlist() {
+    try {
+      return await firstValueFrom(this.adminClient.send('waitlist-list', {}));
+    } catch (err) {
+      rethrowAdminMicroserviceError(err);
+    }
   }
 }

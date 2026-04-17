@@ -132,7 +132,10 @@ export default function DashboardPage() {
   });
 
   const firstName = profile?.firstName ?? storedUser?.firstName ?? null;
-  const displayName = firstName ?? storedUser?.email?.split("@")[0] ?? "there";
+  const displayName =
+    (typeof firstName === "string" && firstName.trim()) ||
+    storedUser?.email?.split("@")[0]?.trim() ||
+    "there";
   const avatarSrc = profile?.picture ?? storedUser?.picture ?? undefined;
 
   const activityLoading = loansLoading || repaymentsLoading;
@@ -360,6 +363,7 @@ export default function DashboardPage() {
           ) : (
             recentActivity.map((item) => {
               const meta = STATUS_META[item.status];
+              if (!meta) return null;
               return (
                 <Stack
                   key={item.key}

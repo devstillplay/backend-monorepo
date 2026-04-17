@@ -16,7 +16,12 @@ export type UserProfile = {
   firstName?: string;
   lastName?: string;
   userNumber?: string;
+  /** Present for staff (same as userNumber on profile API). */
+  employeeNumber?: string;
   picture?: string | null;
+  accountType?: "customer" | "staff";
+  /** Staff: false when suspended (typically absent while token is valid). */
+  active?: boolean;
 };
 
 type AuthState = {
@@ -125,6 +130,11 @@ export const useAuthStore = create<AuthState>()(
     }
   )
 );
+
+/** Matches backend `Role.CustomerSupport`. */
+export function isCustomerSupportRole(role: string | null | undefined): boolean {
+  return String(role ?? "").trim() === "Customer Support";
+}
 
 /** Access control: any logged-in staff member (non-Customer role) can access the dashboard. */
 export function useHasAdminAccess(): boolean {

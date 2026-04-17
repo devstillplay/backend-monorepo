@@ -16,7 +16,7 @@ import {
   Tabs,
   Typography,
 } from "@mui/material";
-import { Suspense, useMemo, useState, type ReactNode } from "react";
+import { Suspense, useEffect, useMemo, useState, type ReactNode } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 import DashboardHeader from "../../../components/dashboard/DashboardHeader";
@@ -60,7 +60,9 @@ function formatWhen(iso: string) {
 function SurveyPageInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const rawTab = searchParams.get("tab");
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  const rawTab = mounted ? searchParams.get("tab") : null;
   const tab =
     rawTab === TAB_FORMS
       ? TAB_FORMS

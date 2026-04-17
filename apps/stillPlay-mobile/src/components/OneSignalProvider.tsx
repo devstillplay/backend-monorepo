@@ -1,8 +1,11 @@
 "use client";
 
 import Script from "next/script";
-import { useEffect, useRef } from "react";
+import { useEffect, useLayoutEffect, useRef } from "react";
 import useAuthStore from "@/store/useAuthStore";
+
+const useIsoLayoutEffect =
+  typeof window !== "undefined" ? useLayoutEffect : useEffect;
 
 const ONE_SIGNAL_APP_ID = process.env.NEXT_PUBLIC_ONE_SIGNAL_APP_ID ?? "";
 
@@ -47,8 +50,10 @@ export default function OneSignalProvider({ children }: { children: React.ReactN
     if (!userId) loginAttempted.current = false;
   }, [userId]);
 
-  // Push init before Script loads (must run synchronously)
-  if (typeof window !== "undefined" && ONE_SIGNAL_APP_ID) {
+  // Queue OneSignal init before the SDK script runs; useLayoutEffect avoids mutating
+  // window during render (React 19 / strict mode) which can trigger dev overlay errors.
+  useIsoLayoutEffect(() => {
+    if (!ONE_SIGNAL_APP_ID) return;
     window.OneSignalDeferred = window.OneSignalDeferred || [];
     if (!(window as { _onesignalInitPushed?: boolean })._onesignalInitPushed) {
       (window as { _onesignalInitPushed?: boolean })._onesignalInitPushed = true;
@@ -60,7 +65,7 @@ export default function OneSignalProvider({ children }: { children: React.ReactN
         (window as Window & { OneSignal?: OneSignalType }).OneSignal = OneSignal;
       });
     }
-  }
+  }, []);
 
   if (!ONE_SIGNAL_APP_ID) {
     return <>{children}</>;

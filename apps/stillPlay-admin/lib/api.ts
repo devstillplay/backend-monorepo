@@ -64,6 +64,10 @@ export type UserProfile = {
   firstName?: string;
   lastName?: string;
   userNumber?: string;
+  employeeNumber?: string;
+  picture?: string | null;
+  accountType?: "customer" | "staff";
+  active?: boolean;
 };
 
 export type WaitlistEntry = {
@@ -98,6 +102,8 @@ export type LoanEligibility = {
   maxAmount: number;
   availableAmount: number;
   totalOutstanding?: number;
+  /** Upfront interest % withheld from principal before wallet credit. */
+  interestRatePercent?: number;
   reason?: string;
   activeLoan?: {
     id: string;
@@ -221,6 +227,11 @@ export type Loan = {
   disbursedAt?: string | null;
   amountRepaid: number;
   repaidAt?: string | null;
+  /** % withheld at disbursement; legacy loans may omit. */
+  interestRatePercent?: number | null;
+  interestWithheld?: number | null;
+  /** Net credited to user wallet; legacy: omit = full amount was credited. */
+  netDisbursed?: number | null;
   createdAt: string;
   updatedAt: string;
 };
@@ -761,7 +772,11 @@ export async function getProfile(token: string): Promise<UserProfile> {
       typeof data.message === "string" ? data.message : "Failed to load profile"
     );
   }
-  return data;
+  const body = data as { user?: UserProfile };
+  if (body.user && typeof body.user === "object") {
+    return body.user;
+  }
+  return data as UserProfile;
 }
 
 /** List admin users (requires token). */
@@ -853,6 +868,31 @@ export async function createEmployee(
     );
   }
   return data;
+}
+
+/** Update staff / employee (e.g. suspend: `{ active: false }`, reinstate: `{ active: true }`). */
+export async function updateEmployee(
+  token: string,
+  id: string,
+  payload: Partial<Pick<Employee, "email" | "firstName" | "lastName" | "role" | "active">>
+): Promise<{ message: string; employee: Employee }> {
+  const res = await fetch(endpoints.admin.employeeById(id), {
+    method: "PATCH",
+    headers: getAuthHeaders(token),
+    body: JSON.stringify(payload),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    handleAuthError(res);
+    throw new Error(
+      typeof data.message === "string"
+        ? data.message
+        : Array.isArray(data.message)
+          ? (data.message[0] as string)
+          : "Failed to update staff"
+    );
+  }
+  return data as { message: string; employee: Employee };
 }
 
 /** List providers with balance and total paid (for disbursement page). */

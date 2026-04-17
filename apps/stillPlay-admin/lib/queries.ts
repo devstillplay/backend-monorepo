@@ -15,6 +15,7 @@ import {
   deleteProvider,
   listEmployees,
   createEmployee,
+  updateEmployee,
   getLoanEligibility,
   getUserLoanHistory,
   getUserRepayments,
@@ -35,6 +36,7 @@ import {
   type AdminUser,
   type CreateProviderPayload,
   type CreateEmployeePayload,
+  type Employee,
 } from "./api";
 
 export const adminKeys = {
@@ -270,6 +272,34 @@ export function useCreateEmployee() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: adminKeys.employees() });
       recordActivity({ action: "Staff/employee created" });
+      queryClient.invalidateQueries({ queryKey: adminKeys.activity() });
+    },
+  });
+}
+
+/** Update staff (suspend / reinstate / edit fields). */
+export function useUpdateEmployee() {
+  const token = useAuthStore((s) => s.token);
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      id,
+      payload,
+    }: {
+      id: string;
+      payload: Partial<
+        Pick<Employee, "email" | "firstName" | "lastName" | "role" | "active">
+      >;
+    }) => updateEmployee(token!, id, payload),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: adminKeys.employees() });
+      const action =
+        variables.payload.active === false
+          ? "Staff suspended"
+          : variables.payload.active === true
+            ? "Staff reinstated"
+            : "Staff updated";
+      recordActivity({ action });
       queryClient.invalidateQueries({ queryKey: adminKeys.activity() });
     },
   });

@@ -31,6 +31,7 @@ function profileResponseUser(user: {
 }) {
   return {
     id: user.id,
+    accountType: 'customer' as const,
     userNumber: user.userNumber,
     email: user.email,
     firstName: user.firstName,
@@ -41,6 +42,34 @@ function profileResponseUser(user: {
     role: user.role,
     verified: user.verified,
     createdAt: user.createdAt,
+  };
+}
+
+function profileResponseStaff(employee: {
+  id: string;
+  employeeNumber: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  role: string;
+  active: boolean;
+  createdAt: Date;
+}) {
+  return {
+    id: employee.id,
+    accountType: 'staff' as const,
+    userNumber: employee.employeeNumber,
+    employeeNumber: employee.employeeNumber,
+    email: employee.email,
+    firstName: employee.firstName,
+    lastName: employee.lastName,
+    picture: null as string | null,
+    nin: null as string | null,
+    ninSlip: null as string | null,
+    role: employee.role,
+    verified: true,
+    active: employee.active,
+    createdAt: employee.createdAt,
   };
 }
 
@@ -72,13 +101,22 @@ export class UserController {
     const user = await this.prisma.user.findUnique({
       where: { id: req.user.id },
     });
-    if (!user) {
-      throw new NotFoundException('User not found');
+    if (user) {
+      return {
+        message: 'User profile',
+        user: profileResponseUser(user),
+      };
     }
-    return {
-      message: 'User profile',
-      user: profileResponseUser(user),
-    };
+    const employee = await this.prisma.employee.findUnique({
+      where: { id: req.user.id },
+    });
+    if (employee) {
+      return {
+        message: 'User profile',
+        user: profileResponseStaff(employee),
+      };
+    }
+    throw new NotFoundException('User not found');
   }
 
   /** Update profile fields (e.g. `picture` = Cloudinary secure URL from POST /files/upload). */
@@ -91,6 +129,15 @@ export class UserController {
     const picture = body?.picture?.trim();
     if (!picture) {
       throw new BadRequestException('picture is required (Cloudinary URL string)');
+    }
+    const staff = await this.prisma.employee.findUnique({
+      where: { id: req.user.id },
+      select: { id: true },
+    });
+    if (staff) {
+      throw new BadRequestException(
+        'Staff accounts cannot update profile photos via this endpoint.'
+      );
     }
     try {
       const user = await this.prisma.user.update({

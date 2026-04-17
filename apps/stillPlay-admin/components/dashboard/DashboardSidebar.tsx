@@ -24,12 +24,12 @@ import {
 } from "@mui/material";
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { uploadImage } from "../../lib/api";
-import { useAllLoans, useUpdateAdminUser } from "../../lib/queries";
-import { useAuthStore } from "../../store/auth";
+import { useAdminUsers, useAllLoans, useUpdateAdminUser } from "../../lib/queries";
+import { isCustomerSupportRole, useAuthStore } from "../../store/auth";
 import { useUserStore } from "../../store/user";
 
 const navItems = [
@@ -51,7 +51,7 @@ const navItems = [
     icon: <BadgeOutlinedIcon />,
   },
   {
-    label: "Loan Request",
+    label: "Loans",
     href: "/dashboard/loan-request",
     icon: <RequestQuoteOutlinedIcon />,
   },
@@ -84,10 +84,13 @@ type DashboardSidebarProps = {
 export default function DashboardSidebar({
   onNavigate,
 }: DashboardSidebarProps) {
-  const pathname = usePathname();
+   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const tab = searchParams.get("tab");
+  /** Avoid SSR vs client mismatch: URL tab is only applied after mount. */
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  const tab = mounted ? searchParams.get("tab") : null;
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [successSnackOpen, setSuccessSnackOpen] = useState(false);
@@ -102,7 +105,12 @@ export default function DashboardSidebar({
   const setProfile = useUserStore((state) => state.setProfile);
   const resetUser = useUserStore((state) => state.reset);
   const updateUserMutation = useUpdateAdminUser();
+  const { data: users = [] } = useAdminUsers();
   const { data: loansData } = useAllLoans();
+  const pendingVerificationCount = useMemo(
+    () => users.filter((u) => !(u.verified ?? false)).length,
+    [users]
+  );
   const pendingLoanCount =
     loansData?.loans?.filter((l) => l.status === "PENDING").length ?? 0;
 
@@ -115,6 +123,22 @@ export default function DashboardSidebar({
     profile?.role ?? authUser?.role
       ? String(profile?.role ?? authUser?.role).trim()
       : "Admin";
+
+  const hideAdminOnlyNav = isCustomerSupportRole(
+    profile?.role ?? authUser?.role
+  );
+  const visibleNavItems = useMemo(
+    () =>
+      hideAdminOnlyNav
+        ? navItems.filter(
+            (item) =>
+              item.href !== "/dashboard" &&
+              item.href !== "/dashboard/providers" &&
+              item.href !== "/dashboard/staff"
+          )
+        : navItems,
+    [hideAdminOnlyNav]
+  );
 
   const email = profile?.email ?? authUser?.email ?? "";
   const profilePicture = profile?.picture ?? authUser?.picture ?? null;
@@ -166,7 +190,7 @@ export default function DashboardSidebar({
   return (
     <Stack
       component={motion.aside}
-      initial={{ opacity: 0, x: -16 }}
+      initial={false}
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.45, ease: "easeOut" }}
       sx={{
@@ -249,7 +273,7 @@ export default function DashboardSidebar({
         </Box>
         <Divider sx={{ opacity: 0.5 }} />
         <Stack spacing={1}>
-          {navItems.map((item) => {
+          {visibleNavItems.map((item) => {
             const isOverview = item.href === "/dashboard" && !item.href.includes("?");
             const isUsers = item.href.includes("tab=users");
             const hrefPath = item.href.split("?")[0];
@@ -261,8 +285,10 @@ export default function DashboardSidebar({
                 : isSurvey
                   ? pathname === "/dashboard/survey"
                   : pathname === hrefPath;
-            const showBadge =
+            const showLoanBadge =
               item.href === "/dashboard/loan-request" && pendingLoanCount > 0;
+            const showUsersBadge =
+              isUsers && pendingVerificationCount > 0;
             return (
               <Link
                 key={item.href}
@@ -273,10 +299,25 @@ export default function DashboardSidebar({
                   fullWidth
                   variant="text"
                   startIcon={
-                    showBadge ? (
+                    showLoanBadge ? (
                       <Badge
                         badgeContent={pendingLoanCount}
                         color="error"
+                        sx={{
+                          "& .MuiBadge-badge": {
+                            fontSize: 11,
+                            fontWeight: 700,
+                            minWidth: 18,
+                            height: 18,
+                          },
+                        }}
+                      >
+                        {item.icon}
+                      </Badge>
+                    ) : showUsersBadge ? (
+                      <Badge
+                        badgeContent={pendingVerificationCount}
+                        color="warning"
                         sx={{
                           "& .MuiBadge-badge": {
                             fontSize: 11,
@@ -308,11 +349,13 @@ export default function DashboardSidebar({
             );
           })}
         </Stack>
-        <Link href="/dashboard/staff" style={{ textDecoration: "none" }}>
-          <Button variant="contained" size="small" fullWidth onClick={onNavigate}>
-            Create Admin Account
-          </Button>
-        </Link>
+        {!hideAdminOnlyNav ? (
+          <Link href="/dashboard/staff" style={{ textDecoration: "none" }}>
+            <Button variant="contained" size="small" fullWidth onClick={onNavigate}>
+              Create Admin Account
+            </Button>
+          </Link>
+        ) : null}
       </Stack>
 
       <Stack spacing={2}>

@@ -17,6 +17,36 @@ export const LoanStatus = {
 export class AppService {
   constructor(private readonly prisma: PrismaService) {}
 
+  private roundMoney(n: number): number {
+    return Math.round(n * 100) / 100;
+  }
+
+  /** Upfront interest as % of principal (AppSetting loan_interest_percent, default 30). */
+  private async getLoanInterestPercent(): Promise<number> {
+    const raw = await this.getAppSetting('loan_interest_percent', '30');
+    const n = Number(raw ?? 30);
+    if (Number.isNaN(n) || n < 0 || n >= 100) return 30;
+    return n;
+  }
+
+  /**
+   * Withhold interest from nominal principal; only net is sent to the wallet.
+   * Repayment obligation stays `principal` (amount).
+   */
+  private computeUpfrontWithholding(
+    principal: number,
+    ratePercent: number,
+  ): { interestWithheld: number; netDisbursed: number } {
+    const interestWithheld = this.roundMoney((principal * ratePercent) / 100);
+    const netDisbursed = this.roundMoney(principal - interestWithheld);
+    if (netDisbursed <= 0) {
+      throw new BadRequestException(
+        'Loan amount is too small after interest withholding. Try a higher amount.',
+      );
+    }
+    return { interestWithheld, netDisbursed };
+  }
+
   async getWallet(userId: string) {
     const wallet = await this.prisma.wallet.findUnique({
       where: { userId },
@@ -43,15 +73,49 @@ export class AppService {
         `You can borrow up to ₦${eligibility.availableAmount.toFixed(2)}. Your total outstanding limit is ₦${eligibility.maxAmount.toFixed(2)}.`,
       );
     }
-    const loan = await this.prisma.loan.create({
-      data: {
-        userId: payload.userId,
-        amount: payload.amount,
-        purpose: payload.purpose ?? null,
-        status: LoanStatus.PENDING,
-      },
+    const wallet = await this.prisma.wallet.findUnique({
+      where: { userId: payload.userId },
     });
-    return { message: 'Loan request submitted', loan };
+    if (!wallet) throw new NotFoundException('Wallet not found');
+    const companyWallet = await this.ensureCompanyWallet();
+    const interestRatePercent = await this.getLoanInterestPercent();
+    const { interestWithheld, netDisbursed } = this.computeUpfrontWithholding(
+      payload.amount,
+      interestRatePercent,
+    );
+    if (companyWallet.balance < netDisbursed) {
+      throw new BadRequestException(
+        `Insufficient company balance. Available: \u20A6${companyWallet.balance.toFixed(2)}, required (after interest): \u20A6${netDisbursed.toFixed(2)}`,
+      );
+    }
+    const now = new Date();
+    const loan = await this.prisma.$transaction(async (tx) => {
+      const created = await tx.loan.create({
+        data: {
+          userId: payload.userId,
+          amount: payload.amount,
+          purpose: payload.purpose ?? null,
+          status: LoanStatus.APPROVED,
+          approvedAt: now,
+          interestRatePercent,
+          interestWithheld,
+          netDisbursed,
+        },
+      });
+      await tx.wallet.update({
+        where: { id: wallet.id },
+        data: { balance: { increment: netDisbursed } },
+      });
+      await tx.companyWallet.update({
+        where: { id: companyWallet.id },
+        data: { balance: { decrement: netDisbursed } },
+      });
+      return created;
+    });
+    return {
+      message: `Loan granted — \u20A6${netDisbursed.toFixed(2)} credited to your wallet (\u20A6${interestWithheld.toFixed(2)} interest withheld upfront; repay \u20A6${payload.amount.toFixed(2)}).`,
+      loan,
+    };
   }
 
   async listLoans(userId: string) {
@@ -81,16 +145,28 @@ export class AppService {
     });
     if (!wallet) throw new NotFoundException('Wallet not found');
     const companyWallet = await this.ensureCompanyWallet();
-    if (companyWallet.balance < loan.amount) {
+    const interestRatePercent =
+      loan.interestRatePercent ?? (await this.getLoanInterestPercent());
+    const { interestWithheld, netDisbursed } = this.computeUpfrontWithholding(
+      loan.amount,
+      interestRatePercent,
+    );
+    if (companyWallet.balance < netDisbursed) {
       throw new BadRequestException(
-        `Insufficient company balance. Available: ₦${companyWallet.balance.toFixed(2)}, required: ₦${loan.amount.toFixed(2)}`,
+        `Insufficient company balance. Available: \u20A6${companyWallet.balance.toFixed(2)}, required (net to wallet): \u20A6${netDisbursed.toFixed(2)}`,
       );
     }
     const now = new Date();
     await this.prisma.$transaction(async (tx) => {
       const result = await tx.loan.updateMany({
         where: { id: loanId, status: LoanStatus.PENDING },
-        data: { status: LoanStatus.APPROVED, approvedAt: now },
+        data: {
+          status: LoanStatus.APPROVED,
+          approvedAt: now,
+          interestRatePercent,
+          interestWithheld,
+          netDisbursed,
+        },
       });
       if (result.count === 0) {
         throw new BadRequestException(
@@ -99,18 +175,18 @@ export class AppService {
       }
       await tx.wallet.update({
         where: { id: wallet.id },
-        data: { balance: { increment: loan.amount } },
+        data: { balance: { increment: netDisbursed } },
       });
       await tx.companyWallet.update({
         where: { id: companyWallet.id },
-        data: { balance: { decrement: loan.amount } },
+        data: { balance: { decrement: netDisbursed } },
       });
     });
     const updated = await this.prisma.loan.findUnique({
       where: { id: loanId },
     });
     return {
-      message: 'Loan approved and amount added to wallet',
+      message: `Loan approved — \u20A6${netDisbursed.toFixed(2)} credited (\u20A6${interestWithheld.toFixed(2)} interest withheld).`,
       loan: updated,
     };
   }
@@ -411,6 +487,7 @@ export class AppService {
 
     const availableAmount = Math.max(0, creditLimit - totalOutstanding);
     const canRequest = availableAmount > 0;
+    const interestRatePercent = await this.getLoanInterestPercent();
 
     // For repayment: use the loan with the highest remaining (primary debt)
     const withRemaining = activeLoans.map((l) => ({
@@ -437,6 +514,7 @@ export class AppService {
         maxAmount: creditLimit,
         availableAmount: 0,
         totalOutstanding,
+        interestRatePercent,
         reason:
           totalOutstanding > 0
             ? `You have an outstanding balance of ₦${totalOutstanding.toFixed(2)}. Repay to free up your borrowing capacity.`
@@ -450,6 +528,7 @@ export class AppService {
       maxAmount: creditLimit,
       availableAmount,
       totalOutstanding,
+      interestRatePercent,
       reason:
         totalOutstanding > 0
           ? `You have an outstanding balance of ₦${totalOutstanding.toFixed(2)}. You can borrow up to ₦${availableAmount.toFixed(2)}.`

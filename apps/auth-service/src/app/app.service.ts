@@ -75,7 +75,7 @@ export class AppService {
       throw new UnauthorizedException('Invalid email or password');
     }
     if (!employee.active) {
-      throw new UnauthorizedException('Account deactivated. Please contact support.');
+      throw new UnauthorizedException('Account suspended. Please contact support.');
     }
     const token = this.jwtService.sign({ userId: employee.id, role: employee.role, email: normalizedEmail, verified: true });
     return {
@@ -85,8 +85,8 @@ export class AppService {
     };
   }
 
-  /** Step 1: verify email+password. Super Admin: return token and skip OTP. Others: send 4-digit code.
-   *  Checks User table first, then Employee table, always stores LoginCode with normalized email. */
+  /** Step 1: verify email+password. Super Admin user or any Employee: return token and skip OTP.
+   *  Other users (e.g. Customer): send 4-digit code. LoginCode always uses normalized email. */
   async requestLoginCode(payload: {
     email: string;
     password: string;
@@ -132,14 +132,11 @@ export class AppService {
         throw new UnauthorizedException('Invalid email or password');
       }
       if (!employee.active) {
-        throw new UnauthorizedException('Account deactivated. Please contact support.');
+        throw new UnauthorizedException('Account suspended. Please contact support.');
       }
-      // SuperAdmin employee bypasses OTP
-      if (employee.role === Role.SuperAdmin) {
-        const token = this.jwtService.sign({ userId: employee.id, role: employee.role, email: normalizedEmail, verified: true });
-        return { message: 'Login successful', token, user: { id: employee.id, email: normalizedEmail, role: employee.role, firstName: employee.firstName, lastName: employee.lastName } };
-      }
-      // Non-SuperAdmin employee → send OTP (fall through to code generation below)
+      // All staff sign in directly (same as Super Admin). OTP remains for customer User accounts only.
+      const token = this.jwtService.sign({ userId: employee.id, role: employee.role, email: normalizedEmail, verified: true });
+      return { message: 'Login successful', token, user: { id: employee.id, email: normalizedEmail, role: employee.role, firstName: employee.firstName, lastName: employee.lastName } };
     }
 
     // Always store LoginCode with the NORMALIZED email to avoid case-mismatch on verify
@@ -340,7 +337,7 @@ export class AppService {
     const employee = await this.prisma.employee.findUnique({ where: { email: normalizedEmail } });
     if (employee) {
       if (!employee.active) {
-        throw new UnauthorizedException('Account deactivated. Please contact support.');
+        throw new UnauthorizedException('Account suspended. Please contact support.');
       }
       const token = this.jwtService.sign({ userId: employee.id, role: employee.role, email: normalizedEmail, verified: true });
       return {
@@ -354,20 +351,61 @@ export class AppService {
   }
 
   async validateToken(token: string) {
+    let decoded: {
+      userId?: string;
+      role?: string;
+      email?: string;
+      verified?: boolean;
+      exp?: number;
+    };
     try {
-      const decoded = this.jwtService.verify(token);
-      return {
-        valid: true,
-        userId: decoded.userId,
-        role: decoded.role,
-        email: decoded.email,
-        verified: decoded.verified,
-        expiresIn: decoded.expiresIn,
-      };
+      decoded = this.jwtService.verify(token) as typeof decoded;
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : 'Invalid token';
       throw new UnauthorizedException('Invalid token: ' + message);
     }
+    const userId = decoded.userId;
+    if (!userId) {
+      throw new UnauthorizedException('Invalid token');
+    }
+
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { id: true, suspended: true },
+    });
+    if (user) {
+      if (user.suspended) {
+        throw new UnauthorizedException('Account suspended');
+      }
+      return {
+        valid: true,
+        userId,
+        role: decoded.role,
+        email: decoded.email,
+        verified: decoded.verified,
+        expiresIn: decoded.exp,
+      };
+    }
+
+    const employee = await this.prisma.employee.findUnique({
+      where: { id: userId },
+      select: { id: true, active: true },
+    });
+    if (employee) {
+      if (!employee.active) {
+        throw new UnauthorizedException('Account suspended');
+      }
+      return {
+        valid: true,
+        userId,
+        role: decoded.role,
+        email: decoded.email,
+        verified: decoded.verified ?? true,
+        expiresIn: decoded.exp,
+      };
+    }
+
+    throw new UnauthorizedException('Invalid token');
   }
 
   /** Forgot password: send 4-digit reset code to email if user exists. Returns resetToken for client to send back with code. */

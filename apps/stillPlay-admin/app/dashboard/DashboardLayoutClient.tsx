@@ -3,6 +3,22 @@
 import { Box, Drawer, IconButton, Stack, Typography } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import { ReactNode, Suspense, useEffect, useState } from "react";
+
+/** Matches desktop sidebar width / min-height so SSR + client Suspense boundaries align (null fallback caused hydration mismatches). */
+function SidebarSuspenseFallback() {
+  return (
+    <Box
+      sx={{
+        display: { xs: "none", md: "block" },
+        width: 260,
+        minHeight: "100vh",
+        flexShrink: 0,
+        bgcolor: "#fafafa",
+        borderRight: "1px solid #edf2ef",
+      }}
+    />
+  );
+}
 import { usePathname, useRouter } from "next/navigation";
 
 import DashboardSidebar from "../../components/dashboard/DashboardSidebar";
@@ -70,7 +86,7 @@ export default function DashboardLayoutClient({ children }: DashboardLayoutClien
       }}
     >
       <Box sx={{ display: { xs: "none", md: "block" } }}>
-        <Suspense fallback={null}>
+        <Suspense fallback={<SidebarSuspenseFallback />}>
           <DashboardSidebar />
         </Suspense>
       </Box>
@@ -104,7 +120,11 @@ export default function DashboardLayoutClient({ children }: DashboardLayoutClien
         sx={{ display: { xs: "block", md: "none" } }}
         PaperProps={{ sx: { width: 260 } }}
       >
-        <Suspense fallback={null}>
+        <Suspense
+          fallback={
+            <Box sx={{ width: "100%", minHeight: 200, bgcolor: "#fafafa" }} />
+          }
+        >
           <DashboardSidebar onNavigate={() => setIsMobileOpen(false)} />
         </Suspense>
       </Drawer>

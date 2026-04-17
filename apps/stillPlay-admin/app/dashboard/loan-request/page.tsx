@@ -15,7 +15,7 @@ import {
 import { useMemo, useState } from "react";
 
 import DashboardHeader from "../../../components/dashboard/DashboardHeader";
-import { useAllLoans, useAdminUsers, useApproveLoan, useRejectLoan } from "../../../lib/queries";
+import { useAllLoans, useAdminUsers } from "../../../lib/queries";
 import type { Loan } from "../../../lib/api";
 
 function statusColor(status: string): string {
@@ -25,10 +25,12 @@ function statusColor(status: string): string {
     case "REJECTED":
       return "#ef4444";
     case "PENDING":
+      return "#f59e0b";
     case "APPROVED":
     case "DISBURSED":
+      return "#0b7b4c";
     default:
-      return "#f59e0b";
+      return "#6b7280";
   }
 }
 
@@ -39,8 +41,6 @@ export default function LoanRequestPage() {
 
   const { data: loansData, isLoading, isError, error, refetch, isFetching } = useAllLoans();
   const { data: users = [] } = useAdminUsers();
-  const approveMutation = useApproveLoan();
-  const rejectMutation = useRejectLoan();
   const loans = loansData?.loans ?? [];
 
   const userMap = useMemo(() => {
@@ -109,7 +109,7 @@ export default function LoanRequestPage() {
             >
               <Stack direction="row" alignItems="center" spacing={1} flexWrap="wrap">
                 <Typography variant="h6" sx={{ fontWeight: 700, fontSize: { xs: "1rem", md: "1.25rem" } }}>
-                  LOAN REQUEST
+                  LOANS
                 </Typography>
                 <IconButton
                   size="small"
@@ -120,6 +120,11 @@ export default function LoanRequestPage() {
                   <RefreshIcon fontSize="small" />
                 </IconButton>
               </Stack>
+              <Typography variant="body2" color="text.secondary" sx={{ maxWidth: 720 }}>
+                Requests within a user&apos;s limit are granted automatically. Interest is withheld upfront from the
+                principal; the net amount is credited to the user&apos;s wallet (see Repay / Withheld / Credited).
+                Legacy <strong>PENDING</strong> rows may still appear from older data.
+              </Typography>
               <Stack direction="row" spacing={{ xs: 1, md: 4 }} alignItems="center" flexWrap="wrap" sx={{ gap: { xs: 0.5, md: 0 } }}>
                 {(["all", "PENDING", "APPROVED", "REJECTED", "DISBURSED", "REPAID"] as const).map((s) => (
                   <Typography
@@ -164,17 +169,18 @@ export default function LoanRequestPage() {
                 paddingY: 1.2,
                 paddingX: 3,
                 display: { xs: "none", md: "grid" },
-                gridTemplateColumns: "1.2fr 1.6fr 1fr 1fr 1fr 1.2fr",
+                gridTemplateColumns: "1.1fr 1.4fr 0.95fr 0.95fr 0.95fr 0.85fr 0.9fr",
                 alignItems: "center",
                 gap: 1,
               }}
             >
               <Box>Offline code</Box>
               <Box>Name</Box>
-              <Box>Amount</Box>
+              <Box>Repay</Box>
+              <Box>Withheld</Box>
+              <Box>Credited</Box>
               <Box>Time</Box>
               <Box>Status</Box>
-              <Box>Actions</Box>
             </Box>
 
             <Box
@@ -204,15 +210,21 @@ export default function LoanRequestPage() {
                     const user = userMap.get(loan.userId);
                     const name = user?.name ?? "—";
                     const code = user?.code ?? loan.userId.slice(-6);
+                    const repay = Number(loan.amount);
+                    const withheld =
+                      loan.interestWithheld != null && !Number.isNaN(loan.interestWithheld)
+                        ? Number(loan.interestWithheld)
+                        : null;
+                    const credited =
+                      loan.netDisbursed != null && !Number.isNaN(loan.netDisbursed)
+                        ? Number(loan.netDisbursed)
+                        : repay;
                     const createdAt = loan.createdAt
                       ? new Date(loan.createdAt).toLocaleTimeString("en-NG", {
                           hour: "2-digit",
                           minute: "2-digit",
                         })
                       : "—";
-                    const isPending = loan.status === "PENDING";
-                    const approving = approveMutation.isPending && approveMutation.variables === loan.id;
-                    const rejecting = rejectMutation.isPending && rejectMutation.variables === loan.id;
                     return (
                       <Box
                         key={loan.id}
@@ -225,7 +237,10 @@ export default function LoanRequestPage() {
                               : "1px solid #fff",
                           backgroundColor: index === 0 ? "#ffffff" : "transparent",
                           display: "grid",
-                          gridTemplateColumns: { xs: "1fr 1fr", md: "1.2fr 1.6fr 1fr 1fr 1fr 1.2fr" },
+                          gridTemplateColumns: {
+                            xs: "1fr 1fr",
+                            md: "1.1fr 1.4fr 0.95fr 0.95fr 0.95fr 0.85fr 0.9fr",
+                          },
                           alignItems: "center",
                           gap: { xs: 1, md: 1 },
                           borderRadius: 1,
@@ -249,11 +264,24 @@ export default function LoanRequestPage() {
                             <Typography variant="body2">{name}</Typography>
                           </Stack>
                         </Box>
-                        <Box sx={{ gridColumn: { xs: "1", md: "auto" } }}>
-                          <Typography variant="caption" color="text.secondary" sx={{ display: { xs: "block", md: "none" } }}>Amount</Typography>
-                          <Typography variant="body2">
-                            NGN {Number(loan.amount).toLocaleString()}
+                        <Box sx={{ gridColumn: { xs: "1 / -1", md: "auto" } }}>
+                          <Typography variant="caption" color="text.secondary" sx={{ display: { xs: "block", md: "none" } }}>Repay / Withheld / Credited</Typography>
+                          <Typography variant="body2" sx={{ display: { xs: "block", md: "none" } }}>
+                            Repay NGN {repay.toLocaleString()}
+                            {withheld != null ? ` · Withheld NGN ${withheld.toLocaleString()}` : ""}
+                            {` · Credited NGN ${credited.toLocaleString()}`}
                           </Typography>
+                          <Typography variant="body2" sx={{ display: { xs: "none", md: "block" } }}>
+                            NGN {repay.toLocaleString()}
+                          </Typography>
+                        </Box>
+                        <Box sx={{ display: { xs: "none", md: "block" } }}>
+                          <Typography variant="body2">
+                            {withheld != null ? `NGN ${withheld.toLocaleString()}` : "—"}
+                          </Typography>
+                        </Box>
+                        <Box sx={{ display: { xs: "none", md: "block" } }}>
+                          <Typography variant="body2">NGN {credited.toLocaleString()}</Typography>
                         </Box>
                         <Box>
                           <Typography variant="caption" color="text.secondary" sx={{ display: { xs: "block", md: "none" } }}>Time</Typography>
@@ -278,34 +306,6 @@ export default function LoanRequestPage() {
                             <Typography variant="body2">{loan.status}</Typography>
                           </Stack>
                         </Box>
-                        <Stack
-                          direction="row"
-                          spacing={1}
-                          alignItems="center"
-                          sx={{ gridColumn: { xs: "1 / -1", md: "auto" } }}
-                        >
-                          <Button
-                            size="small"
-                            variant="contained"
-                            disabled={!isPending || approving || rejecting}
-                            onClick={() => approveMutation.mutate(loan.id)}
-                            sx={{
-                              backgroundColor: "#22c55e",
-                              "&:hover": { backgroundColor: "#16a34a" },
-                            }}
-                          >
-                            {approving ? "..." : "Accept"}
-                          </Button>
-                          <Button
-                            size="small"
-                            variant="outlined"
-                            color="error"
-                            disabled={!isPending || approving || rejecting}
-                            onClick={() => rejectMutation.mutate(loan.id)}
-                          >
-                            {rejecting ? "..." : "Reject"}
-                          </Button>
-                        </Stack>
                       </Box>
                     );
                   })}

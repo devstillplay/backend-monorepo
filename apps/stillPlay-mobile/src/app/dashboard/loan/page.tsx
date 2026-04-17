@@ -28,7 +28,9 @@ import { useState } from "react";
 import useAuthStore from "@/store/useAuthStore";
 import { getLoanEligibility, requestLoan } from "@/lib/api";
 
-const INTEREST_RATE = 0.3; // 30%
+function round2(n: number): number {
+  return Math.round(n * 100) / 100;
+}
 
 function formatCurrency(n: number) {
   return new Intl.NumberFormat("en-NG", {
@@ -40,9 +42,9 @@ function formatCurrency(n: number) {
 
 function statusColor(status: string): "warning" | "info" | "error" | "success" {
   if (status === "PENDING") return "warning";
-  if (status === "APPROVED") return "info";
-  if (status === "DISBURSED") return "error";
-  return "success";
+  if (status === "APPROVED" || status === "DISBURSED") return "success";
+  if (status === "REJECTED") return "error";
+  return "info";
 }
 
 export default function LoanRequestPage() {
@@ -69,7 +71,11 @@ export default function LoanRequestPage() {
 
   const maxAmount = eligibility?.availableAmount ?? 0;
   const numericAmount = Math.min(Number(amount || 0), maxAmount);
-  const repaymentAmount = numericAmount * (1 + INTEREST_RATE);
+  const interestRatePct = eligibility?.interestRatePercent ?? 30;
+  const interestRate = interestRatePct / 100;
+  const interestWithheld = round2(numericAmount * interestRate);
+  const netToWallet = round2(numericAmount - interestWithheld);
+  const repaymentPrincipal = numericAmount;
 
   const amountError =
     amount && Number(amount) > maxAmount
@@ -292,9 +298,25 @@ export default function LoanRequestPage() {
           </Box>
           <Divider />
           <Box sx={{ p: 2 }}>
-            <Typography variant="body2" color="text.secondary">To pay back (30% interest)</Typography>
+            <Typography variant="body2" color="text.secondary">
+              Interest withheld upfront ({interestRatePct}%)
+            </Typography>
             <Typography fontWeight={700} fontSize={18}>
-              {formatCurrency(repaymentAmount)}
+              {formatCurrency(interestWithheld)}
+            </Typography>
+          </Box>
+          <Divider />
+          <Box sx={{ p: 2 }}>
+            <Typography variant="body2" color="text.secondary">You receive (wallet)</Typography>
+            <Typography fontWeight={700} fontSize={18} color="success.main">
+              {formatCurrency(netToWallet)}
+            </Typography>
+          </Box>
+          <Divider />
+          <Box sx={{ p: 2 }}>
+            <Typography variant="body2" color="text.secondary">Total to repay (principal)</Typography>
+            <Typography fontWeight={700} fontSize={18}>
+              {formatCurrency(repaymentPrincipal)}
             </Typography>
           </Box>
         </Paper>
@@ -344,18 +366,23 @@ export default function LoanRequestPage() {
 
             <Stack spacing={1.5} sx={{ width: "100%" }}>
               <Stack direction="row" justifyContent="space-between">
-                <Typography color="text.secondary">Amount</Typography>
+                <Typography color="text.secondary">Loan principal (repay)</Typography>
                 <Typography fontWeight={600}>{formatCurrency(numericAmount)}</Typography>
               </Stack>
               <Divider />
               <Stack direction="row" justifyContent="space-between">
-                <Typography color="text.secondary">Interest (30%)</Typography>
-                <Typography fontWeight={600}>{formatCurrency(numericAmount * INTEREST_RATE)}</Typography>
+                <Typography color="text.secondary">Interest withheld ({interestRatePct}%)</Typography>
+                <Typography fontWeight={600}>{formatCurrency(interestWithheld)}</Typography>
               </Stack>
               <Divider />
               <Stack direction="row" justifyContent="space-between">
-                <Typography color="text.secondary">Total to pay</Typography>
-                <Typography fontWeight={700} color="error.main">{formatCurrency(repaymentAmount)}</Typography>
+                <Typography color="text.secondary">Credited to wallet</Typography>
+                <Typography fontWeight={700} color="success.main">{formatCurrency(netToWallet)}</Typography>
+              </Stack>
+              <Divider />
+              <Stack direction="row" justifyContent="space-between">
+                <Typography color="text.secondary">You repay</Typography>
+                <Typography fontWeight={700}>{formatCurrency(repaymentPrincipal)}</Typography>
               </Stack>
               <Divider />
               <Stack direction="row" justifyContent="space-between">

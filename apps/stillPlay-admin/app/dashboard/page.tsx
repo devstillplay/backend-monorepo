@@ -45,7 +45,8 @@ import {
   useUserLoanEligibility,
   useRequestLoanForUser,
 } from "../../lib/queries";
-import { useAuthStore } from "../../store/auth";
+import { isCustomerSupportRole, useAuthStore } from "../../store/auth";
+import { useUserStore } from "../../store/user";
 import { uploadImage, type AdminUser, type Loan } from "../../lib/api";
 
 function toTableRow(u: AdminUser): {
@@ -72,8 +73,25 @@ function toTableRow(u: AdminUser): {
 function DashboardPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const mainTab = (searchParams.get("tab") as "overview" | "users") ?? "overview";
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  const authUser = useAuthStore((s) => s.user);
+  const profile = useUserStore((s) => s.profile);
+  const hideOverview =
+    mounted && isCustomerSupportRole(profile?.role ?? authUser?.role);
+  const mainTab: "overview" | "users" = !mounted
+    ? "overview"
+    : hideOverview
+      ? "users"
+      : (searchParams.get("tab") as "overview" | "users") ?? "overview";
   const token = useAuthStore((s) => s.token);
+
+  useEffect(() => {
+    if (!hideOverview) return;
+    if (searchParams.get("tab") !== "users") {
+      router.replace("/dashboard?tab=users");
+    }
+  }, [hideOverview, router, searchParams]);
   const [search, setSearch] = useState("");
   const [userListTab, setUserListTab] = useState<"all" | "pending" | "suspended">("all");
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -164,29 +182,32 @@ function DashboardPageContent() {
   };
 
   const handleMainTabChange = (_: React.SyntheticEvent, value: "overview" | "users") => {
+    if (hideOverview && value === "overview") return;
     router.push(value === "overview" ? "/dashboard" : "/dashboard?tab=users");
   };
 
   return (
     <Box
       component={motion.div}
-      initial={{ opacity: 0, y: 12 }}
+      initial={false}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.45, ease: "easeOut" }}
     >
-      <Tabs
-        value={mainTab}
-        onChange={handleMainTabChange}
-        sx={{
-          marginBottom: 2,
-          "& .MuiTab-root": { textTransform: "none", fontWeight: 600 },
-          "& .MuiTabs-indicator": { backgroundColor: "#0b7b4c" },
-          "& .Mui-selected": { color: "#0b7b4c" },
-        }}
-      >
-        <Tab label="Overview" value="overview" />
-        <Tab label="Users" value="users" />
-      </Tabs>
+      {!hideOverview ? (
+        <Tabs
+          value={mainTab}
+          onChange={handleMainTabChange}
+          sx={{
+            marginBottom: 2,
+            "& .MuiTab-root": { textTransform: "none", fontWeight: 600 },
+            "& .MuiTabs-indicator": { backgroundColor: "#0b7b4c" },
+            "& .Mui-selected": { color: "#0b7b4c" },
+          }}
+        >
+          <Tab label="Overview" value="overview" />
+          <Tab label="Users" value="users" />
+        </Tabs>
+      ) : null}
 
       {mainTab === "overview" ? (
         <DashboardOverview
@@ -642,7 +663,17 @@ function DashboardPageContent() {
                     <Typography variant="body2">No loans yet.</Typography>
                   ) : (
                     <Stack spacing={1}>
-                      {loans.map((loan: Loan) => (
+                      {loans.map((loan: Loan) => {
+                        const repay = Number(loan.amount);
+                        const wh =
+                          loan.interestWithheld != null && !Number.isNaN(loan.interestWithheld)
+                            ? Number(loan.interestWithheld)
+                            : null;
+                        const net =
+                          loan.netDisbursed != null && !Number.isNaN(loan.netDisbursed)
+                            ? Number(loan.netDisbursed)
+                            : repay;
+                        return (
                         <Box
                           key={loan.id}
                           sx={{
@@ -654,7 +685,7 @@ function DashboardPageContent() {
                         >
                           <Stack direction="row" justifyContent="space-between" alignItems="center">
                             <Typography variant="body2" fontWeight={600}>
-                              NGN {Number(loan.amount).toLocaleString()}
+                              Repay NGN {repay.toLocaleString()}
                             </Typography>
                             <Typography
                               variant="caption"
@@ -662,9 +693,13 @@ function DashboardPageContent() {
                                 color:
                                   loan.status === "REPAID"
                                     ? "#22c55e"
-                                    : loan.status === "PENDING" || loan.status === "APPROVED"
+                                    : loan.status === "PENDING"
                                       ? "#f59e0b"
-                                      : "#6b7280",
+                                      : loan.status === "APPROVED" || loan.status === "DISBURSED"
+                                        ? "#0b7b4c"
+                                        : loan.status === "REJECTED"
+                                          ? "#ef4444"
+                                          : "#6b7280",
                                 fontWeight: 600,
                               }}
                             >
@@ -676,12 +711,20 @@ function DashboardPageContent() {
                               {loan.purpose}
                             </Typography>
                           )}
+                          <Typography variant="caption" color="text.secondary" display="block">
+                            Credited NGN {net.toLocaleString()}
+                            {wh != null ? ` · Interest withheld NGN ${wh.toLocaleString()}` : ""}
+                            {loan.interestRatePercent != null
+                              ? ` · Rate ${loan.interestRatePercent}%`
+                              : ""}
+                          </Typography>
                           <Typography variant="caption" color="text.secondary">
                             Repaid: {Number(loan.amountRepaid).toLocaleString()} · Created{" "}
                             {loan.createdAt ? new Date(loan.createdAt).toLocaleDateString() : "—"}
                           </Typography>
                         </Box>
-                      ))}
+                        );
+                      })}
                     </Stack>
                   )}
                 </Box>

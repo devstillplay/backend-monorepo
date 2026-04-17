@@ -149,12 +149,28 @@ export class AppService {
     lastName: string;
     role?: Role | string;
   }) {
-    const existing = await this.prisma.employee.findUnique({
-      where: { email: payload.email },
-    });
-    if (existing) throw new ConflictException('Employee with this email already exists');
+    const email = payload.email?.trim()?.toLowerCase();
+    const firstName = payload.firstName?.trim();
+    const lastName = payload.lastName?.trim();
+    const password = payload.password;
+    if (!email || !password || !firstName || !lastName) {
+      throw new BadRequestException('email, password, firstName and lastName are required');
+    }
+    if (password.length < 6) {
+      throw new BadRequestException('Password must be at least 6 characters');
+    }
+    const [existingEmployee, existingUser] = await Promise.all([
+      this.prisma.employee.findUnique({ where: { email } }),
+      this.prisma.user.findUnique({ where: { email }, select: { id: true } }),
+    ]);
+    if (existingEmployee) throw new ConflictException('Employee with this email already exists');
+    if (existingUser) {
+      throw new ConflictException(
+        'This email is already used by a customer account. Use a different email for staff, or remove the conflicting user first.'
+      );
+    }
     const employeeNumber = await this.ensureUniqueUserNumber('employee');
-    const hashedPassword = await bcrypt.hash(payload.password, SALT_ROUNDS);
+    const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
     const role =
       payload.role != null
         ? typeof payload.role === 'string'
@@ -164,10 +180,10 @@ export class AppService {
     const employee = await this.prisma.employee.create({
       data: {
         employeeNumber,
-        email: payload.email,
+        email,
         password: hashedPassword,
-        firstName: payload.firstName,
-        lastName: payload.lastName,
+        firstName,
+        lastName,
         role,
       },
     });
@@ -187,9 +203,35 @@ export class AppService {
   ) {
     const employee = await this.prisma.employee.findUnique({ where: { id } });
     if (!employee) throw new NotFoundException('Employee not found');
+    const data: Record<string, unknown> = {};
+    if (payload.email !== undefined) {
+      const email = payload.email.trim().toLowerCase();
+      if (!email) throw new BadRequestException('email cannot be empty');
+      if (email !== employee.email) {
+        const [otherEmployee, existingUser] = await Promise.all([
+          this.prisma.employee.findUnique({ where: { email } }),
+          this.prisma.user.findUnique({ where: { email }, select: { id: true } }),
+        ]);
+        if (otherEmployee) throw new ConflictException('Employee with this email already exists');
+        if (existingUser) {
+          throw new ConflictException(
+            'This email is already used by a customer account. Use a different email for staff.'
+          );
+        }
+      }
+      data.email = email;
+    }
+    if (payload.firstName !== undefined) data.firstName = payload.firstName.trim();
+    if (payload.lastName !== undefined) data.lastName = payload.lastName.trim();
+    if (payload.role !== undefined) data.role = payload.role;
+    if (payload.active !== undefined) data.active = payload.active;
+    if (Object.keys(data).length === 0) {
+      const { password: _, ...rest } = employee;
+      return { message: 'Employee unchanged', employee: rest };
+    }
     const updated = await this.prisma.employee.update({
       where: { id },
-      data: payload as Record<string, unknown>,
+      data,
     });
     const { password: _, ...rest } = updated;
     return { message: 'Employee updated', employee: rest };

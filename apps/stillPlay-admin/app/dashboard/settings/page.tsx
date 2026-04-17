@@ -27,7 +27,8 @@ import {
 import { useCallback, useEffect, useState } from "react";
 
 import { useAdminActivity, useAppSettings, useSetAppSetting } from "../../../lib/queries";
-import { useAuthStore } from "../../../store/auth";
+import { isCustomerSupportRole, useAuthStore } from "../../../store/auth";
+import { useUserStore } from "../../../store/user";
 
 function formatLoginTime(ts: number | null): string {
   if (ts == null) return "—";
@@ -50,26 +51,36 @@ function LoanSettingsTab() {
   const { data: settings, isLoading } = useAppSettings();
   const setAppSetting = useSetAppSetting();
   const [maxAmount, setMaxAmount] = useState("");
+  const [interestPercent, setInterestPercent] = useState("");
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {
     if (settings?.loan_max_amount !== undefined) {
       setMaxAmount(settings.loan_max_amount);
     }
+    if (settings?.loan_interest_percent !== undefined) {
+      setInterestPercent(settings.loan_interest_percent);
+    } else if (settings && settings.loan_interest_percent === undefined) {
+      setInterestPercent("30");
+    }
   }, [settings]);
 
-  const handleSave = () => {
+  const handleSave = async () => {
     const val = Number(maxAmount);
+    const pct = Number(interestPercent);
     if (!maxAmount || isNaN(val) || val <= 0) return;
-    setAppSetting.mutate(
-      { key: "loan_max_amount", value: String(val) },
-      {
-        onSuccess: () => {
-          setSaved(true);
-          setTimeout(() => setSaved(false), 3000);
-        },
-      }
-    );
+    if (interestPercent === "" || isNaN(pct) || pct < 0 || pct >= 100) return;
+    try {
+      await setAppSetting.mutateAsync({ key: "loan_max_amount", value: String(val) });
+      await setAppSetting.mutateAsync({
+        key: "loan_interest_percent",
+        value: String(pct),
+      });
+      setSaved(true);
+      setTimeout(() => setSaved(false), 3000);
+    } catch {
+      /* error surfaced via setAppSetting.isError */
+    }
   };
 
   return (
@@ -91,25 +102,47 @@ function LoanSettingsTab() {
         </Stack>
 
         {isLoading ? (
-          <Skeleton height={56} />
+          <>
+            <Skeleton height={56} />
+            <Skeleton height={56} />
+          </>
         ) : (
-          <TextField
-            label="Max loan amount (₦)"
-            value={maxAmount}
-            onChange={(e) => {
-              const raw = e.target.value.replace(/[^0-9]/g, "");
-              setMaxAmount(raw);
-              setSaved(false);
-            }}
-            type="text"
-            inputProps={{ inputMode: "numeric" }}
-            InputProps={{
-              startAdornment: <InputAdornment position="start">₦</InputAdornment>,
-            }}
-            helperText="Default is ₦5,000. Changes apply immediately for new loan requests."
-            fullWidth
-          />
+          <>
+            <TextField
+              label="Max loan amount (₦)"
+              value={maxAmount}
+              onChange={(e) => {
+                const raw = e.target.value.replace(/[^0-9]/g, "");
+                setMaxAmount(raw);
+                setSaved(false);
+              }}
+              type="text"
+              inputProps={{ inputMode: "numeric" }}
+              InputProps={{
+                startAdornment: <InputAdornment position="start">₦</InputAdornment>,
+              }}
+              helperText="Default is ₦5,000. Per-user credit limit still applies."
+              fullWidth
+            />
+            <TextField
+              label="Upfront interest (%)"
+              value={interestPercent}
+              onChange={(e) => {
+                const raw = e.target.value.replace(/[^0-9.]/g, "");
+                setInterestPercent(raw);
+                setSaved(false);
+              }}
+              type="text"
+              inputProps={{ inputMode: "decimal" }}
+              InputProps={{
+                endAdornment: <InputAdornment position="end">%</InputAdornment>,
+              }}
+              helperText="Withheld from requested principal before the wallet is credited (default 30). Must be under 100."
+              fullWidth
+            />
+          </>
         )}
+
 
         {setAppSetting.isError && (
           <Alert severity="error">
@@ -117,13 +150,19 @@ function LoanSettingsTab() {
           </Alert>
         )}
         {saved && (
-          <Alert severity="success">Maximum loan amount saved successfully.</Alert>
+          <Alert severity="success">Loan settings saved successfully.</Alert>
         )}
 
         <Button
           variant="contained"
-          onClick={handleSave}
-          disabled={setAppSetting.isPending || !maxAmount}
+          onClick={() => void handleSave()}
+          disabled={
+            setAppSetting.isPending ||
+            !maxAmount ||
+            interestPercent === "" ||
+            Number(interestPercent) < 0 ||
+            Number(interestPercent) >= 100
+          }
           sx={{ alignSelf: "flex-start", textTransform: "none", fontWeight: 600 }}
         >
           {setAppSetting.isPending ? "Saving..." : "Save"}
@@ -135,6 +174,11 @@ function LoanSettingsTab() {
 
 export default function SettingsPage() {
   const [tab, setTab] = useState(0);
+  const authUser = useAuthStore((s) => s.user);
+  const profile = useUserStore((s) => s.profile);
+  const hideLoanConfiguration = isCustomerSupportRole(
+    profile?.role ?? authUser?.role
+  );
   const lastLoginAt = useAuthStore((s) => s.lastLoginAt);
   const lastLoginIp = useAuthStore((s) => s.lastLoginIp);
   const lastAction = useAuthStore((s) => s.lastAction);
@@ -156,28 +200,34 @@ export default function SettingsPage() {
     if (!lastLoginIp) fetchIp();
   }, [lastLoginIp, fetchIp]);
 
+  useEffect(() => {
+    if (hideLoanConfiguration && tab !== 0) setTab(0);
+  }, [hideLoanConfiguration, tab]);
+
   return (
     <Box sx={{ width: "100%", maxWidth: "100%", overflowX: "hidden" }}>
       <Typography variant="h5" fontWeight={700} sx={{ mb: 3, fontSize: { xs: "1.25rem", md: "1.5rem" } }}>
         Settings
       </Typography>
 
-      <Tabs
-        value={tab}
-        onChange={(_, v) => setTab(v)}
-        sx={{
-          borderBottom: 1,
-          borderColor: "divider",
-          mb: 3,
-          "& .MuiTab-root": { textTransform: "none", fontWeight: 600 },
-          "& .MuiTabs-flexContainer": { flexWrap: "wrap" },
-        }}
-      >
-        <Tab label="Activity" />
-        <Tab label="Loan Settings" />
-      </Tabs>
+      {!hideLoanConfiguration ? (
+        <Tabs
+          value={tab}
+          onChange={(_, v) => setTab(v)}
+          sx={{
+            borderBottom: 1,
+            borderColor: "divider",
+            mb: 3,
+            "& .MuiTab-root": { textTransform: "none", fontWeight: 600 },
+            "& .MuiTabs-flexContainer": { flexWrap: "wrap" },
+          }}
+        >
+          <Tab label="Activity" />
+          <Tab label="Loan Settings" />
+        </Tabs>
+      ) : null}
 
-      {tab === 0 && (
+      {(hideLoanConfiguration || tab === 0) && (
         <Box>
           <Paper
             variant="outlined"
@@ -271,7 +321,7 @@ export default function SettingsPage() {
         </Box>
       )}
 
-      {tab === 1 && <LoanSettingsTab />}
+      {!hideLoanConfiguration && tab === 1 ? <LoanSettingsTab /> : null}
     </Box>
   );
 }

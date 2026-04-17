@@ -69,10 +69,11 @@ export default function LoanSuccessPage() {
 
         <Stack spacing={0.5} alignItems="center">
           <Typography variant="h6" fontWeight={700} textAlign="center">
-            Your loan will be approved shortly.
+            Loan granted
           </Typography>
           <Typography variant="body2" color="text.secondary" textAlign="center">
-            Once approved, the amount will be credited to your wallet.
+            Your wallet was credited with the loan amount after our interest was withheld upfront.
+            Repay the principal from your loan details when due.
           </Typography>
         </Stack>
 

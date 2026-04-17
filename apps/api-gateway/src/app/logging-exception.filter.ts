@@ -44,6 +44,12 @@ export class LoggingExceptionFilter implements ExceptionFilter {
     }
     if (typeof body.statusCode !== 'number') body.statusCode = status;
     if (!('message' in body)) body.message = message;
+    if (typeof body.message === 'string' && !body.message.trim()) {
+      body.message =
+        status >= 500
+          ? 'Internal server error'
+          : 'Request could not be completed';
+    }
 
     res.status(status).json(body);
   }

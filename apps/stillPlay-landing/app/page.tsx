@@ -292,9 +292,26 @@ export default function LandingPage() {
                     lineHeight: 1.2,
                   }}
                 >
-                  Sure Odds, No Funds?{" "}
-                  <Box component="span" sx={{ color: "#FFC107", fontWeight: 800 }}>
-                    STILL PLAY
+                  <Box component="span" sx={{ display: "block", fontWeight: 800 }}>
+                    Sure Odds,
+                  </Box>
+                  <Box
+                    component="span"
+                    sx={{ display: "block", fontWeight: 800, mt: { xs: 0.25, sm: 0.5 } }}
+                  >
+                    No Funds?
+                  </Box>
+                  <Box
+                    component="span"
+                    sx={{
+                      display: "block",
+                      color: "#0b7b4c",
+                      fontWeight: 800,
+                      mt: { xs: 0.75, sm: 1 },
+                      letterSpacing: { md: "-0.02em" },
+                    }}
+                  >
+                    Still Play
                   </Box>
                 </Typography>
                 <Typography

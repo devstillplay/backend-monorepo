@@ -137,6 +137,9 @@ export type LoanItem = {
   approvedAt?: string | null;
   disbursedAt?: string | null;
   repaidAt?: string | null;
+  interestRatePercent?: number | null;
+  interestWithheld?: number | null;
+  netDisbursed?: number | null;
   createdAt: string;
   updatedAt?: string;
 };
@@ -231,6 +234,7 @@ export type LoanEligibility = {
   maxAmount: number;
   availableAmount: number;
   totalOutstanding?: number;
+  interestRatePercent?: number;
   reason?: string;
   activeLoan?: {
     id: string;

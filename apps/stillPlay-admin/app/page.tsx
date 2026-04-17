@@ -26,7 +26,6 @@ import { useUserStore } from '../store/user';
 function LoginPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const resetSuccess = searchParams.get('reset') === 'success';
 
   const status = useAuthStore((state) => state.status);
   const token = useAuthStore((state) => state.token);
@@ -43,6 +42,9 @@ function LoginPageContent() {
   useEffect(() => {
     setIsMounted(true);
   }, []);
+
+  const resetSuccess =
+    isMounted && searchParams.get('reset') === 'success';
 
   useEffect(() => {
     if (!isMounted) return;
