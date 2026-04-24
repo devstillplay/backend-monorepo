@@ -15,7 +15,6 @@ import {
 import PersonIcon from "@mui/icons-material/Person";
 import CreditCardIcon from "@mui/icons-material/CreditCard";
 import GroupAddIcon from "@mui/icons-material/GroupAdd";
-import ChatBubbleIcon from "@mui/icons-material/ChatBubble";
 import LogoutIcon from "@mui/icons-material/Logout";
 import BadgeIcon from "@mui/icons-material/Badge";
 import PhotoCameraIcon from "@mui/icons-material/PhotoCamera";
@@ -330,11 +329,6 @@ export default function ProfilePage() {
             { label: "Profile settings", icon: <PersonIcon /> },
             { label: "Payment Method", icon: <CreditCardIcon /> },
             { label: "Invite and earn", icon: <GroupAddIcon /> },
-            {
-              label: "Chat with us",
-              icon: <ChatBubbleIcon />,
-              onClick: () => router.push("/dashboard/support"),
-            },
             { label: "Log Out", icon: <LogoutIcon />, onClick: handleLogout },
           ].map((item) => (
             <Stack

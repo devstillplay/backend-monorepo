@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import {
   Avatar,
@@ -10,27 +10,28 @@ import {
   Skeleton,
   Stack,
   Typography,
-} from "@mui/material";
-import NotificationsNoneIcon from "@mui/icons-material/NotificationsNone";
-import LockIcon from "@mui/icons-material/Lock";
-import TrendingUpIcon from "@mui/icons-material/TrendingUp";
-import TrendingDownIcon from "@mui/icons-material/TrendingDown";
-import HourglassEmptyIcon from "@mui/icons-material/HourglassEmpty";
-import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import CancelIcon from "@mui/icons-material/Cancel";
-import SendIcon from "@mui/icons-material/Send";
-import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+} from '@mui/material';
+import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone';
+import LockIcon from '@mui/icons-material/Lock';
+import TrendingUpIcon from '@mui/icons-material/TrendingUp';
+import TrendingDownIcon from '@mui/icons-material/TrendingDown';
+import HourglassEmptyIcon from '@mui/icons-material/HourglassEmpty';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import CancelIcon from '@mui/icons-material/Cancel';
+import SendIcon from '@mui/icons-material/Send';
+import { useQuery } from '@tanstack/react-query';
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 
-import useAuthStore from "@/store/useAuthStore";
-import { getProfile, getWallet, listLoans, listUserRepayments } from "@/lib/api";
+import useAuthStore from '@/store/useAuthStore';
 import {
-  buildActivity,
-  formatCurrency,
-  formatDate,
-} from "@/lib/activity";
-import type { ActivityItem, ActivityStatus } from "@/lib/activity";
+  getProfile,
+  getWallet,
+  listLoans,
+  listUserRepayments,
+} from '@/lib/api';
+import { buildActivity, formatCurrency, formatDate } from '@/lib/activity';
+import type { ActivityItem, ActivityStatus } from '@/lib/activity';
 
 const STATUS_META: Record<
   ActivityStatus,
@@ -38,39 +39,39 @@ const STATUS_META: Record<
 > = {
   pending: {
     icon: <HourglassEmptyIcon sx={{ fontSize: 20 }} />,
-    bg: "#FFF8E1",
-    color: "#F59E0B",
-    amountPrefix: "",
+    bg: '#FFF8E1',
+    color: '#F59E0B',
+    amountPrefix: '',
   },
   approved: {
     icon: <CheckCircleIcon sx={{ fontSize: 20 }} />,
-    bg: "#E8F5EF",
-    color: "#22C55E",
-    amountPrefix: "+",
+    bg: '#E8F5EF',
+    color: '#22C55E',
+    amountPrefix: '+',
   },
   disbursed: {
     icon: <TrendingUpIcon sx={{ fontSize: 20 }} />,
-    bg: "#E8F5EF",
-    color: "#22C55E",
-    amountPrefix: "+",
+    bg: '#E8F5EF',
+    color: '#22C55E',
+    amountPrefix: '+',
   },
   repaid: {
     icon: <SendIcon sx={{ fontSize: 20 }} />,
-    bg: "#EDE9FE",
-    color: "#7C3AED",
-    amountPrefix: "-",
+    bg: '#EDE9FE',
+    color: '#7C3AED',
+    amountPrefix: '-',
   },
   rejected: {
     icon: <CancelIcon sx={{ fontSize: 20 }} />,
-    bg: "#FEE2E2",
-    color: "#EF4444",
-    amountPrefix: "",
+    bg: '#FEE2E2',
+    color: '#EF4444',
+    amountPrefix: '',
   },
   repayment: {
     icon: <TrendingDownIcon sx={{ fontSize: 20 }} />,
-    bg: "#FEE2E2",
-    color: "#EF4444",
-    amountPrefix: "-",
+    bg: '#FEE2E2',
+    color: '#EF4444',
+    amountPrefix: '-',
   },
 };
 
@@ -84,7 +85,7 @@ export default function DashboardPage() {
 
   // Fetch full profile
   const { data: profile, isLoading: profileLoading } = useQuery({
-    queryKey: ["user-profile"],
+    queryKey: ['user-profile'],
     queryFn: async () => {
       const p = await getProfile(token!);
       // Sync full profile back into the store
@@ -105,11 +106,11 @@ export default function DashboardPage() {
     staleTime: 5 * 60 * 1000,
   });
 
-  const userId = profile?.id ?? storedUser?.id ?? "";
+  const userId = profile?.id ?? storedUser?.id ?? '';
 
   // Fetch wallet
   const { data: wallet, isLoading: walletLoading } = useQuery({
-    queryKey: ["wallet", userId],
+    queryKey: ['wallet', userId],
     queryFn: () => getWallet(token!, userId),
     enabled: !!token && !!userId,
     staleTime: 60 * 1000,
@@ -117,7 +118,7 @@ export default function DashboardPage() {
 
   // Fetch loans
   const { data: loans, isLoading: loansLoading } = useQuery({
-    queryKey: ["loans", userId],
+    queryKey: ['loans', userId],
     queryFn: () => listLoans(token!, userId),
     enabled: !!token && !!userId,
     staleTime: 60 * 1000,
@@ -125,7 +126,7 @@ export default function DashboardPage() {
 
   // Fetch repayment transactions
   const { data: repayments, isLoading: repaymentsLoading } = useQuery({
-    queryKey: ["repayments", userId],
+    queryKey: ['repayments', userId],
     queryFn: () => listUserRepayments(token!, userId),
     enabled: !!token && !!userId,
     staleTime: 60 * 1000,
@@ -133,9 +134,9 @@ export default function DashboardPage() {
 
   const firstName = profile?.firstName ?? storedUser?.firstName ?? null;
   const displayName =
-    (typeof firstName === "string" && firstName.trim()) ||
-    storedUser?.email?.split("@")[0]?.trim() ||
-    "there";
+    (typeof firstName === 'string' && firstName.trim()) ||
+    storedUser?.email?.split('@')[0]?.trim() ||
+    'there';
   const avatarSrc = profile?.picture ?? storedUser?.picture ?? undefined;
 
   const activityLoading = loansLoading || repaymentsLoading;
@@ -146,16 +147,16 @@ export default function DashboardPage() {
     <Box
       sx={{
         flex: 1,
-        display: "flex",
-        flexDirection: "column",
+        display: 'flex',
+        flexDirection: 'column',
         minHeight: 0,
-        position: "relative",
+        position: 'relative',
         pb: {
-          xs: "calc(72px + env(safe-area-inset-bottom) + 160px)",
+          xs: 'calc(72px + env(safe-area-inset-bottom) + 160px)',
           md: 0,
         },
-        overflow: { xs: "hidden", md: "visible" },
-        backgroundColor: "#F5F5F5",
+        overflow: { xs: 'hidden', md: 'visible' },
+        backgroundColor: '#F5F5F5',
       }}
     >
       {/* Grows on desktop so Recent Activity sits at the bottom of the page column */}
@@ -164,28 +165,32 @@ export default function DashboardPage() {
         sx={{
           p: 3,
           flexShrink: 0,
-          flex: { md: "1 1 auto" },
+          flex: { md: '1 1 auto' },
           minHeight: { md: 0 },
         }}
       >
         {/* Header */}
-        <Stack direction="row" alignItems="center" justifyContent="space-between">
+        <Stack
+          direction="row"
+          alignItems="center"
+          justifyContent="space-between"
+        >
           {profileLoading ? (
             <Skeleton variant="circular" width={40} height={40} />
           ) : (
             <Avatar
               src={avatarSrc}
               alt={displayName}
-              sx={{ width: 40, height: 40, bgcolor: "primary.main" }}
+              sx={{ width: 40, height: 40, bgcolor: 'primary.main' }}
             >
               {displayName.charAt(0).toUpperCase()}
             </Avatar>
           )}
           <IconButton
             aria-label="Notifications"
-            onClick={() => router.push("/dashboard/notifications")}
+            onClick={() => router.push('/dashboard/notifications')}
             sx={{
-              border: "1px solid #E8E8E8",
+              border: '1px solid #E8E8E8',
               borderRadius: 2,
               width: 40,
               height: 40,
@@ -201,10 +206,10 @@ export default function DashboardPage() {
             <Skeleton width={160} height={28} />
           ) : (
             <Typography variant="h6" fontWeight={700}>
-              Welcome back,{" "}
+              Welcome back,{' '}
               <Box component="span" color="primary.main">
                 {displayName}
-              </Box>{" "}
+              </Box>{' '}
               👋
             </Typography>
           )}
@@ -215,7 +220,7 @@ export default function DashboardPage() {
             <Skeleton width={180} height={48} />
           ) : (
             <Typography variant="h4" fontWeight={700} sx={{ mt: 0.5 }}>
-              {wallet ? formatCurrency(wallet.balance) : "₦0.00"}
+              {wallet ? formatCurrency(wallet.balance) : '₦0.00'}
             </Typography>
           )}
         </Box>
@@ -225,10 +230,10 @@ export default function DashboardPage() {
           <Button
             fullWidth
             variant="contained"
-            onClick={() => router.push("/dashboard/loan")}
+            onClick={() => router.push('/dashboard/loan')}
             sx={{
               borderRadius: 999,
-              textTransform: "none",
+              textTransform: 'none',
               fontWeight: 600,
               py: 1.2,
             }}
@@ -240,7 +245,7 @@ export default function DashboardPage() {
             variant="contained"
             sx={{
               borderRadius: 999,
-              textTransform: "none",
+              textTransform: 'none',
               fontWeight: 600,
               py: 1.2,
             }}
@@ -250,7 +255,7 @@ export default function DashboardPage() {
         </Stack>
 
         {/* Lock savings promo */}
-        <Paper
+        {/* <Paper
           elevation={0}
           sx={{ borderRadius: 3, p: 2, backgroundColor: "#F8FAFC" }}
         >
@@ -275,32 +280,32 @@ export default function DashboardPage() {
               </Typography>
             </Box>
           </Stack>
-        </Paper>
+        </Paper> */}
       </Stack>
 
       {/* Recent Activity: bottom sheet on mobile; pinned to bottom of column on desktop */}
       <Paper
         elevation={6}
         sx={{
-          width: "100%",
-          boxSizing: "border-box",
-          display: "flex",
-          flexDirection: "column",
-          overflow: "hidden",
+          width: '100%',
+          boxSizing: 'border-box',
+          display: 'flex',
+          flexDirection: 'column',
+          overflow: 'hidden',
           flexShrink: 0,
-          position: { xs: "fixed", md: "relative" },
-          left: { xs: 0, md: "auto" },
-          right: { xs: 0, md: "auto" },
+          position: { xs: 'fixed', md: 'relative' },
+          left: { xs: 0, md: 'auto' },
+          right: { xs: 0, md: 'auto' },
           bottom: {
-            xs: "calc(72px + env(safe-area-inset-bottom))",
-            md: "auto",
+            xs: 'calc(72px + env(safe-area-inset-bottom))',
+            md: 'auto',
           },
           px: 3,
           pt: 2.5,
           pb: 3,
-          height: { xs: isExpanded ? "70vh" : "36vh", md: "auto" },
+          height: { xs: isExpanded ? '70vh' : '36vh', md: 'auto' },
           maxHeight: {
-            md: isExpanded ? "min(70dvh, 640px)" : 400,
+            md: isExpanded ? 'min(70dvh, 640px)' : 400,
           },
           borderTopLeftRadius: { xs: 28, md: 3 },
           borderTopRightRadius: { xs: 28, md: 3 },
@@ -308,7 +313,7 @@ export default function DashboardPage() {
           borderBottomRightRadius: { xs: 0, md: 3 },
           zIndex: { xs: 0 },
           mb: { md: 2 },
-          transition: "height 220ms ease, max-height 220ms ease",
+          transition: 'height 220ms ease, max-height 220ms ease',
           boxShadow: { md: 2 },
         }}
       >
@@ -325,22 +330,22 @@ export default function DashboardPage() {
             sx={{
               minWidth: 0,
               px: 0,
-              color: "warning.main",
-              textTransform: "none",
+              color: 'warning.main',
+              textTransform: 'none',
               fontWeight: 600,
             }}
           >
-            {isExpanded ? "See Less" : "See More"}
+            {isExpanded ? 'See Less' : 'See More'}
           </Button>
         </Stack>
 
         <Stack
           spacing={2}
           sx={{
-            overflowY: "auto",
+            overflowY: 'auto',
             pr: 0.5,
-            height: { xs: "calc(100% - 48px)", md: "auto" },
-            maxHeight: { md: isExpanded ? "min(58dvh, 520px)" : 280 },
+            height: { xs: 'calc(100% - 48px)', md: 'auto' },
+            maxHeight: { md: isExpanded ? 'min(58dvh, 520px)' : 280 },
           }}
         >
           {activityLoading ? (
@@ -376,12 +381,12 @@ export default function DashboardPage() {
                       sx={{
                         width: 44,
                         height: 44,
-                        borderRadius: "50%",
+                        borderRadius: '50%',
                         backgroundColor: meta.bg,
                         color: meta.color,
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
                         flexShrink: 0,
                       }}
                     >
@@ -391,7 +396,11 @@ export default function DashboardPage() {
                       <Typography fontWeight={600} variant="body2">
                         {item.label}
                       </Typography>
-                      <Typography color="text.secondary" variant="caption" display="block">
+                      <Typography
+                        color="text.secondary"
+                        variant="caption"
+                        display="block"
+                      >
                         {item.sublabel}
                       </Typography>
                       <Typography color="text.secondary" variant="caption">
@@ -402,9 +411,10 @@ export default function DashboardPage() {
                   <Typography
                     fontWeight={700}
                     variant="body2"
-                    sx={{ color: meta.color, whiteSpace: "nowrap", ml: 1 }}
+                    sx={{ color: meta.color, whiteSpace: 'nowrap', ml: 1 }}
                   >
-                    {meta.amountPrefix}{formatCurrency(item.amount)}
+                    {meta.amountPrefix}
+                    {formatCurrency(item.amount)}
                   </Typography>
                 </Stack>
               );

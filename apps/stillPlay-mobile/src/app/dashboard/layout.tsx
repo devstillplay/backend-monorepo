@@ -4,6 +4,7 @@ import {
   BottomNavigation,
   BottomNavigationAction,
   Box,
+  Fab,
   List,
   ListItemButton,
   ListItemIcon,
@@ -11,7 +12,9 @@ import {
   Paper,
   Typography,
 } from "@mui/material";
+import ChatBubbleIcon from "@mui/icons-material/ChatBubble";
 import HomeIcon from "@mui/icons-material/Home";
+import LogoutIcon from "@mui/icons-material/Logout";
 import SportsSoccerIcon from "@mui/icons-material/SportsSoccer";
 import SendIcon from "@mui/icons-material/Send";
 import PersonIcon from "@mui/icons-material/Person";
@@ -75,6 +78,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   }, [isMounted, isInvalid, isPendingVerification, reset, router]);
 
   const selectedHref = useMemo(() => getNavSelection(pathname), [pathname]);
+  const hideSupportFab = pathname.startsWith("/dashboard/support");
 
   const sidebarUserLabel = useMemo(() => {
     if (!user) return "";
@@ -85,6 +89,11 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     if (last) return last;
     return user.email?.split("@")[0] ?? "Account";
   }, [user]);
+
+  const handleLogout = () => {
+    reset();
+    router.replace("/");
+  };
 
   if (!isMounted || isInvalid || isPendingVerification) {
     return (
@@ -148,7 +157,10 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
               {sidebarUserLabel}
             </Typography>
           </Box>
-          <List disablePadding sx={{ flex: 1, px: 1 }}>
+          <List
+            disablePadding
+            sx={{ flex: 1, minHeight: 0, overflow: "auto", px: 1 }}
+          >
             {navigationItems.map((item) => {
               const selected = selectedHref === item.href;
               return (
@@ -187,6 +199,34 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
               );
             })}
           </List>
+
+          <Box
+            sx={{
+              flexShrink: 0,
+              px: 1,
+              pt: 1,
+              pb: 2,
+              borderTop: 1,
+              borderColor: "divider",
+            }}
+          >
+            <ListItemButton
+              onClick={handleLogout}
+              sx={{
+                borderRadius: 2,
+                color: "error.main",
+                "&:hover": { bgcolor: "error.50" },
+              }}
+            >
+              <ListItemIcon sx={{ minWidth: 44, color: "error.main" }}>
+                <LogoutIcon />
+              </ListItemIcon>
+              <ListItemText
+                primary="Log out"
+                primaryTypographyProps={{ fontWeight: 600, fontSize: "0.95rem" }}
+              />
+            </ListItemButton>
+          </Box>
         </Paper>
 
         {/* Main column: scrollable content + mobile bottom bar */}
@@ -267,6 +307,27 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
           </Paper>
         </Box>
       </Box>
+
+      {!hideSupportFab ? (
+        <Fab
+          color="primary"
+          aria-label="Chat with support"
+          component={Link}
+          href="/dashboard/support"
+          sx={{
+            position: "fixed",
+            zIndex: (theme) => theme.zIndex.speedDial,
+            right: { xs: 20, md: 28 },
+            bottom: {
+              xs: "calc(72px + env(safe-area-inset-bottom, 0px) + 16px)",
+              md: "calc(24px + env(safe-area-inset-bottom, 0px))",
+            },
+            boxShadow: 6,
+          }}
+        >
+          <ChatBubbleIcon />
+        </Fab>
+      ) : null}
     </MobileFrame>
   );
 }
