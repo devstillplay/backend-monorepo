@@ -254,7 +254,6 @@ export default function DashboardPage() {
           </Button>
         </Stack>
 
-        {/* Lock savings promo */}
         {/* <Paper
           elevation={0}
           sx={{ borderRadius: 3, p: 2, backgroundColor: "#F8FAFC" }}
