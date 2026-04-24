@@ -45,3 +45,6 @@ Thumbs.db
 
 .nx/cache
 .nx/workspace-data
+
+# Never treat as an Nx project — duplicates `workspace-prisma` (libs/prisma/project.json).
+libs/prisma/prisma/

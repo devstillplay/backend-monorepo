@@ -299,22 +299,11 @@ export class AppService {
     const currentRepaid = loan.amountRepaid;
     const newRepaid = currentRepaid + amount;
     const fullRepaid = newRepaid >= loan.amount;
-    const wallet = await this.prisma.wallet.findUnique({
-      where: { userId: loan.userId },
-    });
-    if (!wallet) throw new NotFoundException('Wallet not found');
-    if (wallet.balance < amount) {
-      throw new BadRequestException(
-        'Insufficient wallet balance for repayment',
-      );
-    }
     const now = new Date();
     const companyWallet = await this.ensureCompanyWallet();
+    // Repayments are settled via BudPay (card) — do not debit the user's in-app wallet
+    // (that balance is for betting / platform use, separate from loan principal recovery).
     await this.prisma.$transaction(async (tx) => {
-      await tx.wallet.update({
-        where: { id: wallet.id },
-        data: { balance: { decrement: amount } },
-      });
       await tx.loan.update({
         where: { id: loanId },
         data: {
@@ -552,7 +541,7 @@ export class AppService {
    * - Apply repayLoan with the BudPay amount
    *
    * This automatically records the user via LoanRepayment.userId and
-   * updates the wallet / provider credits using existing logic.
+   * updates loan state / provider credits (user wallet is not debited — funds came via BudPay).
    */
   async handleBudpayTransaction(payload: {
     reference?: string;

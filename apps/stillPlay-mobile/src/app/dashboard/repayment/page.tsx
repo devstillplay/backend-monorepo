@@ -3,6 +3,8 @@
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 import {
   Alert,
@@ -78,6 +80,9 @@ function round2(n: number): number {
   return Math.round(n * 100) / 100;
 }
 
+const PAY_PERCENT_STEP = 5;
+const MIN_PAY_PERCENT = 5;
+
 /** BudPay rejects duplicate references — must be unique per checkout attempt (including retries). */
 function makeBudPayReference(loanId: string, amount: number): string {
   const suffix =
@@ -114,10 +119,11 @@ function buildInstallmentChipAmounts(
   return Array.from(chips).sort((a, b) => a - b);
 }
 
-/** Total-outstanding chip vs an installment amount — avoids ambiguity with numeric state. */
+/** Full payoff / fixed installment chip / percentage of total due (all loans), capped per loan. */
 type PaySelection =
   | { kind: 'totalOutstanding' }
-  | { kind: 'installment'; amount: number };
+  | { kind: 'installment'; amount: number }
+  | { kind: 'percent'; percent: number };
 
 function InfoRow({
   label,
@@ -242,21 +248,91 @@ export default function RepaymentPage() {
   const payAmount =
     paySelection.kind === 'totalOutstanding'
       ? payAllAmount
-      : round2(Math.min(paySelection.amount, loanRemaining));
+      : paySelection.kind === 'installment'
+        ? round2(Math.min(paySelection.amount, loanRemaining))
+        : round2(
+            Math.min(
+              (paySelection.percent / 100) * totalOwedAllActiveLoans,
+              loanRemaining
+            )
+          );
 
-  /** Shown on the Pay CTA — always the amount BudPay / record repayment will use for this checkout. */
-  const selectedCheckoutAmount = round2(payAmount);
+  /** Sent to BudPay / record repayment (capped by this loan’s remaining). */
+  const chargedAmount = round2(payAmount);
+  /** Shown everywhere in the UI for the current choice — total-outstanding uses full portfolio total. */
+  const displaySelectionAmount =
+    paySelection.kind === 'totalOutstanding'
+      ? round2(totalOwedAllActiveLoans)
+      : chargedAmount;
+  /** When UI shows total due but checkout is capped to this loan. */
+  const showCheckoutCapNote =
+    paySelection.kind === 'totalOutstanding' &&
+    chargedAmount + 0.01 < displaySelectionAmount;
+
+  const currentPercentStepper =
+    paySelection.kind === 'percent'
+      ? paySelection.percent
+      : paySelection.kind === 'totalOutstanding'
+        ? 100
+        : Math.min(
+            100,
+            Math.max(
+              MIN_PAY_PERCENT,
+              Math.round(
+                ((paySelection.amount /
+                  Math.max(totalOwedAllActiveLoans, 1e-6)) *
+                  100) /
+                  PAY_PERCENT_STEP
+              ) * PAY_PERCENT_STEP
+            )
+          );
+
+  const canDecreasePayPercent =
+    loanRemaining > 0 &&
+    totalOwedAllActiveLoans > 0 &&
+    currentPercentStepper > MIN_PAY_PERCENT;
+  const canIncreasePayPercent =
+    loanRemaining > 0 &&
+    totalOwedAllActiveLoans > 0 &&
+    currentPercentStepper < 100;
+
+  const adjustPayPercent = (deltaSteps: number) => {
+    if (totalOwedAllActiveLoans <= 0 || loanRemaining <= 0) return;
+    setPaySelection((prev) => {
+      let base: number;
+      if (prev.kind === 'percent') base = prev.percent;
+      else if (prev.kind === 'totalOutstanding') base = 100;
+      else {
+        const approx =
+          (prev.amount / Math.max(totalOwedAllActiveLoans, 1e-6)) * 100;
+        base = Math.min(
+          100,
+          Math.max(
+            MIN_PAY_PERCENT,
+            Math.round(approx / PAY_PERCENT_STEP) * PAY_PERCENT_STEP
+          )
+        );
+      }
+      const next = Math.min(
+        100,
+        Math.max(MIN_PAY_PERCENT, base + deltaSteps * PAY_PERCENT_STEP)
+      );
+      return { kind: 'percent', percent: next };
+    });
+  };
 
   const payButtonSelectionKey =
     paySelection.kind === 'totalOutstanding'
       ? 'total'
-      : `installment-${round2(paySelection.amount)}`;
+      : paySelection.kind === 'installment'
+        ? `installment-${round2(paySelection.amount)}`
+        : `percent-${paySelection.percent}`;
 
   // Always call the hook unconditionally; we guard the button click instead.
   const initiateBudPayPayment = useBudPayPayment({
     api_key: BUDPAY_PUBLIC_KEY,
     // Pass at least 1 so the hook never receives 0 (disabled state guards the button)
-    amount: Math.max(payAmount, 1),
+    amount: Math.max(chargedAmount, 1),
     currency: 'NGN',
     reference: checkoutReference,
     customer: {
@@ -280,12 +356,12 @@ export default function RepaymentPage() {
   initiatePaymentRef.current = initiateBudPayPayment;
 
   const handleStartRepayment = () => {
-    if (!activeLoan?.id || payAmount <= 0 || !isRepayable) return;
+    if (!activeLoan?.id || chargedAmount <= 0 || !isRepayable) return;
     paymentCommitRef.current = {
       loanId: activeLoan.id,
-      amount: payAmount,
+      amount: chargedAmount,
     };
-    const uniqueRef = makeBudPayReference(activeLoan.id, payAmount);
+    const uniqueRef = makeBudPayReference(activeLoan.id, chargedAmount);
     setCheckoutReference(uniqueRef);
     // @budpay/react registers the postMessage handler in useEffect([config]). Calling initiate()
     // in the same synchronous turn as setState can leave the iframe using the *previous* reference.
@@ -432,7 +508,7 @@ export default function RepaymentPage() {
             color="text.secondary"
             sx={{ textTransform: 'uppercase', letterSpacing: 0.5 }}
           >
-            Due on this loan
+            Total due (all active loans)
           </Typography>
           <Typography
             variant="h4"
@@ -443,17 +519,16 @@ export default function RepaymentPage() {
               fontSize: { xs: '2rem', md: '2.75rem' },
             }}
           >
-            {formatCurrency(loanRemaining)}
+            {formatCurrency(totalOwedAllActiveLoans)}
           </Typography>
-          {hasMultipleActiveLoansOwed && (
-            <Typography variant="body2" color="text.secondary" sx={{ mt: 1, lineHeight: 1.4 }}>
-              Total across all your active loans:{' '}
-              <Box component="span" fontWeight={700} color="text.primary">
-                {formatCurrency(totalOwedAllActiveLoans)}
-              </Box>
-              . This screen repays the loan shown in your details below.
-            </Typography>
-          )}
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 1, lineHeight: 1.4 }}>
+            Sum of every loan you still need to repay. This checkout applies to your current loan only, up
+            to{' '}
+            <Box component="span" fontWeight={700} color="text.primary">
+              {formatCurrency(loanRemaining)}
+            </Box>{' '}
+            remaining on that loan — pay in full, by badge, or by percentage below.
+          </Typography>
           {isOverdue && (
             <Typography variant="caption" color="error" fontWeight={600} sx={{ display: 'block', mt: 0.5 }}>
               {overdueDays} day{overdueDays !== 1 ? 's' : ''} overdue
@@ -617,11 +692,98 @@ export default function RepaymentPage() {
               Choose amount
             </Typography>
             <Typography variant="caption" color="text.secondary" display="block" sx={{ mb: 1.5 }}>
-              Pay this loan in full or in smaller amounts — each smaller badge is a share of this loan’s original amount.
+              Use the arrows for a custom share of your total due, pay the full total outstanding in one
+              go, or pick a batch amount collected on this loan (capped by this loan’s remaining balance).
             </Typography>
-            <Stack direction="row" flexWrap="wrap" gap={1}>
+
+            <Paper
+              variant="outlined"
+              sx={{
+                p: 2,
+                borderRadius: 2,
+                bgcolor: 'grey.50',
+                borderColor: 'divider',
+                mb: 2,
+              }}
+            >
+              <Typography variant="caption" color="text.secondary" fontWeight={600} display="block" sx={{ mb: 1 }}>
+                Pay by % of total due (all loans)
+              </Typography>
+              <Stack direction="row" alignItems="center" justifyContent="center" spacing={1}>
+                <IconButton
+                  aria-label="Decrease repayment percentage"
+                  onClick={() => adjustPayPercent(-1)}
+                  disabled={!canDecreasePayPercent}
+                  color="primary"
+                  sx={{
+                    border: 1,
+                    borderColor: 'divider',
+                    bgcolor: 'background.paper',
+                  }}
+                >
+                  <KeyboardArrowDownIcon />
+                </IconButton>
+                <Box sx={{ textAlign: 'center', minWidth: 140 }}>
+                  <Typography variant="h5" fontWeight={800} component="span">
+                    {currentPercentStepper}
+                  </Typography>
+                  <Typography variant="body2" component="span" color="text.secondary" fontWeight={600}>
+                    %
+                  </Typography>
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                    display="block"
+                    sx={{ mt: 1, fontWeight: 600 }}
+                  >
+                    Amount to pay
+                  </Typography>
+                  <Typography
+                    variant="h6"
+                    color="primary.main"
+                    fontWeight={800}
+                    display="block"
+                    sx={{ lineHeight: 1.3 }}
+                  >
+                    {formatCurrency(displaySelectionAmount)}
+                  </Typography>
+                  {showCheckoutCapNote ? (
+                    <Typography variant="caption" color="text.secondary" display="block" sx={{ mt: 0.5 }}>
+                      This checkout applies {formatCurrency(chargedAmount)} to this loan (portfolio total due{' '}
+                      {formatCurrency(displaySelectionAmount)}).
+                    </Typography>
+                  ) : paySelection.kind === 'installment' ? (
+                    <Typography variant="caption" color="text.secondary" display="block" sx={{ mt: 0.5 }}>
+                      Batch selected: {formatCurrency(displaySelectionAmount)} · ↑↓ switches to paying by %
+                    </Typography>
+                  ) : (
+                    <Typography variant="caption" color="text.secondary" display="block" sx={{ mt: 0.5 }}>
+                      {PAY_PERCENT_STEP}% per tap · max {formatCurrency(loanRemaining)} on this loan
+                    </Typography>
+                  )}
+                </Box>
+                <IconButton
+                  aria-label="Increase repayment percentage"
+                  onClick={() => adjustPayPercent(1)}
+                  disabled={!canIncreasePayPercent}
+                  color="primary"
+                  sx={{
+                    border: 1,
+                    borderColor: 'divider',
+                    bgcolor: 'background.paper',
+                  }}
+                >
+                  <KeyboardArrowUpIcon />
+                </IconButton>
+              </Stack>
+            </Paper>
+
+            <Typography variant="caption" color="text.secondary" fontWeight={600} display="block" sx={{ mb: 0.75 }}>
+              Total outstanding
+            </Typography>
+            <Stack direction="row" flexWrap="wrap" gap={1} sx={{ mb: 2 }}>
               <Chip
-                label={`Full payment (this loan) · ${formatCurrency(payAllAmount)}`}
+                label={`${formatCurrency(totalOwedAllActiveLoans)} · full payment toward total due`}
                 onClick={() => setPaySelection({ kind: 'totalOutstanding' })}
                 color={
                   paySelection.kind === 'totalOutstanding' ? 'primary' : 'default'
@@ -629,12 +791,26 @@ export default function RepaymentPage() {
                 variant={
                   paySelection.kind === 'totalOutstanding' ? 'filled' : 'outlined'
                 }
-                sx={{ fontWeight: 600 }}
+                sx={{
+                  fontWeight: 600,
+                  height: 'auto',
+                  py: 0.75,
+                  '& .MuiChip-label': { whiteSpace: 'normal', textAlign: 'center' },
+                }}
               />
+            </Stack>
+
+            <Typography variant="caption" color="text.secondary" fontWeight={600} display="block" sx={{ mb: 0.5 }}>
+              Batch collected (this loan)
+            </Typography>
+            <Typography variant="caption" color="text.secondary" display="block" sx={{ mb: 1 }}>
+              Amounts matching how this loan was split for collection — pay one batch at a time.
+            </Typography>
+            <Stack direction="row" flexWrap="wrap" gap={1}>
               {installmentChipAmounts.map((amt) => (
                 <Chip
                   key={amt}
-                  label={formatCurrency(amt)}
+                  label={`Batch · ${formatCurrency(amt)}`}
                   onClick={() =>
                     setPaySelection({ kind: 'installment', amount: amt })
                   }
@@ -671,7 +847,7 @@ export default function RepaymentPage() {
               size="large"
               disabled={
                 !isRepayable ||
-                payAmount <= 0 ||
+                chargedAmount <= 0 ||
                 repayMutation.isPending
               }
               onClick={handleStartRepayment}
@@ -708,7 +884,9 @@ export default function RepaymentPage() {
                   >
                     {paySelection.kind === 'totalOutstanding'
                       ? 'Pay full balance'
-                      : 'Pay selected amount'}
+                      : paySelection.kind === 'percent'
+                        ? `Pay ${paySelection.percent}% of total due`
+                        : 'Pay selected amount'}
                   </Box>
                   <Box
                     component="span"
@@ -719,8 +897,23 @@ export default function RepaymentPage() {
                       lineHeight: 1.2,
                     }}
                   >
-                    {formatCurrency(selectedCheckoutAmount)}
+                    {formatCurrency(displaySelectionAmount)}
                   </Box>
+                  {showCheckoutCapNote && (
+                    <Box
+                      component="span"
+                      sx={{
+                        fontSize: '0.7rem',
+                        fontWeight: 600,
+                        opacity: 0.9,
+                        textTransform: 'none',
+                        lineHeight: 1.25,
+                        maxWidth: 280,
+                      }}
+                    >
+                      Charges {formatCurrency(chargedAmount)} on this loan (capped by remaining balance).
+                    </Box>
+                  )}
                 </Box>
               )}
             </Button>

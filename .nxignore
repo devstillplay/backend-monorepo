@@ -1,9 +1,2 @@
-# Next.js build output – Nx must not treat these as projects
-.next
-**/.next
-
-# Other common build/cache dirs
-node_modules
-**/node_modules
+# Build output can be mistaken for a second copy of an app (Nx issue #26954).
 dist
-**/dist

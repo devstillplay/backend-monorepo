@@ -1,6 +1,7 @@
 {
   "name": "workspace-prisma",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "root": "libs/prisma",
   "sourceRoot": "libs/prisma/src",
   "projectType": "library",
   "tags": ["type:data-access", "scope:shared"],
