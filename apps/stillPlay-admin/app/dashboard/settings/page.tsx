@@ -192,15 +192,59 @@ type GatewayId = (typeof PAYMENT_GATEWAYS)[number]["id"];
  * Persist + mobile/API routing will follow — no integration calls from this screen yet.
  */
 function RepaymentSettingsTab() {
+  const { data: settings, isLoading } = useAppSettings();
+  const setAppSetting = useSetAppSetting();
   const [primaryGateway, setPrimaryGateway] = useState<GatewayId>("budpay");
   const [fallback1, setFallback1] = useState<string>("paystack");
   const [fallback2, setFallback2] = useState<string>("flutterwave");
   const [failoverNote, setFailoverNote] = useState("");
+  const [saved, setSaved] = useState(false);
 
   const backupOptions = [
     { id: "", label: "None" },
     ...PAYMENT_GATEWAYS.map((g) => ({ id: g.id, label: g.label })),
   ];
+
+  useEffect(() => {
+    if (!settings) return;
+    const rawPrimary = settings.repayment_primary_gateway;
+    const rawFallback1 = settings.repayment_gateway_fallback_1;
+    const rawFallback2 = settings.repayment_gateway_fallback_2;
+    const rawNote = settings.repayment_gateway_failover_note;
+
+    const isGatewayId = (value: string): value is GatewayId =>
+      PAYMENT_GATEWAYS.some((g) => g.id === value);
+
+    setPrimaryGateway(isGatewayId(rawPrimary) ? rawPrimary : "budpay");
+    setFallback1(typeof rawFallback1 === "string" ? rawFallback1 : "paystack");
+    setFallback2(typeof rawFallback2 === "string" ? rawFallback2 : "flutterwave");
+    setFailoverNote(typeof rawNote === "string" ? rawNote : "");
+  }, [settings]);
+
+  const handleSave = async () => {
+    try {
+      await setAppSetting.mutateAsync({
+        key: "repayment_primary_gateway",
+        value: primaryGateway,
+      });
+      await setAppSetting.mutateAsync({
+        key: "repayment_gateway_fallback_1",
+        value: fallback1,
+      });
+      await setAppSetting.mutateAsync({
+        key: "repayment_gateway_fallback_2",
+        value: fallback2,
+      });
+      await setAppSetting.mutateAsync({
+        key: "repayment_gateway_failover_note",
+        value: failoverNote.trim(),
+      });
+      setSaved(true);
+      setTimeout(() => setSaved(false), 3000);
+    } catch {
+      // surfaced by setAppSetting.error
+    }
+  };
 
   return (
     <Stack spacing={3} sx={{ maxWidth: 560, width: "100%" }}>
@@ -221,8 +265,8 @@ function RepaymentSettingsTab() {
           </Stack>
 
           <Alert severity="info" sx={{ borderRadius: 2 }}>
-            Layout only — values are not saved yet. Wiring this to app settings and the customer app
-            checkout will be added later.
+            Primary gateway is used by the customer repayment page immediately after save.
+            Flutterwave is currently marked pending in customer checkout.
           </Alert>
 
           <FormControl fullWidth>
@@ -231,9 +275,10 @@ function RepaymentSettingsTab() {
               labelId="primary-gateway-label"
               label="Primary gateway"
               value={primaryGateway}
-              onChange={(e: SelectChangeEvent) =>
-                setPrimaryGateway(e.target.value as GatewayId)
-              }
+              onChange={(e: SelectChangeEvent) => {
+                setPrimaryGateway(e.target.value as GatewayId);
+                setSaved(false);
+              }}
             >
               {PAYMENT_GATEWAYS.map((g) => (
                 <MenuItem key={g.id} value={g.id}>
@@ -257,7 +302,10 @@ function RepaymentSettingsTab() {
               labelId="fallback-1-label"
               label="First backup"
               value={fallback1}
-              onChange={(e: SelectChangeEvent) => setFallback1(e.target.value)}
+              onChange={(e: SelectChangeEvent) => {
+                setFallback1(e.target.value);
+                setSaved(false);
+              }}
             >
               {backupOptions.map((opt) => (
                 <MenuItem key={opt.id || "none"} value={opt.id}>
@@ -273,7 +321,10 @@ function RepaymentSettingsTab() {
               labelId="fallback-2-label"
               label="Second backup"
               value={fallback2}
-              onChange={(e: SelectChangeEvent) => setFallback2(e.target.value)}
+              onChange={(e: SelectChangeEvent) => {
+                setFallback2(e.target.value);
+                setSaved(false);
+              }}
             >
               {backupOptions.map((opt) => (
                 <MenuItem key={opt.id || "none-2"} value={opt.id}>
@@ -286,23 +337,36 @@ function RepaymentSettingsTab() {
           <TextField
             label="Ops notes (optional)"
             value={failoverNote}
-            onChange={(e) => setFailoverNote(e.target.value)}
+            onChange={(e) => {
+              setFailoverNote(e.target.value);
+              setSaved(false);
+            }}
             placeholder="e.g. Last switch: 12 Apr — BudPay settlement delay"
             multiline
             minRows={2}
             fullWidth
           />
+          {isLoading ? <Skeleton height={36} /> : null}
+          {setAppSetting.isError ? (
+            <Alert severity="error">{(setAppSetting.error as Error).message}</Alert>
+          ) : null}
+          {saved ? (
+            <Alert severity="success">
+              Payment gateway settings saved successfully.
+            </Alert>
+          ) : null}
         </Stack>
       </Paper>
 
-      <Tooltip title="Persistence and live routing are not wired yet — UI preview only.">
+      <Tooltip title="Saves gateway preference used by customer repayment checkout.">
         <span>
           <Button
             variant="contained"
-            disabled
+            onClick={() => void handleSave()}
+            disabled={setAppSetting.isPending}
             sx={{ alignSelf: "flex-start", textTransform: "none", fontWeight: 600 }}
           >
-            Save gateway preferences
+            {setAppSetting.isPending ? "Saving..." : "Save gateway preferences"}
           </Button>
         </span>
       </Tooltip>

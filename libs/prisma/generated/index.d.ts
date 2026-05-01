@@ -49,6 +49,11 @@ export type Loan = $Result.DefaultSelection<Prisma.$LoanPayload>
  */
 export type LoanRepayment = $Result.DefaultSelection<Prisma.$LoanRepaymentPayload>
 /**
+ * Model ExternalPaymentRef
+ * Dedup Paystack (and similar) webhook + client verify retries — one row per provider reference.
+ */
+export type ExternalPaymentRef = $Result.DefaultSelection<Prisma.$ExternalPaymentRefPayload>
+/**
  * Model Provider
  * 
  */
@@ -263,6 +268,16 @@ export class PrismaClient<
     * ```
     */
   get loanRepayment(): Prisma.LoanRepaymentDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.externalPaymentRef`: Exposes CRUD operations for the **ExternalPaymentRef** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more ExternalPaymentRefs
+    * const externalPaymentRefs = await prisma.externalPaymentRef.findMany()
+    * ```
+    */
+  get externalPaymentRef(): Prisma.ExternalPaymentRefDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.provider`: Exposes CRUD operations for the **Provider** model.
@@ -831,6 +846,7 @@ export namespace Prisma {
     Wallet: 'Wallet',
     Loan: 'Loan',
     LoanRepayment: 'LoanRepayment',
+    ExternalPaymentRef: 'ExternalPaymentRef',
     Provider: 'Provider',
     ProviderWallet: 'ProviderWallet',
     LoanFunding: 'LoanFunding',
@@ -861,7 +877,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "loginCode" | "passwordResetCode" | "pendingRegistration" | "wallet" | "loan" | "loanRepayment" | "provider" | "providerWallet" | "loanFunding" | "providerCredit" | "providerPayout" | "employee" | "adminActivity" | "companyWallet" | "appSetting" | "chatSupport" | "chatMessage" | "waitlistEntry"
+      modelProps: "user" | "loginCode" | "passwordResetCode" | "pendingRegistration" | "wallet" | "loan" | "loanRepayment" | "externalPaymentRef" | "provider" | "providerWallet" | "loanFunding" | "providerCredit" | "providerPayout" | "employee" | "adminActivity" | "companyWallet" | "appSetting" | "chatSupport" | "chatMessage" | "waitlistEntry"
       txIsolationLevel: never
     }
     model: {
@@ -1380,6 +1396,80 @@ export namespace Prisma {
           count: {
             args: Prisma.LoanRepaymentCountArgs<ExtArgs>
             result: $Utils.Optional<LoanRepaymentCountAggregateOutputType> | number
+          }
+        }
+      }
+      ExternalPaymentRef: {
+        payload: Prisma.$ExternalPaymentRefPayload<ExtArgs>
+        fields: Prisma.ExternalPaymentRefFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.ExternalPaymentRefFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ExternalPaymentRefPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.ExternalPaymentRefFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ExternalPaymentRefPayload>
+          }
+          findFirst: {
+            args: Prisma.ExternalPaymentRefFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ExternalPaymentRefPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.ExternalPaymentRefFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ExternalPaymentRefPayload>
+          }
+          findMany: {
+            args: Prisma.ExternalPaymentRefFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ExternalPaymentRefPayload>[]
+          }
+          create: {
+            args: Prisma.ExternalPaymentRefCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ExternalPaymentRefPayload>
+          }
+          createMany: {
+            args: Prisma.ExternalPaymentRefCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          delete: {
+            args: Prisma.ExternalPaymentRefDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ExternalPaymentRefPayload>
+          }
+          update: {
+            args: Prisma.ExternalPaymentRefUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ExternalPaymentRefPayload>
+          }
+          deleteMany: {
+            args: Prisma.ExternalPaymentRefDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.ExternalPaymentRefUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.ExternalPaymentRefUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ExternalPaymentRefPayload>
+          }
+          aggregate: {
+            args: Prisma.ExternalPaymentRefAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateExternalPaymentRef>
+          }
+          groupBy: {
+            args: Prisma.ExternalPaymentRefGroupByArgs<ExtArgs>
+            result: $Utils.Optional<ExternalPaymentRefGroupByOutputType>[]
+          }
+          findRaw: {
+            args: Prisma.ExternalPaymentRefFindRawArgs<ExtArgs>
+            result: JsonObject
+          }
+          aggregateRaw: {
+            args: Prisma.ExternalPaymentRefAggregateRawArgs<ExtArgs>
+            result: JsonObject
+          }
+          count: {
+            args: Prisma.ExternalPaymentRefCountArgs<ExtArgs>
+            result: $Utils.Optional<ExternalPaymentRefCountAggregateOutputType> | number
           }
         }
       }
@@ -2357,6 +2447,7 @@ export namespace Prisma {
     wallet?: WalletOmit
     loan?: LoanOmit
     loanRepayment?: LoanRepaymentOmit
+    externalPaymentRef?: ExternalPaymentRefOmit
     provider?: ProviderOmit
     providerWallet?: ProviderWalletOmit
     loanFunding?: LoanFundingOmit
@@ -9668,6 +9759,994 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: LoanRepaymentInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model ExternalPaymentRef
+   */
+
+  export type AggregateExternalPaymentRef = {
+    _count: ExternalPaymentRefCountAggregateOutputType | null
+    _avg: ExternalPaymentRefAvgAggregateOutputType | null
+    _sum: ExternalPaymentRefSumAggregateOutputType | null
+    _min: ExternalPaymentRefMinAggregateOutputType | null
+    _max: ExternalPaymentRefMaxAggregateOutputType | null
+  }
+
+  export type ExternalPaymentRefAvgAggregateOutputType = {
+    amount: number | null
+  }
+
+  export type ExternalPaymentRefSumAggregateOutputType = {
+    amount: number | null
+  }
+
+  export type ExternalPaymentRefMinAggregateOutputType = {
+    id: string | null
+    provider: string | null
+    reference: string | null
+    loanId: string | null
+    userId: string | null
+    amount: number | null
+    createdAt: Date | null
+  }
+
+  export type ExternalPaymentRefMaxAggregateOutputType = {
+    id: string | null
+    provider: string | null
+    reference: string | null
+    loanId: string | null
+    userId: string | null
+    amount: number | null
+    createdAt: Date | null
+  }
+
+  export type ExternalPaymentRefCountAggregateOutputType = {
+    id: number
+    provider: number
+    reference: number
+    loanId: number
+    userId: number
+    amount: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type ExternalPaymentRefAvgAggregateInputType = {
+    amount?: true
+  }
+
+  export type ExternalPaymentRefSumAggregateInputType = {
+    amount?: true
+  }
+
+  export type ExternalPaymentRefMinAggregateInputType = {
+    id?: true
+    provider?: true
+    reference?: true
+    loanId?: true
+    userId?: true
+    amount?: true
+    createdAt?: true
+  }
+
+  export type ExternalPaymentRefMaxAggregateInputType = {
+    id?: true
+    provider?: true
+    reference?: true
+    loanId?: true
+    userId?: true
+    amount?: true
+    createdAt?: true
+  }
+
+  export type ExternalPaymentRefCountAggregateInputType = {
+    id?: true
+    provider?: true
+    reference?: true
+    loanId?: true
+    userId?: true
+    amount?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type ExternalPaymentRefAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ExternalPaymentRef to aggregate.
+     */
+    where?: ExternalPaymentRefWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ExternalPaymentRefs to fetch.
+     */
+    orderBy?: ExternalPaymentRefOrderByWithRelationInput | ExternalPaymentRefOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: ExternalPaymentRefWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ExternalPaymentRefs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ExternalPaymentRefs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned ExternalPaymentRefs
+    **/
+    _count?: true | ExternalPaymentRefCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: ExternalPaymentRefAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: ExternalPaymentRefSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: ExternalPaymentRefMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: ExternalPaymentRefMaxAggregateInputType
+  }
+
+  export type GetExternalPaymentRefAggregateType<T extends ExternalPaymentRefAggregateArgs> = {
+        [P in keyof T & keyof AggregateExternalPaymentRef]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateExternalPaymentRef[P]>
+      : GetScalarType<T[P], AggregateExternalPaymentRef[P]>
+  }
+
+
+
+
+  export type ExternalPaymentRefGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ExternalPaymentRefWhereInput
+    orderBy?: ExternalPaymentRefOrderByWithAggregationInput | ExternalPaymentRefOrderByWithAggregationInput[]
+    by: ExternalPaymentRefScalarFieldEnum[] | ExternalPaymentRefScalarFieldEnum
+    having?: ExternalPaymentRefScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: ExternalPaymentRefCountAggregateInputType | true
+    _avg?: ExternalPaymentRefAvgAggregateInputType
+    _sum?: ExternalPaymentRefSumAggregateInputType
+    _min?: ExternalPaymentRefMinAggregateInputType
+    _max?: ExternalPaymentRefMaxAggregateInputType
+  }
+
+  export type ExternalPaymentRefGroupByOutputType = {
+    id: string
+    provider: string
+    reference: string
+    loanId: string
+    userId: string
+    amount: number
+    createdAt: Date
+    _count: ExternalPaymentRefCountAggregateOutputType | null
+    _avg: ExternalPaymentRefAvgAggregateOutputType | null
+    _sum: ExternalPaymentRefSumAggregateOutputType | null
+    _min: ExternalPaymentRefMinAggregateOutputType | null
+    _max: ExternalPaymentRefMaxAggregateOutputType | null
+  }
+
+  type GetExternalPaymentRefGroupByPayload<T extends ExternalPaymentRefGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<ExternalPaymentRefGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof ExternalPaymentRefGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], ExternalPaymentRefGroupByOutputType[P]>
+            : GetScalarType<T[P], ExternalPaymentRefGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type ExternalPaymentRefSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    provider?: boolean
+    reference?: boolean
+    loanId?: boolean
+    userId?: boolean
+    amount?: boolean
+    createdAt?: boolean
+  }, ExtArgs["result"]["externalPaymentRef"]>
+
+
+
+  export type ExternalPaymentRefSelectScalar = {
+    id?: boolean
+    provider?: boolean
+    reference?: boolean
+    loanId?: boolean
+    userId?: boolean
+    amount?: boolean
+    createdAt?: boolean
+  }
+
+  export type ExternalPaymentRefOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "provider" | "reference" | "loanId" | "userId" | "amount" | "createdAt", ExtArgs["result"]["externalPaymentRef"]>
+
+  export type $ExternalPaymentRefPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "ExternalPaymentRef"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      provider: string
+      reference: string
+      loanId: string
+      userId: string
+      amount: number
+      createdAt: Date
+    }, ExtArgs["result"]["externalPaymentRef"]>
+    composites: {}
+  }
+
+  type ExternalPaymentRefGetPayload<S extends boolean | null | undefined | ExternalPaymentRefDefaultArgs> = $Result.GetResult<Prisma.$ExternalPaymentRefPayload, S>
+
+  type ExternalPaymentRefCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<ExternalPaymentRefFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: ExternalPaymentRefCountAggregateInputType | true
+    }
+
+  export interface ExternalPaymentRefDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ExternalPaymentRef'], meta: { name: 'ExternalPaymentRef' } }
+    /**
+     * Find zero or one ExternalPaymentRef that matches the filter.
+     * @param {ExternalPaymentRefFindUniqueArgs} args - Arguments to find a ExternalPaymentRef
+     * @example
+     * // Get one ExternalPaymentRef
+     * const externalPaymentRef = await prisma.externalPaymentRef.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends ExternalPaymentRefFindUniqueArgs>(args: SelectSubset<T, ExternalPaymentRefFindUniqueArgs<ExtArgs>>): Prisma__ExternalPaymentRefClient<$Result.GetResult<Prisma.$ExternalPaymentRefPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one ExternalPaymentRef that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {ExternalPaymentRefFindUniqueOrThrowArgs} args - Arguments to find a ExternalPaymentRef
+     * @example
+     * // Get one ExternalPaymentRef
+     * const externalPaymentRef = await prisma.externalPaymentRef.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends ExternalPaymentRefFindUniqueOrThrowArgs>(args: SelectSubset<T, ExternalPaymentRefFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ExternalPaymentRefClient<$Result.GetResult<Prisma.$ExternalPaymentRefPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ExternalPaymentRef that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ExternalPaymentRefFindFirstArgs} args - Arguments to find a ExternalPaymentRef
+     * @example
+     * // Get one ExternalPaymentRef
+     * const externalPaymentRef = await prisma.externalPaymentRef.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends ExternalPaymentRefFindFirstArgs>(args?: SelectSubset<T, ExternalPaymentRefFindFirstArgs<ExtArgs>>): Prisma__ExternalPaymentRefClient<$Result.GetResult<Prisma.$ExternalPaymentRefPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ExternalPaymentRef that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ExternalPaymentRefFindFirstOrThrowArgs} args - Arguments to find a ExternalPaymentRef
+     * @example
+     * // Get one ExternalPaymentRef
+     * const externalPaymentRef = await prisma.externalPaymentRef.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends ExternalPaymentRefFindFirstOrThrowArgs>(args?: SelectSubset<T, ExternalPaymentRefFindFirstOrThrowArgs<ExtArgs>>): Prisma__ExternalPaymentRefClient<$Result.GetResult<Prisma.$ExternalPaymentRefPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more ExternalPaymentRefs that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ExternalPaymentRefFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all ExternalPaymentRefs
+     * const externalPaymentRefs = await prisma.externalPaymentRef.findMany()
+     * 
+     * // Get first 10 ExternalPaymentRefs
+     * const externalPaymentRefs = await prisma.externalPaymentRef.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const externalPaymentRefWithIdOnly = await prisma.externalPaymentRef.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends ExternalPaymentRefFindManyArgs>(args?: SelectSubset<T, ExternalPaymentRefFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ExternalPaymentRefPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a ExternalPaymentRef.
+     * @param {ExternalPaymentRefCreateArgs} args - Arguments to create a ExternalPaymentRef.
+     * @example
+     * // Create one ExternalPaymentRef
+     * const ExternalPaymentRef = await prisma.externalPaymentRef.create({
+     *   data: {
+     *     // ... data to create a ExternalPaymentRef
+     *   }
+     * })
+     * 
+     */
+    create<T extends ExternalPaymentRefCreateArgs>(args: SelectSubset<T, ExternalPaymentRefCreateArgs<ExtArgs>>): Prisma__ExternalPaymentRefClient<$Result.GetResult<Prisma.$ExternalPaymentRefPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many ExternalPaymentRefs.
+     * @param {ExternalPaymentRefCreateManyArgs} args - Arguments to create many ExternalPaymentRefs.
+     * @example
+     * // Create many ExternalPaymentRefs
+     * const externalPaymentRef = await prisma.externalPaymentRef.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends ExternalPaymentRefCreateManyArgs>(args?: SelectSubset<T, ExternalPaymentRefCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a ExternalPaymentRef.
+     * @param {ExternalPaymentRefDeleteArgs} args - Arguments to delete one ExternalPaymentRef.
+     * @example
+     * // Delete one ExternalPaymentRef
+     * const ExternalPaymentRef = await prisma.externalPaymentRef.delete({
+     *   where: {
+     *     // ... filter to delete one ExternalPaymentRef
+     *   }
+     * })
+     * 
+     */
+    delete<T extends ExternalPaymentRefDeleteArgs>(args: SelectSubset<T, ExternalPaymentRefDeleteArgs<ExtArgs>>): Prisma__ExternalPaymentRefClient<$Result.GetResult<Prisma.$ExternalPaymentRefPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one ExternalPaymentRef.
+     * @param {ExternalPaymentRefUpdateArgs} args - Arguments to update one ExternalPaymentRef.
+     * @example
+     * // Update one ExternalPaymentRef
+     * const externalPaymentRef = await prisma.externalPaymentRef.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends ExternalPaymentRefUpdateArgs>(args: SelectSubset<T, ExternalPaymentRefUpdateArgs<ExtArgs>>): Prisma__ExternalPaymentRefClient<$Result.GetResult<Prisma.$ExternalPaymentRefPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more ExternalPaymentRefs.
+     * @param {ExternalPaymentRefDeleteManyArgs} args - Arguments to filter ExternalPaymentRefs to delete.
+     * @example
+     * // Delete a few ExternalPaymentRefs
+     * const { count } = await prisma.externalPaymentRef.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends ExternalPaymentRefDeleteManyArgs>(args?: SelectSubset<T, ExternalPaymentRefDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ExternalPaymentRefs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ExternalPaymentRefUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many ExternalPaymentRefs
+     * const externalPaymentRef = await prisma.externalPaymentRef.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends ExternalPaymentRefUpdateManyArgs>(args: SelectSubset<T, ExternalPaymentRefUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one ExternalPaymentRef.
+     * @param {ExternalPaymentRefUpsertArgs} args - Arguments to update or create a ExternalPaymentRef.
+     * @example
+     * // Update or create a ExternalPaymentRef
+     * const externalPaymentRef = await prisma.externalPaymentRef.upsert({
+     *   create: {
+     *     // ... data to create a ExternalPaymentRef
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the ExternalPaymentRef we want to update
+     *   }
+     * })
+     */
+    upsert<T extends ExternalPaymentRefUpsertArgs>(args: SelectSubset<T, ExternalPaymentRefUpsertArgs<ExtArgs>>): Prisma__ExternalPaymentRefClient<$Result.GetResult<Prisma.$ExternalPaymentRefPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more ExternalPaymentRefs that matches the filter.
+     * @param {ExternalPaymentRefFindRawArgs} args - Select which filters you would like to apply.
+     * @example
+     * const externalPaymentRef = await prisma.externalPaymentRef.findRaw({
+     *   filter: { age: { $gt: 25 } }
+     * })
+     */
+    findRaw(args?: ExternalPaymentRefFindRawArgs): Prisma.PrismaPromise<JsonObject>
+
+    /**
+     * Perform aggregation operations on a ExternalPaymentRef.
+     * @param {ExternalPaymentRefAggregateRawArgs} args - Select which aggregations you would like to apply.
+     * @example
+     * const externalPaymentRef = await prisma.externalPaymentRef.aggregateRaw({
+     *   pipeline: [
+     *     { $match: { status: "registered" } },
+     *     { $group: { _id: "$country", total: { $sum: 1 } } }
+     *   ]
+     * })
+     */
+    aggregateRaw(args?: ExternalPaymentRefAggregateRawArgs): Prisma.PrismaPromise<JsonObject>
+
+
+    /**
+     * Count the number of ExternalPaymentRefs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ExternalPaymentRefCountArgs} args - Arguments to filter ExternalPaymentRefs to count.
+     * @example
+     * // Count the number of ExternalPaymentRefs
+     * const count = await prisma.externalPaymentRef.count({
+     *   where: {
+     *     // ... the filter for the ExternalPaymentRefs we want to count
+     *   }
+     * })
+    **/
+    count<T extends ExternalPaymentRefCountArgs>(
+      args?: Subset<T, ExternalPaymentRefCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], ExternalPaymentRefCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a ExternalPaymentRef.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ExternalPaymentRefAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends ExternalPaymentRefAggregateArgs>(args: Subset<T, ExternalPaymentRefAggregateArgs>): Prisma.PrismaPromise<GetExternalPaymentRefAggregateType<T>>
+
+    /**
+     * Group by ExternalPaymentRef.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ExternalPaymentRefGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends ExternalPaymentRefGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: ExternalPaymentRefGroupByArgs['orderBy'] }
+        : { orderBy?: ExternalPaymentRefGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, ExternalPaymentRefGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetExternalPaymentRefGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the ExternalPaymentRef model
+   */
+  readonly fields: ExternalPaymentRefFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for ExternalPaymentRef.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__ExternalPaymentRefClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the ExternalPaymentRef model
+   */
+  interface ExternalPaymentRefFieldRefs {
+    readonly id: FieldRef<"ExternalPaymentRef", 'String'>
+    readonly provider: FieldRef<"ExternalPaymentRef", 'String'>
+    readonly reference: FieldRef<"ExternalPaymentRef", 'String'>
+    readonly loanId: FieldRef<"ExternalPaymentRef", 'String'>
+    readonly userId: FieldRef<"ExternalPaymentRef", 'String'>
+    readonly amount: FieldRef<"ExternalPaymentRef", 'Float'>
+    readonly createdAt: FieldRef<"ExternalPaymentRef", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * ExternalPaymentRef findUnique
+   */
+  export type ExternalPaymentRefFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ExternalPaymentRef
+     */
+    select?: ExternalPaymentRefSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ExternalPaymentRef
+     */
+    omit?: ExternalPaymentRefOmit<ExtArgs> | null
+    /**
+     * Filter, which ExternalPaymentRef to fetch.
+     */
+    where: ExternalPaymentRefWhereUniqueInput
+  }
+
+  /**
+   * ExternalPaymentRef findUniqueOrThrow
+   */
+  export type ExternalPaymentRefFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ExternalPaymentRef
+     */
+    select?: ExternalPaymentRefSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ExternalPaymentRef
+     */
+    omit?: ExternalPaymentRefOmit<ExtArgs> | null
+    /**
+     * Filter, which ExternalPaymentRef to fetch.
+     */
+    where: ExternalPaymentRefWhereUniqueInput
+  }
+
+  /**
+   * ExternalPaymentRef findFirst
+   */
+  export type ExternalPaymentRefFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ExternalPaymentRef
+     */
+    select?: ExternalPaymentRefSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ExternalPaymentRef
+     */
+    omit?: ExternalPaymentRefOmit<ExtArgs> | null
+    /**
+     * Filter, which ExternalPaymentRef to fetch.
+     */
+    where?: ExternalPaymentRefWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ExternalPaymentRefs to fetch.
+     */
+    orderBy?: ExternalPaymentRefOrderByWithRelationInput | ExternalPaymentRefOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ExternalPaymentRefs.
+     */
+    cursor?: ExternalPaymentRefWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ExternalPaymentRefs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ExternalPaymentRefs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ExternalPaymentRefs.
+     */
+    distinct?: ExternalPaymentRefScalarFieldEnum | ExternalPaymentRefScalarFieldEnum[]
+  }
+
+  /**
+   * ExternalPaymentRef findFirstOrThrow
+   */
+  export type ExternalPaymentRefFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ExternalPaymentRef
+     */
+    select?: ExternalPaymentRefSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ExternalPaymentRef
+     */
+    omit?: ExternalPaymentRefOmit<ExtArgs> | null
+    /**
+     * Filter, which ExternalPaymentRef to fetch.
+     */
+    where?: ExternalPaymentRefWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ExternalPaymentRefs to fetch.
+     */
+    orderBy?: ExternalPaymentRefOrderByWithRelationInput | ExternalPaymentRefOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ExternalPaymentRefs.
+     */
+    cursor?: ExternalPaymentRefWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ExternalPaymentRefs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ExternalPaymentRefs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ExternalPaymentRefs.
+     */
+    distinct?: ExternalPaymentRefScalarFieldEnum | ExternalPaymentRefScalarFieldEnum[]
+  }
+
+  /**
+   * ExternalPaymentRef findMany
+   */
+  export type ExternalPaymentRefFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ExternalPaymentRef
+     */
+    select?: ExternalPaymentRefSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ExternalPaymentRef
+     */
+    omit?: ExternalPaymentRefOmit<ExtArgs> | null
+    /**
+     * Filter, which ExternalPaymentRefs to fetch.
+     */
+    where?: ExternalPaymentRefWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ExternalPaymentRefs to fetch.
+     */
+    orderBy?: ExternalPaymentRefOrderByWithRelationInput | ExternalPaymentRefOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing ExternalPaymentRefs.
+     */
+    cursor?: ExternalPaymentRefWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ExternalPaymentRefs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ExternalPaymentRefs.
+     */
+    skip?: number
+    distinct?: ExternalPaymentRefScalarFieldEnum | ExternalPaymentRefScalarFieldEnum[]
+  }
+
+  /**
+   * ExternalPaymentRef create
+   */
+  export type ExternalPaymentRefCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ExternalPaymentRef
+     */
+    select?: ExternalPaymentRefSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ExternalPaymentRef
+     */
+    omit?: ExternalPaymentRefOmit<ExtArgs> | null
+    /**
+     * The data needed to create a ExternalPaymentRef.
+     */
+    data: XOR<ExternalPaymentRefCreateInput, ExternalPaymentRefUncheckedCreateInput>
+  }
+
+  /**
+   * ExternalPaymentRef createMany
+   */
+  export type ExternalPaymentRefCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many ExternalPaymentRefs.
+     */
+    data: ExternalPaymentRefCreateManyInput | ExternalPaymentRefCreateManyInput[]
+  }
+
+  /**
+   * ExternalPaymentRef update
+   */
+  export type ExternalPaymentRefUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ExternalPaymentRef
+     */
+    select?: ExternalPaymentRefSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ExternalPaymentRef
+     */
+    omit?: ExternalPaymentRefOmit<ExtArgs> | null
+    /**
+     * The data needed to update a ExternalPaymentRef.
+     */
+    data: XOR<ExternalPaymentRefUpdateInput, ExternalPaymentRefUncheckedUpdateInput>
+    /**
+     * Choose, which ExternalPaymentRef to update.
+     */
+    where: ExternalPaymentRefWhereUniqueInput
+  }
+
+  /**
+   * ExternalPaymentRef updateMany
+   */
+  export type ExternalPaymentRefUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update ExternalPaymentRefs.
+     */
+    data: XOR<ExternalPaymentRefUpdateManyMutationInput, ExternalPaymentRefUncheckedUpdateManyInput>
+    /**
+     * Filter which ExternalPaymentRefs to update
+     */
+    where?: ExternalPaymentRefWhereInput
+    /**
+     * Limit how many ExternalPaymentRefs to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * ExternalPaymentRef upsert
+   */
+  export type ExternalPaymentRefUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ExternalPaymentRef
+     */
+    select?: ExternalPaymentRefSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ExternalPaymentRef
+     */
+    omit?: ExternalPaymentRefOmit<ExtArgs> | null
+    /**
+     * The filter to search for the ExternalPaymentRef to update in case it exists.
+     */
+    where: ExternalPaymentRefWhereUniqueInput
+    /**
+     * In case the ExternalPaymentRef found by the `where` argument doesn't exist, create a new ExternalPaymentRef with this data.
+     */
+    create: XOR<ExternalPaymentRefCreateInput, ExternalPaymentRefUncheckedCreateInput>
+    /**
+     * In case the ExternalPaymentRef was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<ExternalPaymentRefUpdateInput, ExternalPaymentRefUncheckedUpdateInput>
+  }
+
+  /**
+   * ExternalPaymentRef delete
+   */
+  export type ExternalPaymentRefDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ExternalPaymentRef
+     */
+    select?: ExternalPaymentRefSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ExternalPaymentRef
+     */
+    omit?: ExternalPaymentRefOmit<ExtArgs> | null
+    /**
+     * Filter which ExternalPaymentRef to delete.
+     */
+    where: ExternalPaymentRefWhereUniqueInput
+  }
+
+  /**
+   * ExternalPaymentRef deleteMany
+   */
+  export type ExternalPaymentRefDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ExternalPaymentRefs to delete
+     */
+    where?: ExternalPaymentRefWhereInput
+    /**
+     * Limit how many ExternalPaymentRefs to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * ExternalPaymentRef findRaw
+   */
+  export type ExternalPaymentRefFindRawArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The query predicate filter. If unspecified, then all documents in the collection will match the predicate. ${@link https://docs.mongodb.com/manual/reference/operator/query MongoDB Docs}.
+     */
+    filter?: InputJsonValue
+    /**
+     * Additional options to pass to the `find` command ${@link https://docs.mongodb.com/manual/reference/command/find/#command-fields MongoDB Docs}.
+     */
+    options?: InputJsonValue
+  }
+
+  /**
+   * ExternalPaymentRef aggregateRaw
+   */
+  export type ExternalPaymentRefAggregateRawArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * An array of aggregation stages to process and transform the document stream via the aggregation pipeline. ${@link https://docs.mongodb.com/manual/reference/operator/aggregation-pipeline MongoDB Docs}.
+     */
+    pipeline?: InputJsonValue[]
+    /**
+     * Additional options to pass to the `aggregate` command ${@link https://docs.mongodb.com/manual/reference/command/aggregate/#command-fields MongoDB Docs}.
+     */
+    options?: InputJsonValue
+  }
+
+  /**
+   * ExternalPaymentRef without action
+   */
+  export type ExternalPaymentRefDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ExternalPaymentRef
+     */
+    select?: ExternalPaymentRefSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ExternalPaymentRef
+     */
+    omit?: ExternalPaymentRefOmit<ExtArgs> | null
   }
 
 
@@ -21641,6 +22720,19 @@ export namespace Prisma {
   export type LoanRepaymentScalarFieldEnum = (typeof LoanRepaymentScalarFieldEnum)[keyof typeof LoanRepaymentScalarFieldEnum]
 
 
+  export const ExternalPaymentRefScalarFieldEnum: {
+    id: 'id',
+    provider: 'provider',
+    reference: 'reference',
+    loanId: 'loanId',
+    userId: 'userId',
+    amount: 'amount',
+    createdAt: 'createdAt'
+  };
+
+  export type ExternalPaymentRefScalarFieldEnum = (typeof ExternalPaymentRefScalarFieldEnum)[keyof typeof ExternalPaymentRefScalarFieldEnum]
+
+
   export const ProviderScalarFieldEnum: {
     id: 'id',
     providerNumber: 'providerNumber',
@@ -22401,6 +23493,70 @@ export namespace Prisma {
     userId?: StringWithAggregatesFilter<"LoanRepayment"> | string
     amount?: FloatWithAggregatesFilter<"LoanRepayment"> | number
     repaidAt?: DateTimeWithAggregatesFilter<"LoanRepayment"> | Date | string
+  }
+
+  export type ExternalPaymentRefWhereInput = {
+    AND?: ExternalPaymentRefWhereInput | ExternalPaymentRefWhereInput[]
+    OR?: ExternalPaymentRefWhereInput[]
+    NOT?: ExternalPaymentRefWhereInput | ExternalPaymentRefWhereInput[]
+    id?: StringFilter<"ExternalPaymentRef"> | string
+    provider?: StringFilter<"ExternalPaymentRef"> | string
+    reference?: StringFilter<"ExternalPaymentRef"> | string
+    loanId?: StringFilter<"ExternalPaymentRef"> | string
+    userId?: StringFilter<"ExternalPaymentRef"> | string
+    amount?: FloatFilter<"ExternalPaymentRef"> | number
+    createdAt?: DateTimeFilter<"ExternalPaymentRef"> | Date | string
+  }
+
+  export type ExternalPaymentRefOrderByWithRelationInput = {
+    id?: SortOrder
+    provider?: SortOrder
+    reference?: SortOrder
+    loanId?: SortOrder
+    userId?: SortOrder
+    amount?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type ExternalPaymentRefWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    reference?: string
+    AND?: ExternalPaymentRefWhereInput | ExternalPaymentRefWhereInput[]
+    OR?: ExternalPaymentRefWhereInput[]
+    NOT?: ExternalPaymentRefWhereInput | ExternalPaymentRefWhereInput[]
+    provider?: StringFilter<"ExternalPaymentRef"> | string
+    loanId?: StringFilter<"ExternalPaymentRef"> | string
+    userId?: StringFilter<"ExternalPaymentRef"> | string
+    amount?: FloatFilter<"ExternalPaymentRef"> | number
+    createdAt?: DateTimeFilter<"ExternalPaymentRef"> | Date | string
+  }, "id" | "reference">
+
+  export type ExternalPaymentRefOrderByWithAggregationInput = {
+    id?: SortOrder
+    provider?: SortOrder
+    reference?: SortOrder
+    loanId?: SortOrder
+    userId?: SortOrder
+    amount?: SortOrder
+    createdAt?: SortOrder
+    _count?: ExternalPaymentRefCountOrderByAggregateInput
+    _avg?: ExternalPaymentRefAvgOrderByAggregateInput
+    _max?: ExternalPaymentRefMaxOrderByAggregateInput
+    _min?: ExternalPaymentRefMinOrderByAggregateInput
+    _sum?: ExternalPaymentRefSumOrderByAggregateInput
+  }
+
+  export type ExternalPaymentRefScalarWhereWithAggregatesInput = {
+    AND?: ExternalPaymentRefScalarWhereWithAggregatesInput | ExternalPaymentRefScalarWhereWithAggregatesInput[]
+    OR?: ExternalPaymentRefScalarWhereWithAggregatesInput[]
+    NOT?: ExternalPaymentRefScalarWhereWithAggregatesInput | ExternalPaymentRefScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"ExternalPaymentRef"> | string
+    provider?: StringWithAggregatesFilter<"ExternalPaymentRef"> | string
+    reference?: StringWithAggregatesFilter<"ExternalPaymentRef"> | string
+    loanId?: StringWithAggregatesFilter<"ExternalPaymentRef"> | string
+    userId?: StringWithAggregatesFilter<"ExternalPaymentRef"> | string
+    amount?: FloatWithAggregatesFilter<"ExternalPaymentRef"> | number
+    createdAt?: DateTimeWithAggregatesFilter<"ExternalPaymentRef"> | Date | string
   }
 
   export type ProviderWhereInput = {
@@ -23721,6 +24877,72 @@ export namespace Prisma {
     repaidAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type ExternalPaymentRefCreateInput = {
+    id?: string
+    provider: string
+    reference: string
+    loanId: string
+    userId: string
+    amount: number
+    createdAt?: Date | string
+  }
+
+  export type ExternalPaymentRefUncheckedCreateInput = {
+    id?: string
+    provider: string
+    reference: string
+    loanId: string
+    userId: string
+    amount: number
+    createdAt?: Date | string
+  }
+
+  export type ExternalPaymentRefUpdateInput = {
+    provider?: StringFieldUpdateOperationsInput | string
+    reference?: StringFieldUpdateOperationsInput | string
+    loanId?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    amount?: FloatFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ExternalPaymentRefUncheckedUpdateInput = {
+    provider?: StringFieldUpdateOperationsInput | string
+    reference?: StringFieldUpdateOperationsInput | string
+    loanId?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    amount?: FloatFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ExternalPaymentRefCreateManyInput = {
+    id?: string
+    provider: string
+    reference: string
+    loanId: string
+    userId: string
+    amount: number
+    createdAt?: Date | string
+  }
+
+  export type ExternalPaymentRefUpdateManyMutationInput = {
+    provider?: StringFieldUpdateOperationsInput | string
+    reference?: StringFieldUpdateOperationsInput | string
+    loanId?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    amount?: FloatFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ExternalPaymentRefUncheckedUpdateManyInput = {
+    provider?: StringFieldUpdateOperationsInput | string
+    reference?: StringFieldUpdateOperationsInput | string
+    loanId?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    amount?: FloatFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type ProviderCreateInput = {
     id?: string
     providerNumber: string
@@ -24987,6 +26209,44 @@ export namespace Prisma {
   }
 
   export type LoanRepaymentSumOrderByAggregateInput = {
+    amount?: SortOrder
+  }
+
+  export type ExternalPaymentRefCountOrderByAggregateInput = {
+    id?: SortOrder
+    provider?: SortOrder
+    reference?: SortOrder
+    loanId?: SortOrder
+    userId?: SortOrder
+    amount?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type ExternalPaymentRefAvgOrderByAggregateInput = {
+    amount?: SortOrder
+  }
+
+  export type ExternalPaymentRefMaxOrderByAggregateInput = {
+    id?: SortOrder
+    provider?: SortOrder
+    reference?: SortOrder
+    loanId?: SortOrder
+    userId?: SortOrder
+    amount?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type ExternalPaymentRefMinOrderByAggregateInput = {
+    id?: SortOrder
+    provider?: SortOrder
+    reference?: SortOrder
+    loanId?: SortOrder
+    userId?: SortOrder
+    amount?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type ExternalPaymentRefSumOrderByAggregateInput = {
     amount?: SortOrder
   }
 

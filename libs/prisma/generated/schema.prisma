@@ -106,6 +106,17 @@ model LoanRepayment {
   repaidAt DateTime @default(now())
 }
 
+/// Dedup Paystack (and similar) webhook + client verify retries — one row per provider reference.
+model ExternalPaymentRef {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  provider  String
+  reference String   @unique
+  loanId    String   @db.ObjectId
+  userId    String   @db.ObjectId
+  amount    Float
+  createdAt DateTime @default(now())
+}
+
 // Funding providers – supply capital for loans; have wallet and credit history
 model Provider {
   id                    String        @id @default(auto()) @map("_id") @db.ObjectId

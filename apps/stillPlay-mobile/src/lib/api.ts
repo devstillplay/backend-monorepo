@@ -245,6 +245,8 @@ export type LoanEligibility = {
   } | null;
 };
 
+export type RepaymentGateway = "budpay" | "paystack" | "flutterwave";
+
 /** Check if a user is eligible to request a loan and how much they can borrow. */
 export async function getLoanEligibility(
   token: string,
@@ -479,6 +481,57 @@ export async function recordLoanRepayment(
         : Array.isArray(data.message)
           ? data.message[0]
           : "Failed to record repayment"
+    );
+  }
+  return data as { message: string; loan: LoanItem };
+}
+
+/** Resolve the active repayment gateway configured by admin settings. */
+export async function getRepaymentGateway(
+  token: string
+): Promise<{
+  gateway: RepaymentGateway;
+  primary: RepaymentGateway;
+  fallbackOrder: RepaymentGateway[];
+}> {
+  const res = await fetch(endpoints.loans.paymentGateway(), {
+    headers: getAuthHeaders(token),
+  });
+  const data = await res.json().catch(() => ({}));
+  handleAuthError(res);
+  if (!res.ok) {
+    throw new Error(
+      typeof data.message === "string"
+        ? data.message
+        : "Failed to load repayment gateway"
+    );
+  }
+  return data as {
+    gateway: RepaymentGateway;
+    primary: RepaymentGateway;
+    fallbackOrder: RepaymentGateway[];
+  };
+}
+
+/** Verify Paystack reference on backend, then record the loan repayment. */
+export async function verifyPaystackRepayment(
+  token: string,
+  payload: { loanId: string; amount: number; reference: string }
+): Promise<{ message: string; loan: LoanItem }> {
+  const res = await fetch(endpoints.loans.paystackVerify(), {
+    method: "POST",
+    headers: getAuthHeaders(token),
+    body: JSON.stringify(payload),
+  });
+  const data = await res.json().catch(() => ({}));
+  handleAuthError(res);
+  if (!res.ok) {
+    throw new Error(
+      typeof data.message === "string"
+        ? data.message
+        : Array.isArray(data.message)
+          ? data.message[0]
+          : "Failed to verify Paystack payment"
     );
   }
   return data as { message: string; loan: LoanItem };

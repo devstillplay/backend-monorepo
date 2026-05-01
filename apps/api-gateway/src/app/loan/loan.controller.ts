@@ -8,10 +8,12 @@ import {
   Param,
   Post,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 
 export const LOAN_SERVICE = 'LOAN_SERVICE';
+type RepaymentGateway = 'budpay' | 'paystack' | 'flutterwave';
 
 function isConnectionOrAggregateError(err: unknown): boolean {
   if (err instanceof Error) {
@@ -74,7 +76,10 @@ function handleLoanError(err: unknown): never {
 
 @Controller('loans')
 export class LoanController {
-  constructor(@Inject(LOAN_SERVICE) private readonly loanClient: ClientProxy) {}
+  constructor(
+    @Inject(LOAN_SERVICE) private readonly loanClient: ClientProxy,
+    private readonly configService: ConfigService
+  ) {}
 
   @Get('wallet/:userId')
   async getWallet(@Param('userId') userId: string) {
@@ -131,6 +136,34 @@ export class LoanController {
       return await firstValueFrom(
         this.loanClient.send('loan-eligibility', userId)
       );
+    } catch (err) {
+      handleLoanError(err);
+    }
+  }
+
+  /**
+   * Must be registered before @Get(':loanId') — otherwise "payment-gateway" is captured as a loan id.
+   */
+  @Get('payment-gateway')
+  async getRepaymentGateway() {
+    try {
+      const settings = (await firstValueFrom(
+        this.loanClient.send('app-settings-get-all', {})
+      )) as Record<string, unknown>;
+      const toGateway = (raw: unknown): RepaymentGateway | null => {
+        const value = String(raw ?? '').toLowerCase();
+        if (value === 'budpay' || value === 'paystack' || value === 'flutterwave') {
+          return value;
+        }
+        return null;
+      };
+      const primary = toGateway(settings.repayment_primary_gateway) ?? 'budpay';
+      const fallback1 = toGateway(settings.repayment_gateway_fallback_1);
+      const fallback2 = toGateway(settings.repayment_gateway_fallback_2);
+      const fallbackOrder = [fallback1, fallback2].filter(
+        (g): g is RepaymentGateway => !!g && g !== primary
+      );
+      return { gateway: primary, primary, fallbackOrder };
     } catch (err) {
       handleLoanError(err);
     }
@@ -215,6 +248,75 @@ export class LoanController {
         this.loanClient.send('loan-repay', {
           loanId: body.loanId,
           amount: Number(body.amount),
+        })
+      );
+    } catch (err) {
+      handleLoanError(err);
+    }
+  }
+
+  @Post('paystack/verify')
+  async verifyPaystackAndRepay(
+    @Body() body: { loanId: string; amount: number; reference: string }
+  ) {
+    if (!body?.loanId || body?.amount == null || !body?.reference) {
+      throw new BadRequestException('loanId, amount and reference are required');
+    }
+    const expectedAmount = Number(body.amount);
+    if (!Number.isFinite(expectedAmount) || expectedAmount <= 0) {
+      throw new BadRequestException('amount must be a positive number');
+    }
+
+    const secretKey = this.configService.get<string>('PAYSTACK_SECRET_KEY');
+    if (!secretKey) {
+      throw new HttpException('Paystack is not configured on server', 500);
+    }
+
+    const verifyRes = await fetch(
+      `https://api.paystack.co/transaction/verify/${encodeURIComponent(body.reference)}`,
+      {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${secretKey}`,
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+    const verifyJson = (await verifyRes.json().catch(() => ({}))) as {
+      status?: boolean;
+      message?: string;
+      data?: {
+        status?: string;
+        amount?: number;
+        currency?: string;
+        reference?: string;
+      };
+    };
+
+    if (!verifyRes.ok || verifyJson.status !== true) {
+      throw new BadRequestException(
+        verifyJson.message ?? 'Unable to verify Paystack transaction'
+      );
+    }
+
+    const paidAmountNaira = Number(verifyJson.data?.amount ?? 0) / 100;
+    const paidAmountRounded = Math.round(paidAmountNaira * 100) / 100;
+    const expectedRounded = Math.round(expectedAmount * 100) / 100;
+    if (paidAmountRounded + 0.009 < expectedRounded) {
+      throw new BadRequestException(
+        `Paystack amount mismatch. Expected at least ${expectedRounded}, got ${paidAmountRounded}`
+      );
+    }
+    if (verifyJson.data?.status !== 'success') {
+      throw new BadRequestException('Paystack transaction is not successful');
+    }
+
+    try {
+      return await firstValueFrom(
+        this.loanClient.send('loan-paystack-apply-repayment', {
+          loanId: body.loanId,
+          amount: expectedRounded,
+          reference: body.reference,
         })
       );
     } catch (err) {

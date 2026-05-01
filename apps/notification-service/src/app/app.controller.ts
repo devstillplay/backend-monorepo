@@ -22,4 +22,9 @@ export class AppController {
   async handleBudpayWebhook(@Payload() payload: BudPayWebhookPayload) {
     return this.appService.handleBudpayWebhook(payload);
   }
+
+  @MessagePattern('notification-paystack-webhook')
+  async handlePaystackWebhook(@Payload() payload: Record<string, unknown>) {
+    return this.appService.handlePaystackWebhook(payload);
+  }
 }

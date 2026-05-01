@@ -4,7 +4,6 @@ import {
   Alert,
   Box,
   Button,
-  Chip,
   CircularProgress,
   Container,
   FormControl,
@@ -16,47 +15,16 @@ import {
   Typography,
   TextField,
 } from "@mui/material";
-import SecurityIcon from "@mui/icons-material/Security";
-import LockIcon from "@mui/icons-material/Lock";
-import AssignmentTurnedInIcon from "@mui/icons-material/AssignmentTurnedIn";
-import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
-import SavingsIcon from "@mui/icons-material/Savings";
-import BoltIcon from "@mui/icons-material/Bolt";
-import VisibilityIcon from "@mui/icons-material/Visibility";
-import TrendingUpIcon from "@mui/icons-material/TrendingUp";
-import PeopleIcon from "@mui/icons-material/People";
-import LocalAtmIcon from "@mui/icons-material/LocalAtm";
-import DashboardIcon from "@mui/icons-material/Dashboard";
-import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { useState } from "react";
 
 import {
   COMPANY_NAME,
-  RC_NUMBER,
+  MOBILE_APP_URL,
   PARTNERSHIP_EMAIL,
 } from "../lib/config";
 import { joinWaitlist } from "../lib/waitlist";
-
-const SECURITY_ITEMS = [
-  {
-    title: "Secure Infrastructure",
-    subtitle: "Industry-standard security protocols",
-  },
-  {
-    title: "Encrypted Transactions",
-    subtitle: "All data is encrypted and protected",
-  },
-  {
-    title: "Responsible Credit Access",
-    subtitle: "Structured and controlled credit facility",
-  },
-  {
-    title: "Protected User Data",
-    subtitle: "Privacy-first approach to data",
-  },
-];
 
 const HOW_IT_WORKS = [
   {
@@ -81,50 +49,6 @@ const HOW_IT_WORKS = [
   },
 ];
 
-const WHY_BETTORS = [
-  {
-    title: "Protect Your Life Funds",
-    desc: "Still Play helps bettors avoid using essential money like rent or savings.",
-    icon: SavingsIcon,
-  },
-  {
-    title: "Never Miss a Strategic Opportunity",
-    desc: "Instant credit when opportunities appear.",
-    icon: BoltIcon,
-  },
-  {
-    title: "Transparent Credit Access",
-    desc: "Users see repayment terms before accepting funding.",
-    icon: VisibilityIcon,
-  },
-  {
-    title: "Build Your Financial Identity",
-    desc: "Responsible usage contributes to building a financial reputation.",
-    icon: TrendingUpIcon,
-  },
-];
-
-const OPPORTUNITY_STATS = [
-  { value: "65M+", label: "Active sports bettors in Nigeria" },
-  { value: "25M+", label: "Employed bettors with regular income" },
-  { value: "₦3,000", label: "Average daily betting activity" },
-];
-
-const FINANCIAL_PASSPORT = [
-  {
-    title: "Transition from Cash to Credit",
-    desc: "Build a verified financial profile through consistent usage and repayment behavior.",
-  },
-  {
-    title: "Winning Streak Effect",
-    desc: "Demonstrate financial discipline that matters to banks and lenders.",
-  },
-  {
-    title: "Proving Income Augmentation",
-    desc: "Show reliability and creditworthiness through your betting activity.",
-  },
-];
-
 const BETTING_PLATFORMS = [
   { label: "SportyBet", src: "/assets/png/sportyBet.png", link: "https://www.sportybet.com" },
   { label: "BetKing", src: "/assets/png/betKing.png", link: "https://www.betking.com" },
@@ -132,52 +56,39 @@ const BETTING_PLATFORMS = [
   { label: "NairaBet", src: "/assets/png/nairaBet.png", link: "https://www.nairabet.com" },
 ];
 
-const COMING_SOON_STREAMING = [
-  {
-    label: "Netflix",
-    src: "/assets/brands/netflix.svg",
-    logoSx: {
-      width: "min(94%, 300px)",
-      height: "auto",
-      maxHeight: { xs: 76, sm: 92 },
-      objectFit: "contain",
-    },
-  },
-  {
-    label: "Spotify",
-    src: "/assets/brands/spotify.svg",
-    logoSx: {
-      width: "auto",
-      height: "auto",
-      maxWidth: "82%",
-      maxHeight: { xs: 112, sm: 140 },
-      objectFit: "contain",
-    },
-  },
-] as const;
-
-const PARTNER_BENEFITS = [
-  {
-    title: "Massive Market Opportunity",
-    desc: "Access millions of active bettors in Nigeria's growing betting economy.",
-    icon: PeopleIcon,
-  },
-  {
-    title: "High Transaction Frequency",
-    desc: "Benefit from daily betting activities and consistent credit turnover.",
-    icon: LocalAtmIcon,
-  },
-  {
-    title: "Transparent Performance Dashboard",
-    desc: "Real-time insights and analytics on credit performance and recovery.",
-    icon: DashboardIcon,
-  },
+const USER_SOCIAL_PROOF = [
+  { metric: "4.8/5", label: "Average beta satisfaction score" },
+  { metric: "< 2 mins", label: "Average credit request completion time" },
+  { metric: "90%+", label: "Users say flow is clear and easy to use" },
 ];
 
-const EARLY_ACCESS_ITEMS = [
-  "Priority access after Still Play launches",
-  "Timely credit/Bet availability when Still Play launches",
-  "Early feature access",
+const PARTNER_SOCIAL_PROOF = [
+  "Built to plug into existing betting platform journeys with API-first integrations.",
+  "Risk and repayment visibility designed for finance and liquidity stakeholders.",
+  "Transparent performance monitoring for operational and investment teams.",
+];
+
+const LANDING_FAQ_ITEMS = [
+  {
+    question: "What is Still Play?",
+    answer:
+      "Still Play is a prediction-market credit platform that helps verified users access short-term betting credit in a transparent flow.",
+  },
+  {
+    question: "How quickly can I get started?",
+    answer:
+      "You can join the waitlist in under a minute. Early users get priority onboarding once access opens.",
+  },
+  {
+    question: "Is there a live product demo?",
+    answer:
+      "Yes. Use the demo button in the navigation or hero section to preview the product experience.",
+  },
+  {
+    question: "How do partnerships work?",
+    answer:
+      "We work with betting operators and financial/liquidity partners through structured integrations and onboarding.",
+  },
 ];
 
 /** Optional — maps to admin Survey columns Business / Partner type for bettor waitlist */
@@ -240,6 +151,10 @@ export default function LandingPage() {
   const [financialSubmitted, setFinancialSubmitted] = useState(false);
   const [financialSubmitting, setFinancialSubmitting] = useState(false);
   const [financialError, setFinancialError] = useState<string | null>(null);
+  const [newsletterEmail, setNewsletterEmail] = useState("");
+  const [newsletterSubmitting, setNewsletterSubmitting] = useState(false);
+  const [newsletterSubmitted, setNewsletterSubmitted] = useState(false);
+  const [newsletterError, setNewsletterError] = useState<string | null>(null);
 
   const handleFinancialSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -260,6 +175,26 @@ export default function LandingPage() {
       );
     } finally {
       setFinancialSubmitting(false);
+    }
+  };
+
+  const handleNewsletterSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setNewsletterError(null);
+    setNewsletterSubmitting(true);
+    try {
+      await joinWaitlist({
+        fullName: "Newsletter subscriber",
+        email: newsletterEmail.trim(),
+        source: "landing",
+      });
+      setNewsletterSubmitted(true);
+    } catch (err) {
+      setNewsletterError(
+        err instanceof Error ? err.message : "Could not subscribe right now."
+      );
+    } finally {
+      setNewsletterSubmitting(false);
     }
   };
 
@@ -393,396 +328,143 @@ export default function LandingPage() {
         </Container>
       </Box>
 
-      {/* Built for Security and Trust */}
-      <Box id="about" component="section" sx={{ py: { xs: 8, md: 12 }, bgcolor: "#f5f5f5" }}>
+      {/* Social proof for users */}
+      <Box component="section" sx={{ py: { xs: 8, md: 10 }, bgcolor: "#f5f8f7" }}>
         <Container maxWidth="lg">
           <Typography variant="h4" sx={{ fontWeight: 700, textAlign: "center", mb: 2, color: "#1a1a1a", fontSize: { xs: "1.5rem", md: "2rem" } }}>
-            Built for Security and Trust
+            Trusted by early users
           </Typography>
-          <Typography variant="body1" sx={{ textAlign: "center", maxWidth: 640, mx: "auto", mb: 6, color: "#4a4a4a" }}>
-            Still Play integrates with licensed betting operators and regulated financial partners to ensure a secure and reliable ecosystem.
+          <Typography variant="body1" sx={{ textAlign: "center", maxWidth: 640, mx: "auto", mb: 5, color: "#4a4a4a" }}>
+            Social proof for bettors and retail users looking for clear, fast access and confidence in every request.
           </Typography>
           <Grid container spacing={3}>
-            {SECURITY_ITEMS.map((item, i) => (
-              <Grid item xs={12} sm={6} md={3} key={item.title}>
+            {USER_SOCIAL_PROOF.map((item) => (
+              <Grid item xs={12} sm={4} key={item.label}>
                 <Box
-                  component={motion.div}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
                   sx={{
                     p: 3,
                     borderRadius: 2,
                     bgcolor: "white",
-                    border: "1px solid",
-                    borderColor: "rgba(0,0,0,0.08)",
-                    height: "100%",
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
+                    border: "1px solid rgba(0,0,0,0.08)",
                     textAlign: "center",
                   }}
                 >
-                  <Box sx={{ color: "#0b7b4c", mb: 2 }}>
-                    {i === 0 && <SecurityIcon sx={{ fontSize: 48 }} />}
-                    {i === 1 && <LockIcon sx={{ fontSize: 48 }} />}
-                    {i === 2 && <AssignmentTurnedInIcon sx={{ fontSize: 48 }} />}
-                    {i === 3 && <AdminPanelSettingsIcon sx={{ fontSize: 48 }} />}
-                  </Box>
-                  <Typography variant="h6" sx={{ fontWeight: 600, mb: 0.5, color: "#1a1a1a" }}>
-                    {item.title}
+                  <Typography variant="h4" sx={{ color: "#0b7b4c", fontWeight: 800, mb: 0.75 }}>
+                    {item.metric}
                   </Typography>
-                  <Typography variant="body2" sx={{ color: "#4a4a4a" }}>
-                    {item.subtitle}
-                  </Typography>
+                  <Typography variant="body2" sx={{ color: "#4a4a4a" }}>{item.label}</Typography>
                 </Box>
               </Grid>
             ))}
           </Grid>
-          <Typography variant="body2" sx={{ textAlign: "center", mt: 4, color: "#4a4a4a" }}>
-            {COMPANY_NAME} (RC: {RC_NUMBER})
-          </Typography>
         </Container>
       </Box>
 
-      {/* How It Works */}
-      <Box component="section" sx={{ py: { xs: 8, md: 12 }, bgcolor: "#fff" }}>
+      {/* How it works (with sign-up CTA) */}
+      <Box id="how-it-works" component="section" sx={{ py: { xs: 8, md: 12 }, bgcolor: "#fff" }}>
         <Container maxWidth="lg">
           <Typography variant="h4" sx={{ fontWeight: 700, textAlign: "center", mb: 2, color: "#1a1a1a", fontSize: { xs: "1.5rem", md: "2rem" } }}>
-            How It Works
+            How it works
           </Typography>
           <Typography variant="body1" sx={{ textAlign: "center", mb: 6, color: "#4a4a4a" }}>
-            Simple, fast, and secure betting credit in four steps
+            A simple path from discovery to responsible credit use.
           </Typography>
           <Grid container spacing={4}>
-            {HOW_IT_WORKS.map((item, i) => (
+            {HOW_IT_WORKS.map((item) => (
               <Grid item xs={12} sm={6} md={3} key={item.step}>
-                <Box
-                  component={motion.div}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  sx={{ textAlign: "center" }}
-                >
-                  <Box
-                    sx={{
-                      width: 56,
-                      height: 56,
-                      borderRadius: "50%",
-                      bgcolor: "#FFC107",
-                      color: "white",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      fontWeight: 700,
-                      fontSize: "1.5rem",
-                      mx: "auto",
-                      mb: 2,
-                    }}
-                  >
+                <Box sx={{ textAlign: "center" }}>
+                  <Box sx={{ width: 56, height: 56, borderRadius: "50%", bgcolor: "#FFC107", color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: "1.5rem", mx: "auto", mb: 2 }}>
                     {item.step}
                   </Box>
-                  <Typography variant="h6" sx={{ fontWeight: 600, mb: 1, color: "#1a1a1a" }}>
-                    {item.title}
-                  </Typography>
-                  <Typography variant="body2" sx={{ color: "#4a4a4a" }}>
-                    {item.desc}
-                  </Typography>
+                  <Typography variant="h6" sx={{ fontWeight: 600, mb: 1, color: "#1a1a1a" }}>{item.title}</Typography>
+                  <Typography variant="body2" sx={{ color: "#4a4a4a" }}>{item.desc}</Typography>
                 </Box>
               </Grid>
             ))}
           </Grid>
-        </Container>
-      </Box>
-
-      {/* Why Bettors Use Still Play */}
-      <Box component="section" sx={{ py: { xs: 8, md: 12 }, bgcolor: "#fff", borderTop: "1px solid rgba(0,0,0,0.08)" }}>
-        <Container maxWidth="lg">
-          <Typography variant="h4" sx={{ fontWeight: 700, textAlign: "center", mb: 6, color: "#1a1a1a", fontSize: { xs: "1.5rem", md: "2rem" } }}>
-            Why Bettors Use Still Play
-          </Typography>
-          <Grid container spacing={3}>
-            {WHY_BETTORS.map((item) => {
-              const Icon = item.icon;
-              return (
-                <Grid item xs={12} sm={6} md={3} key={item.title}>
-                  <Box
-                    sx={{
-                      p: 3,
-                      borderRadius: 2,
-                      bgcolor: "white",
-                      border: "1px solid",
-                      borderColor: "rgba(0,0,0,0.08)",
-                      height: "100%",
-                    }}
-                  >
-                    <Box sx={{ color: "#0b7b4c", mb: 1.5 }}>
-                      <Icon sx={{ fontSize: 32 }} />
-                    </Box>
-                    <Typography variant="h6" sx={{ fontWeight: 600, mb: 1, color: "#1a1a1a" }}>
-                      {item.title}
-                    </Typography>
-                    <Typography variant="body2" sx={{ color: "#4a4a4a" }}>
-                      {item.desc}
-                    </Typography>
-                  </Box>
-                </Grid>
-              );
-            })}
-          </Grid>
-        </Container>
-      </Box>
-
-      {/* The Opportunity */}
-      <Box component="section" sx={{ py: { xs: 8, md: 12 }, bgcolor: "#000", color: "white" }}>
-        <Container maxWidth="lg">
-          <Typography variant="h4" sx={{ fontWeight: 700, textAlign: "center", mb: 6, color: "white", fontSize: { xs: "1.5rem", md: "2rem" } }}>
-            The Opportunity
-          </Typography>
-          <Grid container spacing={4} justifyContent="center">
-            {OPPORTUNITY_STATS.map((stat) => (
-              <Grid item xs={12} sm={4} key={stat.label}>
-                <Box sx={{ textAlign: "center" }}>
-                  <Typography variant="h3" sx={{ fontWeight: 800, mb: 1, color: "#FFC107", fontSize: { xs: "2rem", sm: "2.5rem", md: "3rem" } }}>
-                    {stat.value}
-                  </Typography>
-                  <Typography variant="body1" sx={{ color: "white" }}>
-                    {stat.label}
-                  </Typography>
-                </Box>
-              </Grid>
-            ))}
-          </Grid>
-        </Container>
-      </Box>
-
-      {/* From Betting Discipline to Financial Passport */}
-      <Box component="section" sx={{ py: { xs: 8, md: 12 }, bgcolor: "#fff" }}>
-        <Container maxWidth="lg">
-          <Typography variant="h4" sx={{ fontWeight: 700, textAlign: "center", mb: 2, color: "#1a1a1a", fontSize: { xs: "1.35rem", sm: "1.5rem", md: "2rem" } }}>
-            From Betting Discipline to Financial Passport
-          </Typography>
-          <Typography variant="body1" sx={{ textAlign: "center", mb: 6, color: "#4a4a4a" }}>
-            Favorable repayment history builds credibility for financial freedom
-          </Typography>
-          <Grid container spacing={4}>
-            {FINANCIAL_PASSPORT.map((item) => (
-              <Grid item xs={12} md={4} key={item.title}>
-                <Box
-                  sx={{
-                    p: 3,
-                    borderRadius: 2,
-                    bgcolor: "#f8f9fa",
-                    border: "1px solid",
-                    borderColor: "rgba(0,0,0,0.08)",
-                    height: "100%",
-                  }}
-                >
-                  <Typography variant="h6" sx={{ fontWeight: 600, mb: 1, color: "#1a1a1a" }}>
-                    {item.title}
-                  </Typography>
-                  <Typography variant="body2" sx={{ color: "#4a4a4a" }}>
-                    {item.desc}
-                  </Typography>
-                </Box>
-              </Grid>
-            ))}
-          </Grid>
-        </Container>
-      </Box>
-
-      {/* Built for Betting Platforms */}
-      <Box id="partners" component="section" sx={{ py: { xs: 8, md: 12 }, background: "linear-gradient(180deg, #0a6b3a 0%, #0b7b4c 50%, #0d8f5a 100%)" }}>
-        <Container maxWidth="lg">
-          <Typography variant="h4" sx={{ fontWeight: 700, textAlign: "center", mb: 2, color: "white", fontSize: { xs: "1.5rem", md: "2rem" } }}>
-            Built for Betting Platforms
-          </Typography>
-          <Typography variant="body1" sx={{ textAlign: "center", maxWidth: 640, mx: "auto", mb: 6, color: "rgba(255,255,255,0.95)" }}>
-            Still Play integrates with licensed betting platforms through secure APIs, enabling users to access betting credit directly from betting platform interfaces.
-          </Typography>
-          <Grid container spacing={3} justifyContent="center">
-            {BETTING_PLATFORMS.map((platform) => (
-              <Grid item xs={12} sm={6} md={3} key={platform.label}>
-                <Box
-                  component="a"
-                  href={platform.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  sx={{
-                    display: "block",
-                    aspectRatio: "16/10",
-                    borderRadius: 2,
-                    overflow: "hidden",
-                    bgcolor: "white",
-                    textDecoration: "none",
-                    "&:hover": { opacity: 0.95 },
-                  }}
-                >
-                  <Box
-                    component="img"
-                    src={platform.src}
-                    alt={platform.label}
-                    sx={{
-                      width: "100%",
-                      height: "100%",
-                      objectFit: "contain",
-                      p: 1.5,
-                    }}
-                  />
-                </Box>
-              </Grid>
-            ))}
-          </Grid>
-
-          <Box
-            sx={{
-              mt: 8,
-              pt: 6,
-              borderTop: "1px solid rgba(255,255,255,0.25)",
-            }}
-          >
-            <Typography
-              variant="h6"
-              sx={{
-                fontWeight: 700,
-                textAlign: "center",
-                mb: 0.5,
-                color: "white",
-                letterSpacing: "0.02em",
-              }}
-            >
-              Coming soon
-            </Typography>
-            <Typography
-              variant="body2"
-              sx={{
-                textAlign: "center",
-                maxWidth: 560,
-                mx: "auto",
-                mb: 4,
-                color: "rgba(255,255,255,0.88)",
-              }}
-            >
-              Netflix, Spotify, and more streaming and entertainment partnerships.
-            </Typography>
-            <Grid container spacing={3} justifyContent="center">
-              {COMING_SOON_STREAMING.map((brand) => (
-                <Grid item xs={12} sm={6} md={4} key={brand.label}>
-                  <Box sx={{ position: "relative", maxWidth: 360, mx: "auto" }}>
-                    <Chip
-                      label="Coming soon"
-                      size="small"
-                      sx={{
-                        position: "absolute",
-                        top: 10,
-                        right: 10,
-                        zIndex: 1,
-                        fontWeight: 600,
-                        bgcolor: "rgba(255, 193, 7, 0.95)",
-                        color: "#1a1a1a",
-                        "& .MuiChip-label": { px: 1.25 },
-                      }}
-                    />
-                    <Box
-                      sx={{
-                        aspectRatio: "16/10",
-                        borderRadius: 2,
-                        bgcolor: "rgba(255,255,255,0.96)",
-                        border: "1px dashed rgba(255,255,255,0.45)",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        px: 2,
-                        py: 2.5,
-                        minHeight: { xs: 120, sm: 140 },
-                      }}
-                    >
-                      <Box
-                        component="img"
-                        src={brand.src}
-                        alt={brand.label}
-                        sx={brand.logoSx}
-                      />
-                    </Box>
-                    <Typography
-                      variant="caption"
-                      sx={{
-                        display: "block",
-                        textAlign: "center",
-                        mt: 1.25,
-                        color: "rgba(255,255,255,0.92)",
-                        fontWeight: 600,
-                        letterSpacing: "0.04em",
-                        textTransform: "uppercase",
-                      }}
-                    >
-                      {brand.label}
-                    </Typography>
-                  </Box>
-                </Grid>
-              ))}
-            </Grid>
-          </Box>
-
-          <Box sx={{ display: "flex", justifyContent: "center", mt: 6 }}>
+          <Box sx={{ display: "flex", justifyContent: "center", mt: 5 }}>
             <Button
-              component="a"
-              href={`mailto:${PARTNERSHIP_EMAIL}`}
+              component={Link}
+              href="#waitlist"
+              variant="contained"
               sx={{
                 textTransform: "none",
-                bgcolor: "white",
-                color: "#1a1a1a",
+                bgcolor: "#FFC107",
+                color: "#fff",
                 px: 4,
                 py: 1.5,
                 borderRadius: 2,
-                border: "1px solid rgba(255,255,255,0.5)",
-                "&:hover": { bgcolor: "rgba(255,255,255,0.9)" },
+                "&:hover": { bgcolor: "#e6ac00" },
               }}
             >
-              Partner With Still Play
+              Start with early access
             </Button>
           </Box>
         </Container>
       </Box>
 
-      {/* Powering the Betting Credit Ecosystem */}
+      {/* Product in use / demo section */}
       <Box component="section" sx={{ py: { xs: 8, md: 12 }, bgcolor: "#fff" }}>
         <Container maxWidth="lg">
           <Typography variant="h4" sx={{ fontWeight: 700, textAlign: "center", mb: 1, color: "#1a1a1a", fontSize: { xs: "1.35rem", sm: "1.5rem", md: "2rem" } }}>
-            Powering the Betting Credit Ecosystem
+            See Still Play in action
           </Typography>
           <Typography variant="body1" sx={{ textAlign: "center", mb: 6, color: "#4a4a4a" }}>
-            Opportunity for investors
+            Explore the live flow before you join.
           </Typography>
-          <Grid container spacing={4}>
-            {PARTNER_BENEFITS.map((item) => {
-              const Icon = item.icon;
-              return (
-                <Grid item xs={12} md={4} key={item.title}>
-                  <Box
-                    sx={{
-                      p: 3,
-                      borderRadius: 2,
-                      bgcolor: "#f8f9fa",
-                      border: "1px solid",
-                      borderColor: "rgba(0,0,0,0.08)",
-                      height: "100%",
-                    }}
-                  >
-                    <Box sx={{ color: "#1a1a1a", mb: 1.5 }}>
-                      <Icon sx={{ fontSize: 40 }} />
-                    </Box>
-                    <Typography variant="h6" sx={{ fontWeight: 600, mb: 1, color: "#1a1a1a" }}>
-                      {item.title}
-                    </Typography>
-                    <Typography variant="body2" sx={{ color: "#4a4a4a" }}>
-                      {item.desc}
-                    </Typography>
-                  </Box>
-                </Grid>
-              );
-            })}
+          <Box sx={{ maxWidth: 800, mx: "auto", p: { xs: 2, md: 4 }, borderRadius: 3, border: "1px solid rgba(0,0,0,0.1)", bgcolor: "#f8faf9" }}>
+            <Typography variant="body1" sx={{ textAlign: "center", color: "#4a4a4a", mb: 3 }}>
+              Preview the user journey from request to settlement and understand the value before signing up.
+            </Typography>
+            <Box sx={{ display: "flex", justifyContent: "center" }}>
+              <Button component="a" href={MOBILE_APP_URL} target="_blank" rel="noopener noreferrer" variant="outlined" sx={{ textTransform: "none", borderColor: "#0b7b4c", color: "#0b7b4c", px: 4, py: 1.2, borderRadius: 2 }}>
+                Open Demo
+              </Button>
+            </Box>
+          </Box>
+        </Container>
+      </Box>
+
+      {/* Social proof for partners */}
+      <Box component="section" sx={{ py: { xs: 8, md: 10 }, bgcolor: "#0b7b4c" }}>
+        <Container maxWidth="lg">
+          <Typography variant="h4" sx={{ fontWeight: 700, textAlign: "center", mb: 2, color: "white", fontSize: { xs: "1.5rem", md: "2rem" } }}>
+            Trusted for partnerships
+          </Typography>
+          <Typography variant="body1" sx={{ textAlign: "center", maxWidth: 680, mx: "auto", mb: 6, color: "rgba(255,255,255,0.9)" }}>
+            Social proof for operators, finance teams, and institutional partners evaluating market-fit and operational quality.
+          </Typography>
+          <Grid container spacing={3}>
+            {PARTNER_SOCIAL_PROOF.map((item) => (
+              <Grid item xs={12} md={4} key={item}>
+                <Box sx={{ p: 3, borderRadius: 2, bgcolor: "rgba(255,255,255,0.14)", border: "1px solid rgba(255,255,255,0.25)", height: "100%" }}>
+                  <Typography variant="body2" sx={{ color: "white" }}>{item}</Typography>
+                </Box>
+              </Grid>
+            ))}
           </Grid>
+        </Container>
+      </Box>
+
+      {/* Partners section */}
+      <Box id="partners" component="section" sx={{ py: { xs: 8, md: 12 }, bgcolor: "#fff" }}>
+        <Container maxWidth="lg">
+          <Typography variant="h4" sx={{ fontWeight: 700, textAlign: "center", mb: 2, color: "#1a1a1a", fontSize: { xs: "1.5rem", md: "2rem" } }}>
+            Partners
+          </Typography>
+          <Typography variant="body1" sx={{ textAlign: "center", maxWidth: 640, mx: "auto", mb: 6, color: "#4a4a4a" }}>
+            We partner with betting operators and financial institutions to deliver responsible access at scale.
+          </Typography>
+          <Grid container spacing={3} justifyContent="center" sx={{ mb: 6 }}>
+            {BETTING_PLATFORMS.map((platform) => (
+              <Grid item xs={12} sm={6} md={3} key={platform.label}>
+                <Box component="a" href={platform.link} target="_blank" rel="noopener noreferrer" sx={{ display: "block", aspectRatio: "16/10", borderRadius: 2, overflow: "hidden", bgcolor: "white", textDecoration: "none", border: "1px solid rgba(0,0,0,0.08)", "&:hover": { opacity: 0.95 } }}>
+                  <Box component="img" src={platform.src} alt={platform.label} sx={{ width: "100%", height: "100%", objectFit: "contain", p: 1.5 }} />
+                </Box>
+              </Grid>
+            ))}
+          </Grid>
+
           <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
             <Button
               component={Link}
@@ -945,66 +627,57 @@ export default function LandingPage() {
         </Container>
       </Box>
 
-      {/* Early Access Advantage */}
-      <Box component="section" sx={{ py: { xs: 8, md: 12 }, bgcolor: "#FFC107" }}>
-        <Container maxWidth="lg">
-          <Typography variant="h4" sx={{ fontWeight: 700, textAlign: "center", mb: 1, color: "#1a1a1a", fontSize: { xs: "1.5rem", md: "2rem" } }}>
-            Early Access Advantage
+      {/* FAQ section */}
+      <Box id="faq-preview" component="section" sx={{ py: { xs: 8, md: 10 }, bgcolor: "#f8f9fa" }}>
+        <Container maxWidth="md">
+          <Typography variant="h4" sx={{ fontWeight: 700, textAlign: "center", mb: 2, color: "#1a1a1a", fontSize: { xs: "1.5rem", md: "2rem" } }}>
+            Frequently asked questions
           </Typography>
-          <Typography variant="body1" sx={{ textAlign: "center", mb: 6, color: "#4a4a4a" }}>
-            Users who join the waitlist early will receive.
+          <Typography variant="body1" sx={{ textAlign: "center", mb: 5, color: "#4a4a4a" }}>
+            Clear answers for new users and potential partners.
           </Typography>
-          <Grid container spacing={3} justifyContent="center">
-            {EARLY_ACCESS_ITEMS.map((item) => (
-              <Grid item xs={12} sm={6} md={4} key={item}>
-                <Box
-                  sx={{
-                    p: 3,
-                    borderRadius: 2,
-                    bgcolor: "white",
-                    height: "100%",
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    textAlign: "center",
-                  }}
-                >
-                  <Box
-                    sx={{
-                      width: 48,
-                      height: 48,
-                      borderRadius: "50%",
-                      bgcolor: "#0b7b4c",
-                      color: "white",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      mb: 2,
-                    }}
-                  >
-                    <CheckCircleIcon sx={{ fontSize: 28 }} />
-                  </Box>
-                  <Typography variant="body1" sx={{ fontWeight: 500, color: "#1a1a1a" }}>
-                    {item}
-                  </Typography>
-                </Box>
-              </Grid>
+          <Stack spacing={2}>
+            {LANDING_FAQ_ITEMS.map((item) => (
+              <Box key={item.question} sx={{ p: 2.5, borderRadius: 2, bgcolor: "white", border: "1px solid rgba(0,0,0,0.08)" }}>
+                <Typography variant="subtitle1" sx={{ fontWeight: 700, color: "#1a1a1a", mb: 0.75 }}>
+                  {item.question}
+                </Typography>
+                <Typography variant="body2" sx={{ color: "#4a4a4a" }}>{item.answer}</Typography>
+              </Box>
             ))}
-          </Grid>
-          <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
-            <Button
-              component={Link}
-              href="#waitlist"
-              sx={{
-                textTransform: "none",
-                color: "#1a1a1a",
-                fontWeight: 600,
-                "&:hover": { textDecoration: "underline", bgcolor: "transparent" },
-              }}
-            >
-              Join the Waitlist
+          </Stack>
+          <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
+            <Button component={Link} href="/faq" sx={{ textTransform: "none", color: "#0b7b4c", fontWeight: 600 }}>
+              Read full FAQ
             </Button>
           </Box>
+        </Container>
+      </Box>
+
+      {/* Newsletter section */}
+      <Box component="section" sx={{ py: { xs: 8, md: 10 }, bgcolor: "#FFC107" }}>
+        <Container maxWidth="sm">
+          <Typography variant="h4" sx={{ fontWeight: 700, textAlign: "center", mb: 1, color: "#1a1a1a", fontSize: { xs: "1.5rem", md: "2rem" } }}>
+            Stay in the loop
+          </Typography>
+          <Typography variant="body1" sx={{ textAlign: "center", mb: 4, color: "#4a4a4a" }}>
+            Get product updates, launch news, and conversion-focused content.
+          </Typography>
+          {newsletterSubmitted ? (
+            <Typography variant="body1" sx={{ textAlign: "center", color: "#1a1a1a" }}>
+              You&apos;re subscribed. We&apos;ll send updates soon.
+            </Typography>
+          ) : (
+            <Box component="form" onSubmit={handleNewsletterSubmit} sx={{ p: 3, borderRadius: 2, bgcolor: "white", border: "1px solid rgba(0,0,0,0.12)" }}>
+              <Stack spacing={2}>
+                {newsletterError ? <Alert severity="error" onClose={() => setNewsletterError(null)}>{newsletterError}</Alert> : null}
+                <TextField fullWidth required type="email" label="Email address" value={newsletterEmail} onChange={(e) => setNewsletterEmail(e.target.value)} />
+                <Button type="submit" disabled={newsletterSubmitting} sx={{ textTransform: "none", bgcolor: "#0b7b4c", color: "#fff", py: 1.25, fontWeight: 600, "&:hover": { bgcolor: "#0a6b3a" } }}>
+                  {newsletterSubmitting ? <CircularProgress size={22} color="inherit" /> : "Subscribe"}
+                </Button>
+              </Stack>
+            </Box>
+          )}
         </Container>
       </Box>
 

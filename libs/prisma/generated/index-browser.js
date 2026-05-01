@@ -199,6 +199,16 @@ exports.Prisma.LoanRepaymentScalarFieldEnum = {
   repaidAt: 'repaidAt'
 };
 
+exports.Prisma.ExternalPaymentRefScalarFieldEnum = {
+  id: 'id',
+  provider: 'provider',
+  reference: 'reference',
+  loanId: 'loanId',
+  userId: 'userId',
+  amount: 'amount',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.ProviderScalarFieldEnum = {
   id: 'id',
   providerNumber: 'providerNumber',
@@ -334,6 +344,7 @@ exports.Prisma.ModelName = {
   Wallet: 'Wallet',
   Loan: 'Loan',
   LoanRepayment: 'LoanRepayment',
+  ExternalPaymentRef: 'ExternalPaymentRef',
   Provider: 'Provider',
   ProviderWallet: 'ProviderWallet',
   LoanFunding: 'LoanFunding',

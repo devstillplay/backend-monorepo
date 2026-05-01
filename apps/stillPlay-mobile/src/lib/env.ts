@@ -1,14 +1,20 @@
-const baseUrl =
-  process.env.NODE_ENV === "development"
-    ? "http://localhost:3000/api"
-    : "https://api-gateway-production-dab1.up.railway.app/api";
+function resolveApiBaseUrl(): string {
+  const fromEnv = process.env.NEXT_PUBLIC_API_BASE_URL?.trim().replace(/\/$/, "");
+  if (fromEnv) return fromEnv;
+  if (process.env.NODE_ENV === "development") {
+    return "http://localhost:3000/api";
+  }
+  return "https://api-gateway-production-dab1.up.railway.app/api";
+}
+
+const baseUrl = resolveApiBaseUrl();
 
 export function getBaseUrl(): string {
   return baseUrl;
 }
 
 export function requireBaseUrl(): void {
-  if (!getBaseUrl()) {
+  if (!baseUrl) {
     throw new Error(
       "API URL not configured. Set NEXT_PUBLIC_API_BASE_URL in .env.local."
     );
@@ -40,6 +46,8 @@ export const endpoints = {
     eligibility: (userId: string) => `${getBaseUrl()}/loans/eligibility/${userId}`,
     request: () => `${getBaseUrl()}/loans/request`,
     repay: () => `${getBaseUrl()}/loans/repay`,
+    paymentGateway: () => `${getBaseUrl()}/loans/payment-gateway`,
+    paystackVerify: () => `${getBaseUrl()}/loans/paystack/verify`,
   },
   files: {
     upload: () => `${getBaseUrl()}/files/upload`,

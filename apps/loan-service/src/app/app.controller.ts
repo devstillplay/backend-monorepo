@@ -87,6 +87,27 @@ export class AppController {
     return this.appService.handleBudpayTransaction(payload);
   }
 
+  /** After Paystack REST verify (api-gateway) — idempotent by transaction reference. */
+  @MessagePattern('loan-paystack-apply-repayment')
+  applyPaystackRepayment(@Payload() payload: { loanId: string; amount: number; reference: string }) {
+    return this.appService.applyPaystackRepaymentIfNew(payload);
+  }
+
+  /** Paystack charge.success webhook (via notification-service) — idempotent by reference. */
+  @MessagePattern('loan-paystack-webhook-charge')
+  handlePaystackWebhookCharge(
+    @Payload()
+    payload: {
+      reference: string;
+      amountKobo: number;
+      currency?: string;
+      customer?: { email?: string };
+      metadata?: unknown;
+    },
+  ) {
+    return this.appService.handlePaystackWebhookCharge(payload);
+  }
+
   @MessagePattern('loan-repayments-by-loan')
   listRepaymentsByLoanId(@Payload() loanId: string) {
     return this.appService.listRepaymentsByLoanId(loanId);

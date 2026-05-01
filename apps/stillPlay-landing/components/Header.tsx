@@ -6,11 +6,11 @@ import MenuIcon from "@mui/icons-material/Menu";
 import CloseIcon from "@mui/icons-material/Close";
 import Link from "next/link";
 
-import { PARTNERSHIP_EMAIL } from "../lib/config";
+import { MOBILE_APP_URL, PARTNERSHIP_EMAIL } from "../lib/config";
 
 const NAV_LINKS = [
   { label: "Home", href: "/#home" },
-  { label: "About", href: "/about" },
+  { label: "How it works", href: "/#how-it-works" },
   { label: "Partners", href: "/partners" },
   { label: "FAQ", href: "/faq" },
 ];
@@ -39,6 +39,25 @@ export default function Header() {
 
   const ctaButtons = (
     <Stack direction="row" spacing={2} alignItems="center">
+      <Button
+        component="a"
+        href={MOBILE_APP_URL}
+        target="_blank"
+        rel="noopener noreferrer"
+        variant="outlined"
+        size="medium"
+        sx={{
+          textTransform: "none",
+          borderColor: "#1a1a1a",
+          color: "#1a1a1a",
+          px: 3,
+          py: 1.25,
+          borderRadius: 2,
+          "&:hover": { borderColor: "#1a1a1a", backgroundColor: "rgba(0,0,0,0.04)" },
+        }}
+      >
+        View Demo
+      </Button>
       <Button
         component={Link}
         href="/#waitlist"
@@ -190,6 +209,25 @@ export default function Header() {
           ))}
         </Stack>
         <Stack spacing={2} sx={{ mt: 4 }}>
+          <Button
+            component="a"
+            href={MOBILE_APP_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            variant="outlined"
+            fullWidth
+            sx={{
+              textTransform: "none",
+              borderColor: "#1a1a1a",
+              color: "#1a1a1a",
+              py: 1.5,
+              borderRadius: 2,
+              fontWeight: 600,
+              "&:hover": { borderColor: "#1a1a1a", backgroundColor: "rgba(0,0,0,0.04)" },
+            }}
+          >
+            View Demo
+          </Button>
           <Button
             component={Link}
             href="/#waitlist"

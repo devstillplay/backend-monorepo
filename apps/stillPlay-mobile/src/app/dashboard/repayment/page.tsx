@@ -20,14 +20,17 @@ import {
 } from '@mui/material';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useBudPayPayment } from '@budpay/react';
+import { usePaystackPayment } from 'react-paystack';
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
 import useAuthStore from '@/store/useAuthStore';
 import {
   getLoanEligibility,
+  getRepaymentGateway,
   listLoans,
   recordLoanRepayment,
+  verifyPaystackRepayment,
 } from '@/lib/api';
 import { mergeSx } from '@/lib/desktopLayout';
 
@@ -52,6 +55,14 @@ const outlinedCtaSx = {
 const BUDPAY_PUBLIC_KEY =
   process.env.NEXT_PUBLIC_BUDPAY_PUBLIC_KEY ||
   'pk_test_ygdkehlstlctycduvnltb1xnq5yye594ev3qqg';
+const PAYSTACK_PUBLIC_KEY = process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY || '';
+type GatewayId = 'budpay' | 'paystack' | 'flutterwave';
+
+function formatGatewayLabel(gateway: GatewayId): string {
+  if (gateway === 'budpay') return 'BudPay';
+  if (gateway === 'paystack') return 'Paystack';
+  return 'Flutterwave';
+}
 
 function formatCurrency(amount: number): string {
   return new Intl.NumberFormat('en-NG', {
@@ -90,6 +101,15 @@ function makeBudPayReference(loanId: string, amount: number): string {
       ? crypto.randomUUID().replace(/-/g, '')
       : `${Date.now()}_${Math.random().toString(36).slice(2, 14)}`;
   return `REPAY_${loanId}_${round2(amount)}_${suffix}`;
+}
+
+/** Paystack references should also be unique across retries. */
+function makePaystackReference(loanId: string, amount: number): string {
+  const suffix =
+    typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
+      ? crypto.randomUUID().replace(/-/g, '')
+      : `${Date.now()}_${Math.random().toString(36).slice(2, 14)}`;
+  return `PS_REPAY_${loanId}_${round2(amount)}_${suffix}`;
 }
 
 /**
@@ -169,16 +189,30 @@ export default function RepaymentPage() {
   const userId = user?.id ?? '';
 
   // ── Data fetching ──────────────────────────────────────────────────────────
+  /** Fewer retries + no focus refetch avoids hammering a wrong/missing API in dev (also cuts Next overlay / __nextjs_original-stack-frame noise). */
+  const repaymentFetchQueryOptions = {
+    retry: 1,
+    refetchOnWindowFocus: false,
+  } as const;
+
   const { data: eligibility, isLoading: eligLoading } = useQuery({
     queryKey: ['loan-eligibility', userId],
     queryFn: () => getLoanEligibility(token!, userId),
     enabled: !!token && !!userId,
+    ...repaymentFetchQueryOptions,
   });
 
   const { data: loans, isLoading: loansLoading } = useQuery({
     queryKey: ['loans', userId],
     queryFn: () => listLoans(token!, userId),
     enabled: !!token && !!userId,
+    ...repaymentFetchQueryOptions,
+  });
+  const { data: gatewaySelection } = useQuery({
+    queryKey: ['repayment-gateway'],
+    queryFn: () => getRepaymentGateway(token!),
+    enabled: !!token,
+    ...repaymentFetchQueryOptions,
   });
 
   const isLoading = eligLoading || loansLoading;
@@ -210,6 +244,22 @@ export default function RepaymentPage() {
     },
     onError: (err) => {
       setPaymentError((err as Error).message ?? 'Failed to record repayment');
+    },
+  });
+  const verifyPaystackMutation = useMutation({
+    mutationFn: (payload: { loanId: string; amount: number; reference: string }) =>
+      verifyPaystackRepayment(token!, payload),
+    onSuccess: (_data, variables) => {
+      setLastPaidAmount(variables.amount);
+      setPaymentSuccess(true);
+      setPaymentError(null);
+      queryClient.invalidateQueries({ queryKey: ['loan-eligibility'] });
+      queryClient.invalidateQueries({ queryKey: ['loans'] });
+      queryClient.invalidateQueries({ queryKey: ['repayments'] });
+      queryClient.invalidateQueries({ queryKey: ['wallet'] });
+    },
+    onError: (err) => {
+      setPaymentError((err as Error).message ?? 'Failed to verify Paystack payment');
     },
   });
 
@@ -355,12 +405,110 @@ export default function RepaymentPage() {
 
   initiatePaymentRef.current = initiateBudPayPayment;
 
+  /** Stable hook config; real reference/amount/metadata are passed in `initiatePaystackPayment({ config })` on click. */
+  const paystackHookConfig = useMemo(
+    () => ({
+      reference: '__paystack_pending__',
+      email: user?.email ?? 'customer@example.com',
+      amount: 100,
+      publicKey: PAYSTACK_PUBLIC_KEY,
+      currency: 'NGN' as const,
+      metadata: {
+        loan_id: activeLoan?.id ?? '',
+        user_id: userId,
+        custom_fields: [
+          {
+            display_name: 'Loan ID',
+            variable_name: 'loan_id',
+            value: activeLoan?.id ?? '',
+          },
+        ],
+      },
+      firstname: user?.firstName ?? 'Customer',
+      lastname: user?.lastName ?? 'User',
+    }),
+    [user?.email, user?.firstName, user?.lastName, userId, activeLoan?.id]
+  );
+
+  const initiatePaystackPayment = usePaystackPayment(paystackHookConfig);
+
+  const primaryGateway = gatewaySelection?.primary ?? gatewaySelection?.gateway ?? 'budpay';
+  const fallbackOrder = gatewaySelection?.fallbackOrder ?? [];
+  const gatewayChain: GatewayId[] = [primaryGateway, ...fallbackOrder].filter(
+    (g, idx, arr): g is GatewayId => arr.indexOf(g) === idx
+  );
+  const firstAvailableGateway = gatewayChain.find((g) => {
+    if (g === 'flutterwave') return false; // pending integration
+    if (g === 'paystack') return !!PAYSTACK_PUBLIC_KEY;
+    return true; // budpay
+  });
+  const selectedGateway: GatewayId = firstAvailableGateway ?? 'budpay';
+  const usingFallbackGateway =
+    gatewayChain.length > 0 && selectedGateway !== gatewayChain[0];
+  const fallbackReason =
+    gatewayChain[0] === 'flutterwave'
+      ? 'selected gateway is pending'
+      : gatewayChain[0] === 'paystack' && !PAYSTACK_PUBLIC_KEY
+        ? 'selected gateway is not configured'
+        : null;
+
+  const handlePaystackSuccess = (referenceData: { reference: string }) => {
+    const { loanId, amount } = paymentCommitRef.current;
+    if (!loanId || amount <= 0 || !referenceData?.reference) {
+      setPaymentError('Unable to verify Paystack payment. Missing reference.');
+      return;
+    }
+    verifyPaystackMutation.mutate({
+      loanId,
+      amount,
+      reference: referenceData.reference,
+    });
+  };
+
   const handleStartRepayment = () => {
     if (!activeLoan?.id || chargedAmount <= 0 || !isRepayable) return;
+    if (!firstAvailableGateway) {
+      setPaymentError(
+        'No available payment gateway. Selected method is pending or not configured. Please update payment gateway settings.'
+      );
+      return;
+    }
     paymentCommitRef.current = {
       loanId: activeLoan.id,
       amount: chargedAmount,
     };
+    setPaymentError(null);
+    if (selectedGateway === 'paystack') {
+      const uniqueRef = makePaystackReference(activeLoan.id, chargedAmount);
+      try {
+        initiatePaystackPayment({
+          onSuccess: handlePaystackSuccess,
+          onClose: () => {},
+          config: {
+            reference: uniqueRef,
+            amount: Math.max(Math.round(chargedAmount * 100), 100),
+            email: user?.email ?? 'customer@example.com',
+            currency: 'NGN',
+            metadata: {
+              loan_id: activeLoan.id,
+              user_id: userId,
+              custom_fields: [
+                {
+                  display_name: 'Loan ID',
+                  variable_name: 'loan_id',
+                  value: activeLoan.id,
+                },
+              ],
+            },
+          },
+        });
+      } catch {
+        setPaymentError(
+          'Paystack checkout could not start. Please try again or switch gateway from settings.'
+        );
+      }
+      return;
+    }
     const uniqueRef = makeBudPayReference(activeLoan.id, chargedAmount);
     setCheckoutReference(uniqueRef);
     // @budpay/react registers the postMessage handler in useEffect([config]). Calling initiate()
@@ -680,6 +828,13 @@ export default function RepaymentPage() {
             {paymentError}
           </Alert>
         )}
+        {usingFallbackGateway && fallbackReason && (
+          <Alert severity="warning">
+            Redirecting repayment from{' '}
+            <strong>{formatGatewayLabel(gatewayChain[0])}</strong> to{' '}
+            <strong>{formatGatewayLabel(selectedGateway)}</strong> because the {fallbackReason}.
+          </Alert>
+        )}
 
         {isRepayable && loanRemaining > 0 && (
           <Paper
@@ -848,7 +1003,8 @@ export default function RepaymentPage() {
               disabled={
                 !isRepayable ||
                 chargedAmount <= 0 ||
-                repayMutation.isPending
+                repayMutation.isPending ||
+                verifyPaystackMutation.isPending
               }
               onClick={handleStartRepayment}
               sx={mergeSx(containedCtaSx, {
@@ -858,7 +1014,7 @@ export default function RepaymentPage() {
                 whiteSpace: 'normal',
               })}
             >
-              {repayMutation.isPending ? (
+              {repayMutation.isPending || verifyPaystackMutation.isPending ? (
                 'Recording payment…'
               ) : (
                 <Box
@@ -939,7 +1095,11 @@ export default function RepaymentPage() {
             display="block"
             sx={{ mt: 1.5, textAlign: { xs: 'center', md: 'left' } }}
           >
-            Secured by BudPay · Payments are non-refundable
+            {selectedGateway === 'budpay'
+              ? 'Secured by BudPay · Payments are non-refundable'
+              : selectedGateway === 'paystack'
+                ? 'Secured by Paystack · Payments are non-refundable'
+                : 'Flutterwave is pending · choose another gateway in admin settings'}
           </Typography>
         </Box>
       </Stack>

@@ -141,4 +141,58 @@ export class AppService {
     // Always acknowledge so BudPay doesn't keep retrying.
     return { received: true };
   }
+
+  /**
+   * Paystack webhooks — https://paystack.com/docs/payments/webhooks/
+   * Signature is validated in api-gateway; we process charge.success for loan repayments.
+   */
+  async handlePaystackWebhook(payload: Record<string, unknown>) {
+    const event = typeof payload.event === 'string' ? payload.event : '';
+    this.logger.log(`Paystack webhook: event=${event}`);
+
+    if (event !== 'charge.success') {
+      return { received: true };
+    }
+
+    const data = payload.data;
+    if (!data || typeof data !== 'object') {
+      return { received: true };
+    }
+
+    const d = data as Record<string, unknown>;
+    const reference = typeof d.reference === 'string' ? d.reference : undefined;
+    const amountKobo = Number(d.amount ?? 0);
+    const currency = typeof d.currency === 'string' ? d.currency : undefined;
+    const customer =
+      d.customer && typeof d.customer === 'object'
+        ? (d.customer as { email?: string })
+        : undefined;
+    const metadata = d.metadata;
+
+    if (!reference) {
+      return { received: true };
+    }
+
+    try {
+      const out = await firstValueFrom(
+        this.loanClient.send('loan-paystack-webhook-charge', {
+          reference,
+          amountKobo,
+          currency,
+          customer,
+          metadata,
+        })
+      );
+      this.logger.log(
+        `Paystack charge.success loan handler: ${JSON.stringify(out)}`,
+      );
+    } catch (err) {
+      this.logger.error(
+        'Paystack webhook: failed to apply loan repayment',
+        err instanceof Error ? err.stack : String(err),
+      );
+    }
+
+    return { received: true };
+  }
 }

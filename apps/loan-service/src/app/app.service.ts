@@ -543,6 +543,197 @@ export class AppService {
    * This automatically records the user via LoanRepayment.userId and
    * updates loan state / provider credits (user wallet is not debited — funds came via BudPay).
    */
+  private extractLoanIdFromPaystackMetadata(metadata: unknown): string | null {
+    if (!metadata || typeof metadata !== 'object') return null;
+    const m = metadata as Record<string, unknown>;
+    const direct = m.loan_id;
+    if (typeof direct === 'string' && direct.trim()) return direct.trim();
+    if (typeof direct === 'number' && String(direct)) return String(direct);
+    const cf = m.custom_fields;
+    if (Array.isArray(cf)) {
+      for (const item of cf) {
+        if (item && typeof item === 'object') {
+          const o = item as Record<string, unknown>;
+          if (
+            (o.variable_name === 'loan_id' || o.variable === 'loan_id') &&
+            o.value != null
+          ) {
+            return String(o.value).trim();
+          }
+        }
+      }
+    }
+    return null;
+  }
+
+  private extractUserIdFromPaystackMetadata(metadata: unknown): string | null {
+    if (!metadata || typeof metadata !== 'object') return null;
+    const m = metadata as Record<string, unknown>;
+    const direct = m.user_id;
+    if (typeof direct === 'string' && direct.trim()) return direct.trim();
+    if (typeof direct === 'number' && String(direct)) return String(direct);
+    return null;
+  }
+
+  /**
+   * Record a Paystack repayment once per `reference` (webhook + inline verify).
+   * Uses ExternalPaymentRef unique on reference to prevent double crediting.
+   */
+  async applyPaystackRepaymentIfNew(payload: {
+    loanId: string;
+    amount: number;
+    reference: string;
+  }) {
+    const amount = this.roundMoney(Number(payload.amount));
+    if (amount <= 0) {
+      throw new BadRequestException('Repayment amount must be positive');
+    }
+    const loan = await this.prisma.loan.findUnique({
+      where: { id: payload.loanId },
+    });
+    if (!loan) throw new NotFoundException('Loan not found');
+    if (
+      loan.status !== LoanStatus.DISBURSED &&
+      loan.status !== LoanStatus.APPROVED
+    ) {
+      throw new BadRequestException(
+        'Only approved or disbursed loans can be repaid',
+      );
+    }
+
+    try {
+      await this.prisma.externalPaymentRef.create({
+        data: {
+          provider: 'paystack',
+          reference: payload.reference,
+          loanId: loan.id,
+          userId: loan.userId,
+          amount,
+        },
+      });
+    } catch (err: unknown) {
+      const code = (err as { code?: string })?.code;
+      if (code === 'P2002') {
+        const updated = await this.prisma.loan.findUnique({
+          where: { id: payload.loanId },
+        });
+        return {
+          message:
+            'Repayment already recorded for this Paystack reference',
+          loan: updated,
+          duplicate: true,
+        };
+      }
+      throw err;
+    }
+
+    try {
+      return await this.repayLoan(payload.loanId, amount);
+    } catch (err) {
+      await this.prisma.externalPaymentRef
+        .deleteMany({ where: { reference: payload.reference } })
+        .catch(() => {});
+      throw err;
+    }
+  }
+
+  /**
+   * Paystack charge.success — apply loan repayment when metadata / reference indicate our flow.
+   */
+  async handlePaystackWebhookCharge(payload: {
+    reference: string;
+    amountKobo: number;
+    currency?: string;
+    customer?: { email?: string };
+    metadata?: unknown;
+  }) {
+    const ref = payload.reference;
+    if (!ref) {
+      return { applied: false, reason: 'missing_reference' };
+    }
+    if (payload.currency && payload.currency !== 'NGN') {
+      return { applied: false, reason: 'unsupported_currency', reference: ref };
+    }
+    const amountKobo = Number(payload.amountKobo ?? 0);
+    if (!Number.isFinite(amountKobo) || amountKobo <= 0) {
+      return { applied: false, reason: 'invalid_amount', reference: ref };
+    }
+    const amountNaira = this.roundMoney(amountKobo / 100);
+
+    const loanIdMeta = this.extractLoanIdFromPaystackMetadata(payload.metadata);
+    const userIdMeta = this.extractUserIdFromPaystackMetadata(payload.metadata);
+    const isLoanRepayRef =
+      ref.startsWith('PS_REPAY_') || ref.startsWith('REPAY_');
+
+    let loanId: string | null = loanIdMeta;
+    let resolvedUserId: string | null = userIdMeta;
+
+    if (loanId) {
+      const loan = await this.prisma.loan.findUnique({
+        where: { id: loanId },
+      });
+      if (!loan) {
+        return { applied: false, reason: 'loan_not_found', reference: ref };
+      }
+      if (resolvedUserId && loan.userId !== resolvedUserId) {
+        return { applied: false, reason: 'user_mismatch', reference: ref };
+      }
+      resolvedUserId = loan.userId;
+      const email = payload.customer?.email?.toLowerCase();
+      if (email) {
+        const user = await this.prisma.user.findUnique({
+          where: { id: loan.userId },
+        });
+        if (user && user.email.toLowerCase() !== email) {
+          return { applied: false, reason: 'email_mismatch', reference: ref };
+        }
+      }
+    } else if (isLoanRepayRef) {
+      const email = payload.customer?.email;
+      if (!email) {
+        return { applied: false, reason: 'missing_email', reference: ref };
+      }
+      const user = await this.prisma.user.findFirst({
+        where: { email: email.toLowerCase() },
+      });
+      if (!user) {
+        return { applied: false, reason: 'user_not_found', reference: ref };
+      }
+      const loan = await this.prisma.loan.findFirst({
+        where: { userId: user.id, status: LoanStatus.DISBURSED },
+        orderBy: { createdAt: 'desc' },
+      });
+      if (!loan) {
+        return {
+          applied: false,
+          reason: 'no_disbursed_loan',
+          reference: ref,
+          userId: user.id,
+        };
+      }
+      loanId = loan.id;
+      resolvedUserId = user.id;
+    } else {
+      return { applied: false, reason: 'not_loan_repayment', reference: ref };
+    }
+
+    const result = await this.applyPaystackRepaymentIfNew({
+      loanId: loanId!,
+      amount: amountNaira,
+      reference: ref,
+    });
+    const dup = (result as { duplicate?: boolean }).duplicate === true;
+    return {
+      applied: true,
+      duplicate: dup,
+      reference: ref,
+      loanId,
+      userId: resolvedUserId,
+      amount: amountNaira,
+      result,
+    };
+  }
+
   async handleBudpayTransaction(payload: {
     reference?: string;
     amount: number;
