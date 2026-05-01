@@ -462,11 +462,29 @@ export async function uploadImage(
   return data as { url: string; secureUrl: string; publicId?: string };
 }
 
-/** Record a loan repayment. Called after a successful BudPay payment. */
+/** Single-tranche repayment (one loan). */
+export type RecordLoanRepaymentSingle = {
+  scope?: "single";
+  loanId: string;
+  amount: number;
+};
+
+/** Pay down all outstanding tranches in FIFO order (one checkout amount). */
+export type RecordLoanRepaymentPortfolio = {
+  scope: "portfolio";
+  userId: string;
+  amount: number;
+};
+
+export type RecordLoanRepaymentPayload =
+  | RecordLoanRepaymentSingle
+  | RecordLoanRepaymentPortfolio;
+
+/** Record a loan repayment after BudPay (or direct test). */
 export async function recordLoanRepayment(
   token: string,
-  payload: { loanId: string; amount: number }
-): Promise<{ message: string; loan: LoanItem }> {
+  payload: RecordLoanRepaymentPayload
+): Promise<{ message: string; loan?: LoanItem | null; loans?: LoanItem[] }> {
   const res = await fetch(endpoints.loans.repay(), {
     method: "POST",
     headers: getAuthHeaders(token),
@@ -483,7 +501,7 @@ export async function recordLoanRepayment(
           : "Failed to record repayment"
     );
   }
-  return data as { message: string; loan: LoanItem };
+  return data as { message: string; loan?: LoanItem | null; loans?: LoanItem[] };
 }
 
 /** Resolve the active repayment gateway configured by admin settings. */
@@ -513,11 +531,15 @@ export async function getRepaymentGateway(
   };
 }
 
-/** Verify Paystack reference on backend, then record the loan repayment. */
+export type VerifyPaystackRepaymentPayload =
+  | { scope?: "single"; loanId: string; amount: number; reference: string }
+  | { scope: "portfolio"; userId: string; amount: number; reference: string };
+
+/** Verify Paystack reference on backend, then record repayment (single tranche or portfolio). */
 export async function verifyPaystackRepayment(
   token: string,
-  payload: { loanId: string; amount: number; reference: string }
-): Promise<{ message: string; loan: LoanItem }> {
+  payload: VerifyPaystackRepaymentPayload
+): Promise<{ message: string; loan?: LoanItem | null; loans?: LoanItem[] }> {
   const res = await fetch(endpoints.loans.paystackVerify(), {
     method: "POST",
     headers: getAuthHeaders(token),
@@ -534,7 +556,7 @@ export async function verifyPaystackRepayment(
           : "Failed to verify Paystack payment"
     );
   }
-  return data as { message: string; loan: LoanItem };
+  return data as { message: string; loan?: LoanItem | null; loans?: LoanItem[] };
 }
 
 /** Fetch a user's repayment transactions by userId. */

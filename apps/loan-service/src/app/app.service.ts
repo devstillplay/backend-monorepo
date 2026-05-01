@@ -3,7 +3,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { PrismaPromise, PrismaService } from '@my-workspace/prisma';
+import { Prisma, PrismaPromise, PrismaService } from '@my-workspace/prisma';
 
 export const LoanStatus = {
   PENDING: 'PENDING',
@@ -206,6 +206,213 @@ export class AppService {
     return cw;
   }
 
+  private async ensureCompanyWalletTx(tx: Prisma.TransactionClient) {
+    let cw = await tx.companyWallet.findFirst();
+    if (!cw) {
+      cw = await tx.companyWallet.create({
+        data: { balance: 0, currency: 'NGN' },
+      });
+    }
+    return cw;
+  }
+
+  /** Repayable tranches: approved/disbursed only, oldest first (FIFO). */
+  private async buildRepaymentSegments(
+    userId: string,
+    maxAmount: number,
+  ): Promise<{ loanId: string; pay: number }[]> {
+    const cap = this.roundMoney(Number(maxAmount));
+    if (cap <= 0) return [];
+    const loans = await this.prisma.loan.findMany({
+      where: {
+        userId,
+        status: { in: [LoanStatus.APPROVED, LoanStatus.DISBURSED] },
+      },
+      orderBy: { createdAt: 'asc' },
+    });
+    const totalOutstanding = this.roundMoney(
+      loans.reduce(
+        (s, l) => s + Math.max(0, l.amount - l.amountRepaid),
+        0,
+      ),
+    );
+    let left = this.roundMoney(Math.min(cap, totalOutstanding));
+    const segments: { loanId: string; pay: number }[] = [];
+    for (const loan of loans) {
+      if (left <= 0) break;
+      const rem = this.roundMoney(Math.max(0, loan.amount - loan.amountRepaid));
+      if (rem <= 0) continue;
+      const pay = this.roundMoney(Math.min(rem, left));
+      if (pay <= 0) continue;
+      segments.push({ loanId: loan.id, pay });
+      left = this.roundMoney(left - pay);
+    }
+    return segments;
+  }
+
+  private async runRepaymentSliceTx(
+    tx: Prisma.TransactionClient,
+    companyWalletId: string,
+    loan: {
+      id: string;
+      userId: string;
+      status: string;
+      amount: number;
+      amountRepaid: number;
+      approvedAt: Date | null;
+    },
+    amount: number,
+    now: Date,
+  ): Promise<void> {
+    const newRepaid = this.roundMoney(loan.amountRepaid + amount);
+    const fullRepaid = newRepaid >= loan.amount;
+    await tx.loan.update({
+      where: { id: loan.id },
+      data: {
+        amountRepaid: newRepaid,
+        ...(loan.status === LoanStatus.APPROVED
+          ? {
+              status: LoanStatus.DISBURSED,
+              disbursedAt: loan.approvedAt ?? now,
+            }
+          : {}),
+        ...(fullRepaid ? { status: LoanStatus.REPAID, repaidAt: now } : {}),
+      },
+    });
+    await tx.loanRepayment.create({
+      data: { loanId: loan.id, userId: loan.userId, amount, repaidAt: now },
+    });
+    await tx.companyWallet.update({
+      where: { id: companyWalletId },
+      data: { balance: { increment: amount } },
+    });
+  }
+
+  private async postRepaymentProviderCredits(
+    loanId: string,
+    sliceAmount: number,
+    loanPrincipal: number,
+  ) {
+    if (loanPrincipal <= 0 || sliceAmount <= 0) return;
+    const fundings = await this.prisma.loanFunding.findMany({
+      where: { loanId },
+      include: { provider: true },
+    });
+    for (const f of fundings) {
+      const share = f.amount / loanPrincipal;
+      const providerCut =
+        f.provider.providerCutPercentage ?? f.provider.percentageToAdd ?? 0;
+      const creditAmount = share * sliceAmount * (1 + providerCut / 100);
+      if (creditAmount <= 0) continue;
+      await this.prisma.providerCredit.create({
+        data: {
+          providerId: f.providerId,
+          amount: creditAmount,
+          loanId,
+        },
+      });
+    }
+  }
+
+  private async maybeApplyOnTimeBonusAfterRepayment(
+    loanId: string,
+    repaidAt: Date,
+  ) {
+    const loan = await this.prisma.loan.findUnique({ where: { id: loanId } });
+    if (
+      !loan ||
+      loan.status !== LoanStatus.REPAID ||
+      !loan.dueDate ||
+      !loan.repaidAt
+    ) {
+      return;
+    }
+    const dueDate = new Date(loan.dueDate);
+    if (repaidAt > dueDate) return;
+    const defaultLimitStr = await this.getAppSetting('loan_max_amount', '5000');
+    const defaultLimit = Number(defaultLimitStr ?? 5000);
+    const user = await this.prisma.user.findUnique({
+      where: { id: loan.userId },
+      select: { creditLimit: true },
+    });
+    const currentLimit =
+      user?.creditLimit != null && !Number.isNaN(user.creditLimit)
+        ? user.creditLimit
+        : defaultLimit;
+    const newLimit = Math.round(currentLimit * 1.05 * 100) / 100;
+    await this.prisma.user.update({
+      where: { id: loan.userId },
+      data: { creditLimit: newLimit },
+    });
+  }
+
+  /**
+   * Apply one payment across all outstanding tranches (FIFO by loan createdAt).
+   * Caps to total outstanding. Single DB transaction for all slices.
+   */
+  async repayPortfolio(userId: string, amount: number) {
+    const rounded = this.roundMoney(Number(amount));
+    if (rounded <= 0) {
+      throw new BadRequestException('Repayment amount must be positive');
+    }
+    const segments = await this.buildRepaymentSegments(userId, rounded);
+    if (segments.length === 0) {
+      throw new BadRequestException('No outstanding balance to repay');
+    }
+    const now = new Date();
+    await this.prisma.$transaction(async (tx) => {
+      const companyWallet = await this.ensureCompanyWalletTx(tx);
+      for (const seg of segments) {
+        const loan = await tx.loan.findUnique({ where: { id: seg.loanId } });
+        if (!loan) throw new NotFoundException('Loan not found');
+        if (loan.userId !== userId) {
+          throw new BadRequestException('Repayment user mismatch');
+        }
+        if (
+          loan.status !== LoanStatus.DISBURSED &&
+          loan.status !== LoanStatus.APPROVED
+        ) {
+          throw new BadRequestException(
+            'Only approved or disbursed loans can be repaid',
+          );
+        }
+        const rem = this.roundMoney(loan.amount - loan.amountRepaid);
+        if (seg.pay > rem + 0.02) {
+          throw new BadRequestException('Repayment slice exceeds loan remainder');
+        }
+        await this.runRepaymentSliceTx(
+          tx,
+          companyWallet.id,
+          loan,
+          seg.pay,
+          now,
+        );
+      }
+    });
+    for (const seg of segments) {
+      const loan = await this.prisma.loan.findUnique({
+        where: { id: seg.loanId },
+      });
+      if (loan) {
+        await this.postRepaymentProviderCredits(seg.loanId, seg.pay, loan.amount);
+      }
+    }
+    for (const seg of segments) {
+      await this.maybeApplyOnTimeBonusAfterRepayment(seg.loanId, now);
+    }
+    const loans = await Promise.all(
+      segments.map((s) =>
+        this.prisma.loan.findUnique({ where: { id: s.loanId } }),
+      ),
+    );
+    const defined = loans.filter((l): l is NonNullable<typeof l> => !!l);
+    return {
+      message: 'Repayment recorded',
+      loan: defined[0],
+      loans: defined,
+    };
+  }
+
   async rejectLoan(loanId: string) {
     const loan = await this.prisma.loan.findUnique({ where: { id: loanId } });
     if (!loan) throw new NotFoundException('Loan not found');
@@ -287,7 +494,6 @@ export class AppService {
       throw new BadRequestException('Repayment amount must be positive');
     const loan = await this.prisma.loan.findUnique({ where: { id: loanId } });
     if (!loan) throw new NotFoundException('Loan not found');
-    // APPROVED and DISBURSED both mean customer has received funds (wallet credited at approval)
     if (
       loan.status !== LoanStatus.DISBURSED &&
       loan.status !== LoanStatus.APPROVED
@@ -296,82 +502,22 @@ export class AppService {
         'Only approved or disbursed loans can be repaid',
       );
     }
-    const currentRepaid = loan.amountRepaid;
-    const newRepaid = currentRepaid + amount;
+    const slice = this.roundMoney(Number(amount));
+    const rem = this.roundMoney(loan.amount - loan.amountRepaid);
+    if (slice > rem + 0.02) {
+      throw new BadRequestException(
+        `Repayment cannot exceed remaining balance (₦${rem.toFixed(2)})`,
+      );
+    }
+    const newRepaid = this.roundMoney(loan.amountRepaid + slice);
     const fullRepaid = newRepaid >= loan.amount;
     const now = new Date();
     const companyWallet = await this.ensureCompanyWallet();
-    // Repayments are settled via BudPay (card) — do not debit the user's in-app wallet
-    // (that balance is for betting / platform use, separate from loan principal recovery).
     await this.prisma.$transaction(async (tx) => {
-      await tx.loan.update({
-        where: { id: loanId },
-        data: {
-          amountRepaid: newRepaid,
-          // Transition APPROVED → DISBURSED on first repayment (for consistency)
-          ...(loan.status === LoanStatus.APPROVED
-            ? {
-                status: LoanStatus.DISBURSED,
-                disbursedAt: loan.approvedAt ?? now,
-              }
-            : {}),
-          ...(fullRepaid ? { status: LoanStatus.REPAID, repaidAt: now } : {}),
-        },
-      });
-      await tx.loanRepayment.create({
-        data: { loanId, userId: loan.userId, amount, repaidAt: now },
-      });
-      // Credit company wallet when customer repays (money flows back to company)
-      await tx.companyWallet.update({
-        where: { id: companyWallet.id },
-        data: { balance: { increment: amount } },
-      });
+      await this.runRepaymentSliceTx(tx, companyWallet.id, loan, slice, now);
     });
-
-    // On-time repayment bonus: increase credit limit by 5% when loan is fully repaid on or before due
-    if (fullRepaid && loan.dueDate) {
-      const repaidAt = now;
-      const dueDate = new Date(loan.dueDate);
-      if (repaidAt <= dueDate) {
-        const defaultLimitStr = await this.getAppSetting(
-          'loan_max_amount',
-          '5000',
-        );
-        const defaultLimit = Number(defaultLimitStr ?? 5000);
-        const user = await this.prisma.user.findUnique({
-          where: { id: loan.userId },
-          select: { creditLimit: true },
-        });
-        const currentLimit =
-          user?.creditLimit != null && !Number.isNaN(user.creditLimit)
-            ? user.creditLimit
-            : defaultLimit;
-        const newLimit = Math.round(currentLimit * 1.05 * 100) / 100;
-        await this.prisma.user.update({
-          where: { id: loan.userId },
-          data: { creditLimit: newLimit },
-        });
-      }
-    }
-    // Record provider credits for history (amount owed = agreedAmount - totalPaid, not credits)
-    const fundings = await this.prisma.loanFunding.findMany({
-      where: { loanId },
-      include: { provider: true },
-    });
-    for (const f of fundings) {
-      const share = f.amount / loan.amount;
-      const providerCut =
-        f.provider.providerCutPercentage ?? f.provider.percentageToAdd ?? 0;
-      const creditAmount = share * amount * (1 + providerCut / 100);
-      if (creditAmount <= 0) continue;
-      await this.prisma.providerCredit.create({
-        data: {
-          providerId: f.providerId,
-          amount: creditAmount,
-          loanId,
-        },
-      });
-    }
+    await this.postRepaymentProviderCredits(loanId, slice, loan.amount);
+    await this.maybeApplyOnTimeBonusAfterRepayment(loanId, now);
     const updated = await this.prisma.loan.findUnique({
       where: { id: loanId },
     });
@@ -575,18 +721,115 @@ export class AppService {
     return null;
   }
 
+  private extractRepaymentScopeFromPaystackMetadata(
+    metadata: unknown,
+  ): 'portfolio' | 'single' {
+    if (!metadata || typeof metadata !== 'object') return 'single';
+    const m = metadata as Record<string, unknown>;
+    const raw = m.repayment_scope;
+    if (typeof raw === 'string' && raw.toLowerCase() === 'portfolio') {
+      return 'portfolio';
+    }
+    const cf = m.custom_fields;
+    if (Array.isArray(cf)) {
+      for (const item of cf) {
+        if (item && typeof item === 'object') {
+          const o = item as Record<string, unknown>;
+          if (
+            (o.variable_name === 'repayment_scope' ||
+              o.variable === 'repayment_scope') &&
+            String(o.value ?? '').toLowerCase() === 'portfolio'
+          ) {
+            return 'portfolio';
+          }
+        }
+      }
+    }
+    return 'single';
+  }
+
   /**
    * Record a Paystack repayment once per `reference` (webhook + inline verify).
    * Uses ExternalPaymentRef unique on reference to prevent double crediting.
    */
   async applyPaystackRepaymentIfNew(payload: {
-    loanId: string;
+    loanId?: string;
+    userId?: string;
     amount: number;
     reference: string;
+    scope?: 'single' | 'portfolio';
   }) {
     const amount = this.roundMoney(Number(payload.amount));
     if (amount <= 0) {
       throw new BadRequestException('Repayment amount must be positive');
+    }
+    const scope: 'single' | 'portfolio' =
+      payload.scope === 'portfolio'
+        ? 'portfolio'
+        : payload.scope === 'single' || payload.loanId
+          ? 'single'
+          : 'portfolio';
+
+    if (scope === 'portfolio') {
+      const userId = payload.userId;
+      if (!userId) {
+        throw new BadRequestException(
+          'userId is required for portfolio repayment',
+        );
+      }
+      const segments = await this.buildRepaymentSegments(userId, amount);
+      if (segments.length === 0) {
+        throw new BadRequestException('No outstanding balance to repay');
+      }
+      const anchorLoanId = segments[0].loanId;
+      try {
+        await this.prisma.externalPaymentRef.create({
+          data: {
+            provider: 'paystack',
+            reference: payload.reference,
+            loanId: anchorLoanId,
+            userId,
+            amount,
+          },
+        });
+      } catch (err: unknown) {
+        const code = (err as { code?: string })?.code;
+        if (code === 'P2002') {
+          const loans = await this.prisma.loan.findMany({
+            where: {
+              userId,
+              status: {
+                in: [
+                  LoanStatus.PENDING,
+                  LoanStatus.APPROVED,
+                  LoanStatus.DISBURSED,
+                ],
+              },
+            },
+            orderBy: { createdAt: 'desc' },
+          });
+          return {
+            message:
+              'Repayment already recorded for this Paystack reference',
+            loan: loans[0] ?? null,
+            loans,
+            duplicate: true,
+          };
+        }
+        throw err;
+      }
+      try {
+        return await this.repayPortfolio(userId, amount);
+      } catch (err) {
+        await this.prisma.externalPaymentRef
+          .deleteMany({ where: { reference: payload.reference } })
+          .catch(() => {});
+        throw err;
+      }
+    }
+
+    if (!payload.loanId) {
+      throw new BadRequestException('loanId is required for single repayment');
     }
     const loan = await this.prisma.loan.findUnique({
       where: { id: payload.loanId },
@@ -662,8 +905,45 @@ export class AppService {
 
     const loanIdMeta = this.extractLoanIdFromPaystackMetadata(payload.metadata);
     const userIdMeta = this.extractUserIdFromPaystackMetadata(payload.metadata);
+    const scopeMeta = this.extractRepaymentScopeFromPaystackMetadata(
+      payload.metadata,
+    );
     const isLoanRepayRef =
       ref.startsWith('PS_REPAY_') || ref.startsWith('REPAY_');
+
+    if (!isLoanRepayRef) {
+      return { applied: false, reason: 'not_loan_repayment', reference: ref };
+    }
+
+    /** Portfolio: settle FIFO across all tranches; metadata must include user_id. */
+    if (scopeMeta === 'portfolio' && userIdMeta) {
+      const user = await this.prisma.user.findUnique({
+        where: { id: userIdMeta },
+      });
+      if (!user) {
+        return { applied: false, reason: 'user_not_found', reference: ref };
+      }
+      const email = payload.customer?.email?.toLowerCase();
+      if (email && user.email.toLowerCase() !== email) {
+        return { applied: false, reason: 'email_mismatch', reference: ref };
+      }
+      const result = await this.applyPaystackRepaymentIfNew({
+        userId: userIdMeta,
+        amount: amountNaira,
+        reference: ref,
+        scope: 'portfolio',
+      });
+      const dup = (result as { duplicate?: boolean }).duplicate === true;
+      return {
+        applied: true,
+        duplicate: dup,
+        reference: ref,
+        loanId: null,
+        userId: userIdMeta,
+        amount: amountNaira,
+        result,
+      };
+    }
 
     let loanId: string | null = loanIdMeta;
     let resolvedUserId: string | null = userIdMeta;
@@ -688,7 +968,7 @@ export class AppService {
           return { applied: false, reason: 'email_mismatch', reference: ref };
         }
       }
-    } else if (isLoanRepayRef) {
+    } else {
       const email = payload.customer?.email;
       if (!email) {
         return { applied: false, reason: 'missing_email', reference: ref };
@@ -713,14 +993,13 @@ export class AppService {
       }
       loanId = loan.id;
       resolvedUserId = user.id;
-    } else {
-      return { applied: false, reason: 'not_loan_repayment', reference: ref };
     }
 
     const result = await this.applyPaystackRepaymentIfNew({
       loanId: loanId!,
       amount: amountNaira,
       reference: ref,
+      scope: 'single',
     });
     const dup = (result as { duplicate?: boolean }).duplicate === true;
     return {

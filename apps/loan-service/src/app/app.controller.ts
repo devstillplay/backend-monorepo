@@ -68,6 +68,11 @@ export class AppController {
     return this.appService.repayLoan(payload.loanId, payload.amount);
   }
 
+  @MessagePattern('loan-repay-portfolio')
+  repayPortfolio(@Payload() payload: { userId: string; amount: number }) {
+    return this.appService.repayPortfolio(payload.userId, payload.amount);
+  }
+
   /**
    * Apply a BudPay transaction as a loan repayment.
    * Payload is forwarded from notification-service and should contain:
@@ -89,7 +94,16 @@ export class AppController {
 
   /** After Paystack REST verify (api-gateway) — idempotent by transaction reference. */
   @MessagePattern('loan-paystack-apply-repayment')
-  applyPaystackRepayment(@Payload() payload: { loanId: string; amount: number; reference: string }) {
+  applyPaystackRepayment(
+    @Payload()
+    payload: {
+      loanId?: string;
+      userId?: string;
+      amount: number;
+      reference: string;
+      scope?: 'single' | 'portfolio';
+    },
+  ) {
     return this.appService.applyPaystackRepaymentIfNew(payload);
   }
 

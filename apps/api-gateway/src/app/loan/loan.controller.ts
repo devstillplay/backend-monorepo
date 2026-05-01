@@ -239,15 +239,46 @@ export class LoanController {
   }
 
   @Post('repay')
-  async repayLoan(@Body() body: { loanId: string; amount: number }) {
-    if (!body?.loanId || body?.amount == null) {
-      throw new BadRequestException('loanId and amount are required');
+  async repayLoan(
+    @Body()
+    body: {
+      loanId?: string;
+      userId?: string;
+      amount: number;
+      scope?: 'single' | 'portfolio';
     }
+  ) {
+    if (body?.amount == null) {
+      throw new BadRequestException('amount is required');
+    }
+    const amount = Number(body.amount);
+    const scope =
+      body.scope === 'portfolio'
+        ? 'portfolio'
+        : body.scope === 'single' || body.loanId
+          ? 'single'
+          : body.userId
+            ? 'portfolio'
+            : 'single';
     try {
+      if (scope === 'portfolio') {
+        if (!body.userId) {
+          throw new BadRequestException('userId is required for portfolio repayment');
+        }
+        return await firstValueFrom(
+          this.loanClient.send('loan-repay-portfolio', {
+            userId: body.userId,
+            amount,
+          })
+        );
+      }
+      if (!body.loanId) {
+        throw new BadRequestException('loanId is required for single-loan repayment');
+      }
       return await firstValueFrom(
         this.loanClient.send('loan-repay', {
           loanId: body.loanId,
-          amount: Number(body.amount),
+          amount,
         })
       );
     } catch (err) {
@@ -257,10 +288,31 @@ export class LoanController {
 
   @Post('paystack/verify')
   async verifyPaystackAndRepay(
-    @Body() body: { loanId: string; amount: number; reference: string }
+    @Body()
+    body: {
+      loanId?: string;
+      userId?: string;
+      amount: number;
+      reference: string;
+      scope?: 'single' | 'portfolio';
+    }
   ) {
-    if (!body?.loanId || body?.amount == null || !body?.reference) {
-      throw new BadRequestException('loanId, amount and reference are required');
+    if (body?.amount == null || !body?.reference) {
+      throw new BadRequestException('amount and reference are required');
+    }
+    const scope =
+      body.scope === 'portfolio'
+        ? 'portfolio'
+        : body.scope === 'single' || body.loanId
+          ? 'single'
+          : body.userId
+            ? 'portfolio'
+            : 'single';
+    if (scope === 'portfolio' && !body.userId) {
+      throw new BadRequestException('userId is required for portfolio Paystack verify');
+    }
+    if (scope === 'single' && !body.loanId) {
+      throw new BadRequestException('loanId is required for single-loan Paystack verify');
     }
     const expectedAmount = Number(body.amount);
     if (!Number.isFinite(expectedAmount) || expectedAmount <= 0) {
@@ -315,8 +367,10 @@ export class LoanController {
       return await firstValueFrom(
         this.loanClient.send('loan-paystack-apply-repayment', {
           loanId: body.loanId,
+          userId: body.userId,
           amount: expectedRounded,
           reference: body.reference,
+          scope,
         })
       );
     } catch (err) {

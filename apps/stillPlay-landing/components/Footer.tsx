@@ -60,8 +60,8 @@ export default function Footer() {
               <Button component={Link} href="/#home" color="inherit" size="small" sx={{ justifyContent: "flex-start", textTransform: "none", color: "#4a4a4a" }}>
                 Home
               </Button>
-              <Button component={Link} href="/#how-it-works" color="inherit" size="small" sx={{ justifyContent: "flex-start", textTransform: "none", color: "#4a4a4a" }}>
-                How it works
+              <Button component={Link} href="/about" color="inherit" size="small" sx={{ justifyContent: "flex-start", textTransform: "none", color: "#4a4a4a" }}>
+                About
               </Button>
                 <Button component={Link} href="/partners" color="inherit" size="small" sx={{ justifyContent: "flex-start", textTransform: "none", color: "#4a4a4a" }}>
                 Partners
