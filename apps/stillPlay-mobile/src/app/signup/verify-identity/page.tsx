@@ -29,7 +29,12 @@ import DojahWebSdkButton, {
 import { fetchDojahVerificationFromGateway } from "@/lib/api";
 import { authCardWideSx, mergeSx } from "@/lib/desktopLayout";
 import { postDeviceFingerprint } from "@/lib/deviceGuard";
-import { dojahDebugLog, getDojahWebSdkConfig } from "@/lib/dojahConfig";
+import {
+  dojahDebugLog,
+  getDojahWebSdkConfig,
+  getSignupStepCount,
+  isDojahKycEnabled,
+} from "@/lib/dojahConfig";
 import { loadDojahReferenceForEmail, saveDojahReferenceForEmail } from "@/lib/dojahLocalCache";
 import { extractDojahReference, summarizeDojahVerificationForUi } from "@/lib/dojahPayload";
 import { useSignupStore } from "@/store/useSignupStore";
@@ -63,6 +68,12 @@ export default function VerifyIdentityPage() {
   const router = useRouter();
   const email = useSignupStore((s) => s.email);
   const setDojahResult = useSignupStore((s) => s.setDojahResult);
+
+  useEffect(() => {
+    if (!isDojahKycEnabled()) {
+      router.replace("/signup/selfie");
+    }
+  }, [router]);
 
   const [error, setError] = useState<string | null>(null);
   const [sdkLoadStatus, setSdkLoadStatus] = useState<DojahSdkLoadStatus>("loading");
@@ -252,7 +263,7 @@ export default function VerifyIdentityPage() {
                 Verify identity
               </Typography>
             </Stack>
-            <StepIndicator current={2} total={4} />
+            <StepIndicator current={2} total={getSignupStepCount()} />
           </Box>
 
           <Box sx={{ height: 1, backgroundColor: "#E4E7EC", mt: 2 }} />

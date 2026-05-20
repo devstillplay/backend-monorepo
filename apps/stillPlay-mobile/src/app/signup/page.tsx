@@ -16,42 +16,50 @@ import VerifiedUserIcon from "@mui/icons-material/VerifiedUser";
 import { useRouter } from "next/navigation";
 
 import AuthScreenShell from "@/components/AuthScreenShell";
+import { isDojahKycEnabled } from "@/lib/dojahConfig";
 import { authCardWideSx, mergeSx } from "@/lib/desktopLayout";
 import { useSignupStore } from "@/store/useSignupStore";
 
-const steps = [
+const allSignupSteps = [
   {
     title: "Personal Details",
     description: "Your name, NIN, email, and password",
     icon: <PersonIcon />,
+    kycOnly: false,
   },
   {
     title: "Identity verification (Dojah)",
     description: "Government ID and liveness via Dojah",
     icon: <VerifiedUserIcon />,
+    kycOnly: true,
   },
   {
     title: "A selfie",
     description: "Optional photo for your profile",
     icon: <PhotoCameraIcon />,
+    kycOnly: false,
   },
   {
     title: "NIN slip",
     description: "Optional upload, then create your account",
     icon: <BadgeIcon />,
+    kycOnly: false,
   },
-];
+] as const;
 
 export default function SignupPage() {
   const router = useRouter();
   const firstName = useSignupStore((s) => s.firstName);
   const email = useSignupStore((s) => s.email);
   const nin = useSignupStore((s) => s.nin);
+  const kycEnabled = isDojahKycEnabled();
+  const steps = allSignupSteps.filter((step) => !step.kycOnly || kycEnabled);
   const hasPersonalForDojah = Boolean(
     firstName?.trim() && email?.trim() && nin?.trim()
   );
 
   const goToDojahKyc = () => {
+    if (!kycEnabled) return;
     if (hasPersonalForDojah) {
       router.push("/signup/verify-identity");
     } else {
@@ -134,29 +142,38 @@ export default function SignupPage() {
             >
               Continue
             </Button>
-            <Button
-              variant="outlined"
-              size="large"
-              fullWidth
-              onClick={goToDojahKyc}
-              startIcon={<VerifiedUserIcon />}
-              sx={{
-                borderRadius: 999,
-                py: 1.25,
-                textTransform: "none",
-                fontWeight: 700,
-                borderColor: "#F5B000",
-                color: "#1D2939",
-                "&:hover": { borderColor: "#d49a00", bgcolor: "#FFF9E6" },
-              }}
-            >
-              Validate KYC with Dojah
-            </Button>
-            <Typography variant="caption" color="text.secondary" textAlign="center" display="block">
-              {hasPersonalForDojah
-                ? "Opens Dojah identity verification (ID + liveness)."
-                : "Complete personal details first — we’ll send you there if needed."}
-            </Typography>
+            {kycEnabled ? (
+              <>
+                <Button
+                  variant="outlined"
+                  size="large"
+                  fullWidth
+                  onClick={goToDojahKyc}
+                  startIcon={<VerifiedUserIcon />}
+                  sx={{
+                    borderRadius: 999,
+                    py: 1.25,
+                    textTransform: "none",
+                    fontWeight: 700,
+                    borderColor: "#F5B000",
+                    color: "#1D2939",
+                    "&:hover": { borderColor: "#d49a00", bgcolor: "#FFF9E6" },
+                  }}
+                >
+                  Validate KYC with Dojah
+                </Button>
+                <Typography
+                  variant="caption"
+                  color="text.secondary"
+                  textAlign="center"
+                  display="block"
+                >
+                  {hasPersonalForDojah
+                    ? "Opens Dojah identity verification (ID + liveness)."
+                    : "Complete personal details first — we’ll send you there if needed."}
+                </Typography>
+              </>
+            ) : null}
           </Stack>
         </Stack>
       </Paper>

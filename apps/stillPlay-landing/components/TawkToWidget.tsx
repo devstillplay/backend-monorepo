@@ -7,6 +7,11 @@ const TAWK_PROPERTY_ID =
 const TAWK_WIDGET_ID =
   process.env.NEXT_PUBLIC_TAWK_WIDGET_ID ?? "1jnol1i3s";
 
+/** Off on localhost unless set — avoids Tawk SDK console.error(true) spam in Next.js 16 dev overlay. */
+const TAWK_ENABLED =
+  process.env.NEXT_PUBLIC_TAWK_ENABLED === "true" ||
+  process.env.NODE_ENV === "production";
+
 const TAWK_EMBED_SRC = `https://embed.tawk.to/${TAWK_PROPERTY_ID}/${TAWK_WIDGET_ID}`;
 const TAWK_SCRIPT_ID = "tawk-to-embed";
 
@@ -21,7 +26,7 @@ declare global {
 }
 
 export function openTawkChat() {
-  if (typeof window === "undefined") return;
+  if (typeof window === "undefined" || !TAWK_ENABLED) return;
   const api = window.Tawk_API;
   if (typeof api?.maximize === "function") {
     api.maximize();
@@ -36,7 +41,11 @@ export function openTawkChat() {
 }
 
 function loadTawkEmbed() {
-  if (typeof document === "undefined" || document.getElementById(TAWK_SCRIPT_ID)) {
+  if (
+    !TAWK_ENABLED ||
+    typeof document === "undefined" ||
+    document.getElementById(TAWK_SCRIPT_ID)
+  ) {
     return;
   }
 

@@ -18,6 +18,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 import AuthScreenShell from "@/components/AuthScreenShell";
+import { getSignupStepCount, isDojahKycEnabled } from "@/lib/dojahConfig";
 import { authCardWideSx, mergeSx } from "@/lib/desktopLayout";
 import { uploadImage } from "@/lib/api";
 import { useSignupStore } from "@/store/useSignupStore";
@@ -52,7 +53,7 @@ export default function SelfiePage() {
   const { setPicture, dojahCompleted } = useSignupStore();
 
   useEffect(() => {
-    if (dojahCompleted) return;
+    if (!isDojahKycEnabled() || dojahCompleted) return;
     const t = window.setTimeout(() => {
       if (!useSignupStore.getState().dojahCompleted) {
         router.replace("/signup/verify-identity");
@@ -118,7 +119,10 @@ export default function SelfiePage() {
                 Take a selfie
               </Typography>
             </Stack>
-            <StepIndicator current={3} total={4} />
+            <StepIndicator
+              current={isDojahKycEnabled() ? 3 : 2}
+              total={getSignupStepCount()}
+            />
           </Box>
 
           <Box sx={{ height: 1, backgroundColor: "#E4E7EC", mt: 2 }} />

@@ -18,6 +18,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import AuthScreenShell from "@/components/AuthScreenShell";
+import { getSignupStepCount, isDojahKycEnabled } from "@/lib/dojahConfig";
 import { authCardWideSx, mergeSx } from "@/lib/desktopLayout";
 import { useSignupStore } from "@/store/useSignupStore";
 
@@ -92,7 +93,9 @@ export default function PersonalDetailsPage() {
       email: email.trim().toLowerCase(),
       password,
     });
-    router.push("/signup/verify-identity");
+    router.push(
+      isDojahKycEnabled() ? "/signup/verify-identity" : "/signup/selfie"
+    );
   };
 
   return (
@@ -109,7 +112,7 @@ export default function PersonalDetailsPage() {
                 Personal details
               </Typography>
             </Stack>
-            <StepIndicator current={1} total={4} />
+            <StepIndicator current={1} total={getSignupStepCount()} />
           </Box>
 
           <Box sx={{ height: 1, backgroundColor: "#E4E7EC", mt: 2 }} />

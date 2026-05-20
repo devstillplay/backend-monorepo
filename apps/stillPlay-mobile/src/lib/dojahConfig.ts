@@ -1,3 +1,16 @@
+/**
+ * Dojah KYC step in signup (verify-identity). Off by default until re-enabled.
+ * Set `NEXT_PUBLIC_DOJAH_KYC_ENABLED=true` in `.env.local` to show it again.
+ */
+export function isDojahKycEnabled(): boolean {
+  return process.env.NEXT_PUBLIC_DOJAH_KYC_ENABLED === "true";
+}
+
+/** Signup progress bar: 4 steps with KYC, 3 without. */
+export function getSignupStepCount(): number {
+  return isDojahKycEnabled() ? 4 : 3;
+}
+
 /** Reject placeholder strings that become the literal `"null"` / `"undefined"` in the client bundle. */
 function sanitizePublicEnv(value: string | undefined): string {
   const s = (value ?? "").trim();

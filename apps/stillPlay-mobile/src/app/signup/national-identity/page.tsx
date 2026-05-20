@@ -22,7 +22,7 @@ import { useRef, useState } from "react";
 import AuthScreenShell from "@/components/AuthScreenShell";
 import { authCardWideSx, mergeSx } from "@/lib/desktopLayout";
 import { registerUser, uploadImage } from "@/lib/api";
-import { dojahDebugLog } from "@/lib/dojahConfig";
+import { dojahDebugLog, getSignupStepCount } from "@/lib/dojahConfig";
 import { useSignupStore } from "@/store/useSignupStore";
 
 function StepIndicator({ current, total }: { current: number; total: number }) {
@@ -172,7 +172,7 @@ export default function NationalIdentityPage() {
                 Upload NIN slip
               </Typography>
             </Stack>
-            <StepIndicator current={4} total={4} />
+            <StepIndicator current={getSignupStepCount()} total={getSignupStepCount()} />
           </Box>
 
           <Box sx={{ height: 1, backgroundColor: "#E4E7EC", mt: 2 }} />
