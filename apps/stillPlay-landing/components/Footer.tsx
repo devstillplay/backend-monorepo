@@ -4,6 +4,7 @@ import { Box, Button, Container, Grid, Stack, Typography } from "@mui/material";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import Link from "next/link";
 
+import { openTawkChat } from "./TawkToWidget";
 import {
   COMPANY_NAME,
   RC_NUMBER,
@@ -109,10 +110,13 @@ export default function Footer() {
             © {new Date().getFullYear()} {COMPANY_NAME}. All rights reserved.
           </Typography>
           <Box
-            component="a"
-            href={`mailto:${SUPPORT_EMAIL}`}
-            aria-label="Contact support"
+            component="button"
+            type="button"
+            onClick={() => openTawkChat()}
+            aria-label="Chat with support"
             sx={{
+              border: "none",
+              cursor: "pointer",
               position: { xs: "static", sm: "absolute" },
               right: { sm: 0 },
               bottom: { sm: 0 },

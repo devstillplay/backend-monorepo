@@ -3,6 +3,7 @@
 import { Box, CssBaseline, ThemeProvider } from "@mui/material";
 import { ReactNode } from "react";
 
+import TawkToWidget from "../components/TawkToWidget";
 import { theme } from "../theme/theme";
 
 type ProvidersProps = {
@@ -23,6 +24,7 @@ export default function Providers({ children }: ProvidersProps) {
         }}
       >
         {children}
+        <TawkToWidget />
       </Box>
     </ThemeProvider>
   );
