@@ -61,6 +61,21 @@ function handleAuthError(res: Response): void {
   }
 }
 
+/** Normalize Nest/API error payloads so booleans never become Error message "true". */
+function apiErrorMessage(
+  data: Record<string, unknown>,
+  fallback: string
+): string {
+  const message = data.message;
+  if (typeof message === "string" && message.trim()) return message;
+  if (Array.isArray(message)) {
+    for (const item of message) {
+      if (typeof item === "string" && item.trim()) return item;
+    }
+  }
+  return fallback;
+}
+
 export type LoginPayload = {
   email: string;
   password: string;
@@ -87,13 +102,7 @@ export async function login(payload: LoginPayload): Promise<LoginResponse> {
   const data = await res.json().catch(() => ({}));
   handleAuthError(res);
   if (!res.ok) {
-    throw new Error(
-      typeof data.message === "string"
-        ? data.message
-        : Array.isArray(data.message)
-          ? data.message[0]
-          : "Invalid email or password"
-    );
+    throw new Error(apiErrorMessage(data, "Invalid email or password"));
   }
   return data as LoginResponse;
 }
@@ -152,9 +161,7 @@ export async function getProfile(token: string): Promise<UserProfileResponse> {
   const data = await res.json().catch(() => ({}));
   handleAuthError(res);
   if (!res.ok) {
-    throw new Error(
-      typeof data.message === "string" ? data.message : "Failed to load profile"
-    );
+    throw new Error(apiErrorMessage(data, "Failed to load profile"));
   }
   // Response shape: { message: string, user: UserProfileResponse }
   const profile = (data as { user?: UserProfileResponse }).user ?? data;
@@ -174,9 +181,7 @@ export async function updateProfile(
   const data = await res.json().catch(() => ({}));
   handleAuthError(res);
   if (!res.ok) {
-    throw new Error(
-      typeof data.message === "string" ? data.message : "Failed to update profile"
-    );
+    throw new Error(apiErrorMessage(data, "Failed to update profile"));
   }
   const profile = (data as { user?: UserProfileResponse }).user ?? data;
   return profile as UserProfileResponse;
@@ -193,9 +198,7 @@ export async function getWallet(
   const data = await res.json().catch(() => ({}));
   handleAuthError(res);
   if (!res.ok) {
-    throw new Error(
-      typeof data.message === "string" ? data.message : "Failed to load wallet"
-    );
+    throw new Error(apiErrorMessage(data, "Failed to load wallet"));
   }
   return data as WalletResponse;
 }
@@ -211,9 +214,7 @@ export async function listLoans(
   const data = await res.json().catch(() => ({}));
   handleAuthError(res);
   if (!res.ok) {
-    throw new Error(
-      typeof data.message === "string" ? data.message : "Failed to load loans"
-    );
+    throw new Error(apiErrorMessage(data, "Failed to load loans"));
   }
   // Response shape from loan-service: { loans: LoanItem[] }
   if (Array.isArray(data)) return data;
@@ -258,9 +259,7 @@ export async function getLoanEligibility(
   const data = await res.json().catch(() => ({}));
   handleAuthError(res);
   if (!res.ok) {
-    throw new Error(
-      typeof data.message === "string" ? data.message : "Failed to check eligibility"
-    );
+    throw new Error(apiErrorMessage(data, "Failed to check eligibility"));
   }
   return data as LoanEligibility;
 }
@@ -278,13 +277,7 @@ export async function requestLoan(
   const data = await res.json().catch(() => ({}));
   handleAuthError(res);
   if (!res.ok) {
-    throw new Error(
-      typeof data.message === "string"
-        ? data.message
-        : Array.isArray(data.message)
-          ? data.message[0]
-          : "Failed to submit loan request"
-    );
+    throw new Error(apiErrorMessage(data, "Failed to submit loan request"));
   }
   return data as { message: string; loan: LoanItem };
 }
@@ -298,11 +291,9 @@ export async function fetchDojahVerificationFromGateway(
   const res = await fetch(endpoints.kyc.dojahVerification(referenceId), { method: "GET" });
   const data = (await res.json().catch(() => ({}))) as Record<string, unknown>;
   if (!res.ok) {
-    const msg =
-      typeof data.message === "string"
-        ? data.message
-        : "Could not load verification from Dojah";
-    throw new Error(msg);
+    throw new Error(
+      apiErrorMessage(data, "Could not load verification from Dojah")
+    );
   }
   return data as { referenceId: string; dojah: unknown };
 }
@@ -340,13 +331,7 @@ export async function registerUser(
   });
   const data = await res.json().catch(() => ({}));
   if (!res.ok) {
-    throw new Error(
-      typeof data.message === "string"
-        ? data.message
-        : Array.isArray(data.message)
-          ? data.message[0]
-          : "Registration failed"
-    );
+    throw new Error(apiErrorMessage(data, "Registration failed"));
   }
   return data as {
     message: string;
@@ -382,13 +367,7 @@ export async function requestRegisterCode(
   });
   const data = await res.json().catch(() => ({}));
   if (!res.ok) {
-    throw new Error(
-      typeof data.message === "string"
-        ? data.message
-        : Array.isArray(data.message)
-          ? data.message[0]
-          : "Failed to send verification code"
-    );
+    throw new Error(apiErrorMessage(data, "Failed to send verification code"));
   }
   return data as { message: string };
 }
@@ -419,13 +398,7 @@ export async function verifyCode(payload: {
   const data = await res.json().catch(() => ({}));
   handleAuthError(res);
   if (!res.ok) {
-    throw new Error(
-      typeof data.message === "string"
-        ? data.message
-        : Array.isArray(data.message)
-          ? data.message[0]
-          : "Invalid or expired code"
-    );
+    throw new Error(apiErrorMessage(data, "Invalid or expired code"));
   }
   return data as {
     message: string;
@@ -453,10 +426,11 @@ export async function uploadImage(
   });
   const data = await res.json().catch(() => ({}));
   if (!res.ok) {
+    const errField = (data as { error?: string }).error;
     throw new Error(
-      typeof data.message === "string"
-        ? data.message
-        : (data as { error?: string }).error ?? "Upload failed"
+      typeof errField === "string" && errField.trim()
+        ? errField
+        : apiErrorMessage(data, "Upload failed")
     );
   }
   return data as { url: string; secureUrl: string; publicId?: string };
@@ -493,13 +467,7 @@ export async function recordLoanRepayment(
   const data = await res.json().catch(() => ({}));
   handleAuthError(res);
   if (!res.ok) {
-    throw new Error(
-      typeof data.message === "string"
-        ? data.message
-        : Array.isArray(data.message)
-          ? data.message[0]
-          : "Failed to record repayment"
-    );
+    throw new Error(apiErrorMessage(data, "Failed to record repayment"));
   }
   return data as { message: string; loan?: LoanItem | null; loans?: LoanItem[] };
 }
@@ -518,11 +486,7 @@ export async function getRepaymentGateway(
   const data = await res.json().catch(() => ({}));
   handleAuthError(res);
   if (!res.ok) {
-    throw new Error(
-      typeof data.message === "string"
-        ? data.message
-        : "Failed to load repayment gateway"
-    );
+    throw new Error(apiErrorMessage(data, "Failed to load repayment gateway"));
   }
   return data as {
     gateway: RepaymentGateway;
@@ -548,13 +512,7 @@ export async function verifyPaystackRepayment(
   const data = await res.json().catch(() => ({}));
   handleAuthError(res);
   if (!res.ok) {
-    throw new Error(
-      typeof data.message === "string"
-        ? data.message
-        : Array.isArray(data.message)
-          ? data.message[0]
-          : "Failed to verify Paystack payment"
-    );
+    throw new Error(apiErrorMessage(data, "Failed to verify Paystack payment"));
   }
   return data as { message: string; loan?: LoanItem | null; loans?: LoanItem[] };
 }
@@ -570,11 +528,7 @@ export async function listUserRepayments(
   const data = await res.json().catch(() => ({}));
   handleAuthError(res);
   if (!res.ok) {
-    throw new Error(
-      typeof data.message === "string"
-        ? data.message
-        : "Failed to load repayments"
-    );
+    throw new Error(apiErrorMessage(data, "Failed to load repayments"));
   }
   // Response shape: { userId, repayments: [...] }
   const raw = data as { repayments?: RepaymentItem[] } | RepaymentItem[];
@@ -611,9 +565,7 @@ export async function createChatThread(
   const data = await res.json().catch(() => ({}));
   handleAuthError(res);
   if (!res.ok) {
-    throw new Error(
-      typeof data.message === "string" ? data.message : "Failed to create thread"
-    );
+    throw new Error(apiErrorMessage(data, "Failed to create thread"));
   }
   return data;
 }
@@ -629,9 +581,7 @@ export async function getChatThreads(
   const data = await res.json().catch(() => ({}));
   handleAuthError(res);
   if (!res.ok) {
-    throw new Error(
-      typeof data.message === "string" ? data.message : "Failed to load threads"
-    );
+    throw new Error(apiErrorMessage(data, "Failed to load threads"));
   }
   return { threads: Array.isArray(data.threads) ? data.threads : [] };
 }
@@ -647,9 +597,7 @@ export async function getChatMessages(
   const data = await res.json().catch(() => ({}));
   handleAuthError(res);
   if (!res.ok) {
-    throw new Error(
-      typeof data.message === "string" ? data.message : "Failed to load messages"
-    );
+    throw new Error(apiErrorMessage(data, "Failed to load messages"));
   }
   return { messages: Array.isArray(data.messages) ? data.messages : [] };
 }
@@ -666,9 +614,7 @@ export async function sendChatMessage(
   const data = await res.json().catch(() => ({}));
   handleAuthError(res);
   if (!res.ok) {
-    throw new Error(
-      typeof data.message === "string" ? data.message : "Failed to send message"
-    );
+    throw new Error(apiErrorMessage(data, "Failed to send message"));
   }
   return data;
 }

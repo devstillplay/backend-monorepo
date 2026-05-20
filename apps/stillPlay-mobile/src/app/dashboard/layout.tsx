@@ -24,6 +24,7 @@ import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { CircularProgress } from "@mui/material";
 
 import MobileFrame from "@/components/MobileFrame";
+import { openTawkChat } from "@/components/TawkToWidget";
 import { DESKTOP_MAIN_MAX_WIDTH } from "@/lib/desktopLayout";
 import useAuthStore from "@/store/useAuthStore";
 import { isTokenExpired } from "@/lib/api";
@@ -78,8 +79,6 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   }, [isMounted, isInvalid, isPendingVerification, reset, router]);
 
   const selectedHref = useMemo(() => getNavSelection(pathname), [pathname]);
-  const hideSupportFab = pathname.startsWith("/dashboard/support");
-
   const sidebarUserLabel = useMemo(() => {
     if (!user) return "";
     const first = user.firstName?.trim();
@@ -308,26 +307,23 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
         </Box>
       </Box>
 
-      {!hideSupportFab ? (
-        <Fab
-          color="primary"
-          aria-label="Chat with support"
-          component={Link}
-          href="/dashboard/support"
-          sx={{
-            position: "fixed",
-            zIndex: (theme) => theme.zIndex.speedDial,
-            right: { xs: 20, md: 28 },
-            bottom: {
-              xs: "calc(72px + env(safe-area-inset-bottom, 0px) + 16px)",
-              md: "calc(24px + env(safe-area-inset-bottom, 0px))",
-            },
-            boxShadow: 6,
-          }}
-        >
-          <ChatBubbleIcon />
-        </Fab>
-      ) : null}
+      <Fab
+        color="primary"
+        aria-label="Chat with support"
+        onClick={() => openTawkChat()}
+        sx={{
+          position: "fixed",
+          zIndex: (theme) => theme.zIndex.speedDial,
+          right: { xs: 20, md: 28 },
+          bottom: {
+            xs: "calc(72px + env(safe-area-inset-bottom, 0px) + 16px)",
+            md: "calc(24px + env(safe-area-inset-bottom, 0px))",
+          },
+          boxShadow: 6,
+        }}
+      >
+        <ChatBubbleIcon />
+      </Fab>
     </MobileFrame>
   );
 }

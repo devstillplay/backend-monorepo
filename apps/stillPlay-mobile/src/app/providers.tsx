@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useState } from "react";
 
 import OneSignalProvider from "@/components/OneSignalProvider";
+import TawkToWidget from "@/components/TawkToWidget";
 
 const theme = createTheme({
   palette: {
@@ -35,7 +36,10 @@ export default function Providers({
     <QueryClientProvider client={queryClient}>
       <ThemeProvider theme={theme}>
         <CssBaseline />
-        <OneSignalProvider>{children}</OneSignalProvider>
+        <OneSignalProvider>
+          {children}
+          <TawkToWidget hideDefaultWidget />
+        </OneSignalProvider>
       </ThemeProvider>
     </QueryClientProvider>
   );
