@@ -33,16 +33,22 @@ import {
   sendChatMessage,
   createChatThread,
   listWaitlist,
+  listBlogPosts,
+  createBlogPost,
+  updateBlogPost,
+  deleteBlogPost,
   type AdminUser,
   type CreateProviderPayload,
   type CreateEmployeePayload,
   type Employee,
+  type BlogPostPayload,
 } from "./api";
 
 export const adminKeys = {
   all: ["admin"] as const,
   users: () => [...adminKeys.all, "users"] as const,
   waitlist: () => [...adminKeys.all, "waitlist"] as const,
+  blog: () => [...adminKeys.all, "blog"] as const,
   user: (id: string) => [...adminKeys.users(), id] as const,
   employees: () => [...adminKeys.all, "employees"] as const,
   activity: () => [...adminKeys.all, "activity"] as const,
@@ -87,6 +93,56 @@ export function useWaitlist() {
     enabled: !!token,
     refetchOnWindowFocus: true,
     staleTime: 30 * 1000,
+  });
+}
+
+export function useBlogPosts() {
+  const token = useAuthStore((s) => s.token);
+  return useQuery({
+    queryKey: adminKeys.blog(),
+    queryFn: () => listBlogPosts(token!),
+    enabled: !!token,
+    refetchOnWindowFocus: true,
+    staleTime: 30 * 1000,
+  });
+}
+
+export function useCreateBlogPost() {
+  const token = useAuthStore((s) => s.token);
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: BlogPostPayload) => createBlogPost(token!, payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: adminKeys.blog() });
+    },
+  });
+}
+
+export function useUpdateBlogPost() {
+  const token = useAuthStore((s) => s.token);
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      id,
+      payload,
+    }: {
+      id: string;
+      payload: Partial<BlogPostPayload>;
+    }) => updateBlogPost(token!, id, payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: adminKeys.blog() });
+    },
+  });
+}
+
+export function useDeleteBlogPost() {
+  const token = useAuthStore((s) => s.token);
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => deleteBlogPost(token!, id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: adminKeys.blog() });
+    },
   });
 }
 

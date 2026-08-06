@@ -81,6 +81,31 @@ export type WaitlistEntry = {
   updatedAt: string;
 };
 
+export type BlogPost = {
+  id: string;
+  title: string;
+  slug: string;
+  excerpt: string | null;
+  content: string;
+  coverImage: string | null;
+  status: string;
+  authorName: string | null;
+  publishedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type BlogPostPayload = {
+  title: string;
+  slug?: string;
+  excerpt?: string | null;
+  content: string;
+  coverImage?: string | null;
+  status?: "draft" | "published";
+  authorName?: string | null;
+  publishedAt?: string | null;
+};
+
 export type AdminUser = {
   id: string;
   email: string;
@@ -811,6 +836,82 @@ export async function listWaitlist(
   }
   const entries = (data as { entries?: WaitlistEntry[] }).entries;
   return Array.isArray(entries) ? entries : [];
+}
+
+/** List blog posts (admin — includes drafts). */
+export async function listBlogPosts(token: string): Promise<BlogPost[]> {
+  requireBaseUrl();
+  const res = await fetch(endpoints.admin.blog(), {
+    headers: getAuthHeaders(token),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    handleAuthError(res);
+    throw new Error(
+      typeof data.message === "string" ? data.message : "Failed to load blog posts"
+    );
+  }
+  const posts = (data as { posts?: BlogPost[] }).posts;
+  return Array.isArray(posts) ? posts : [];
+}
+
+export async function createBlogPost(
+  token: string,
+  payload: BlogPostPayload
+): Promise<BlogPost> {
+  requireBaseUrl();
+  const res = await fetch(endpoints.admin.blog(), {
+    method: "POST",
+    headers: getAuthHeaders(token),
+    body: JSON.stringify(payload),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    handleAuthError(res);
+    throw new Error(
+      typeof data.message === "string" ? data.message : "Failed to create blog post"
+    );
+  }
+  return (data as { post: BlogPost }).post;
+}
+
+export async function updateBlogPost(
+  token: string,
+  id: string,
+  payload: Partial<BlogPostPayload>
+): Promise<BlogPost> {
+  requireBaseUrl();
+  const res = await fetch(endpoints.admin.blogById(id), {
+    method: "PATCH",
+    headers: getAuthHeaders(token),
+    body: JSON.stringify(payload),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    handleAuthError(res);
+    throw new Error(
+      typeof data.message === "string" ? data.message : "Failed to update blog post"
+    );
+  }
+  return (data as { post: BlogPost }).post;
+}
+
+export async function deleteBlogPost(
+  token: string,
+  id: string
+): Promise<void> {
+  requireBaseUrl();
+  const res = await fetch(endpoints.admin.blogById(id), {
+    method: "DELETE",
+    headers: getAuthHeaders(token),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    handleAuthError(res);
+    throw new Error(
+      typeof data.message === "string" ? data.message : "Failed to delete blog post"
+    );
+  }
 }
 
 /** Get single admin user (requires token). */

@@ -11,6 +11,7 @@ import RequestQuoteOutlinedIcon from "@mui/icons-material/RequestQuoteOutlined";
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 import SupportAgentOutlinedIcon from "@mui/icons-material/SupportAgentOutlined";
 import PollOutlinedIcon from "@mui/icons-material/PollOutlined";
+import ArticleOutlinedIcon from "@mui/icons-material/ArticleOutlined";
 import {
   Badge,
   Box,
@@ -64,6 +65,11 @@ const navItems = [
     label: "Survey",
     href: "/dashboard/survey?tab=waitlist",
     icon: <PollOutlinedIcon />,
+  },
+  {
+    label: "Blog",
+    href: "/dashboard/blog",
+    icon: <ArticleOutlinedIcon />,
   },
   {
     label: "Support",
