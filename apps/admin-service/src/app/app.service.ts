@@ -331,6 +331,195 @@ export class AppService {
     return { entries };
   }
 
+  private slugify(input: string): string {
+    return input
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9\s-]/g, '')
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-')
+      .replace(/^-|-$/g, '')
+      .slice(0, 80);
+  }
+
+  private async uniqueBlogSlug(base: string, excludeId?: string): Promise<string> {
+    let slug = base || `post-${Date.now()}`;
+    for (let i = 0; i < 20; i++) {
+      const candidate = i === 0 ? slug : `${slug}-${i + 1}`;
+      const existing = await this.prisma.blogPost.findUnique({
+        where: { slug: candidate },
+      });
+      if (!existing || (excludeId && existing.id === excludeId)) {
+        return candidate;
+      }
+    }
+    return `${slug}-${Date.now()}`;
+  }
+
+  async listBlogPosts(options?: { publishedOnly?: boolean }) {
+    const where = options?.publishedOnly
+      ? { status: 'published' }
+      : undefined;
+    const posts = await this.prisma.blogPost.findMany({
+      where,
+      orderBy: [{ publishedAt: 'desc' }, { createdAt: 'desc' }],
+    });
+    return { posts };
+  }
+
+  async getBlogPostBySlug(slug: string, options?: { publishedOnly?: boolean }) {
+    const post = await this.prisma.blogPost.findUnique({ where: { slug } });
+    if (!post) {
+      throw new NotFoundException('Blog post not found');
+    }
+    if (options?.publishedOnly && post.status !== 'published') {
+      throw new NotFoundException('Blog post not found');
+    }
+    return { post };
+  }
+
+  async getBlogPostById(id: string) {
+    const post = await this.prisma.blogPost.findUnique({ where: { id } });
+    if (!post) {
+      throw new NotFoundException('Blog post not found');
+    }
+    return { post };
+  }
+
+  async createBlogPost(payload: {
+    title?: string;
+    slug?: string;
+    excerpt?: string | null;
+    content?: string;
+    coverImage?: string | null;
+    status?: string;
+    authorName?: string | null;
+    publishedAt?: string | Date | null;
+  }) {
+    const title = payload?.title?.trim();
+    const content = payload?.content?.trim();
+    if (!title) {
+      throw new BadRequestException('title is required');
+    }
+    if (!content) {
+      throw new BadRequestException('content is required');
+    }
+    const status =
+      payload.status === 'published' || payload.status === 'draft'
+        ? payload.status
+        : 'draft';
+    const baseSlug = this.slugify(payload.slug?.trim() || title);
+    const slug = await this.uniqueBlogSlug(baseSlug);
+    const publishedAt =
+      status === 'published'
+        ? payload.publishedAt
+          ? new Date(payload.publishedAt)
+          : new Date()
+        : payload.publishedAt
+          ? new Date(payload.publishedAt)
+          : null;
+
+    const post = await this.prisma.blogPost.create({
+      data: {
+        title,
+        slug,
+        excerpt: payload.excerpt?.trim() || null,
+        content,
+        coverImage: payload.coverImage?.trim() || null,
+        status,
+        authorName: payload.authorName?.trim() || null,
+        publishedAt,
+      },
+    });
+    return { message: 'Blog post created', post };
+  }
+
+  async updateBlogPost(
+    id: string,
+    payload: {
+      title?: string;
+      slug?: string;
+      excerpt?: string | null;
+      content?: string;
+      coverImage?: string | null;
+      status?: string;
+      authorName?: string | null;
+      publishedAt?: string | Date | null;
+    }
+  ) {
+    const existing = await this.prisma.blogPost.findUnique({ where: { id } });
+    if (!existing) {
+      throw new NotFoundException('Blog post not found');
+    }
+
+    const data: {
+      title?: string;
+      slug?: string;
+      excerpt?: string | null;
+      content?: string;
+      coverImage?: string | null;
+      status?: string;
+      authorName?: string | null;
+      publishedAt?: Date | null;
+    } = {};
+
+    if (payload.title !== undefined) {
+      const title = payload.title.trim();
+      if (!title) throw new BadRequestException('title cannot be empty');
+      data.title = title;
+    }
+    if (payload.content !== undefined) {
+      const content = payload.content.trim();
+      if (!content) throw new BadRequestException('content cannot be empty');
+      data.content = content;
+    }
+    if (payload.excerpt !== undefined) {
+      data.excerpt = payload.excerpt?.trim() || null;
+    }
+    if (payload.coverImage !== undefined) {
+      data.coverImage = payload.coverImage?.trim() || null;
+    }
+    if (payload.authorName !== undefined) {
+      data.authorName = payload.authorName?.trim() || null;
+    }
+    if (payload.status !== undefined) {
+      if (payload.status !== 'published' && payload.status !== 'draft') {
+        throw new BadRequestException('status must be draft or published');
+      }
+      data.status = payload.status;
+      if (payload.status === 'published' && !existing.publishedAt && payload.publishedAt == null) {
+        data.publishedAt = new Date();
+      }
+    }
+    if (payload.publishedAt !== undefined) {
+      data.publishedAt = payload.publishedAt
+        ? new Date(payload.publishedAt)
+        : null;
+    }
+    if (payload.slug !== undefined || payload.title !== undefined) {
+      const base = this.slugify(
+        (payload.slug?.trim() || payload.title?.trim() || existing.slug) ??
+          existing.slug
+      );
+      data.slug = await this.uniqueBlogSlug(base, id);
+    }
+
+    const post = await this.prisma.blogPost.update({
+      where: { id },
+      data,
+    });
+    return { message: 'Blog post updated', post };
+  }
+
+  async deleteBlogPost(id: string) {
+    const existing = await this.prisma.blogPost.findUnique({ where: { id } });
+    if (!existing) {
+      throw new NotFoundException('Blog post not found');
+    }
+    await this.prisma.blogPost.delete({ where: { id } });
+    return { message: 'Blog post deleted', id };
+  }
+
   private async ensureUniqueUserNumber(
     type: 'user' | 'employee'
   ): Promise<string> {

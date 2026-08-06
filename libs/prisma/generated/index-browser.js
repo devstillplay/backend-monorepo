@@ -325,6 +325,20 @@ exports.Prisma.WaitlistEntryScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.BlogPostScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  slug: 'slug',
+  excerpt: 'excerpt',
+  content: 'content',
+  coverImage: 'coverImage',
+  status: 'status',
+  authorName: 'authorName',
+  publishedAt: 'publishedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -356,7 +370,8 @@ exports.Prisma.ModelName = {
   AppSetting: 'AppSetting',
   ChatSupport: 'ChatSupport',
   ChatMessage: 'ChatMessage',
-  WaitlistEntry: 'WaitlistEntry'
+  WaitlistEntry: 'WaitlistEntry',
+  BlogPost: 'BlogPost'
 };
 
 /**

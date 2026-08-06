@@ -25,13 +25,11 @@ function sanitizePublicEnv(value: string | undefined): string {
  * @see https://docs.dojah.io/sdks/react-library
  * @see https://docs.dojah.io/overview/quickstart
  *
- * **Easy Onboard Web SDK (`websdk.js` + `<dojah-button>`):**
- * - `NEXT_PUBLIC_DOJAH_WIDGET_ID` — required in the browser (embed snippet from Easy Onboard).
- * - `user_data` / `gov_data` are optional in the JS SDK: omit or pass `{}` so users fill Dojah’s own pages.
- *   Set `prefillFromParent` on `DojahWebSdkButton` if you want to skip those steps from your form.
+ * **React SDK (`dojah-kyc-sdk-react` on verify-identity):**
+ * - `NEXT_PUBLIC_DOJAH_APP_ID`, `NEXT_PUBLIC_DOJAH_PUBLIC_KEY`, `NEXT_PUBLIC_DOJAH_WIDGET_ID` — all required in the browser.
+ * - `user_data` / `gov_data` are optional: pass `{}` so users fill Dojah’s own pages (see `DojahReactKyc`).
  *
- * **Connect / REST (optional in browser):**
- * - `NEXT_PUBLIC_DOJAH_APP_ID`, `NEXT_PUBLIC_DOJAH_PUBLIC_KEY` — used if you call `widget.js` / Connect directly.
+ * @see https://docs.dojah.io/sdks/react-library
  *
  * **Server:** `DOJAH_SECRET_KEY` for REST/webhooks only — never `NEXT_PUBLIC_`.
  *

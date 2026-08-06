@@ -22,16 +22,13 @@ import {
 } from "react";
 
 import AuthScreenShell from "@/components/AuthScreenShell";
-import DojahWebSdkButton, {
-  type DojahLauncherHandle,
-  type DojahSdkLoadStatus,
-} from "@/components/DojahWebSdkButton";
+import DojahReactKyc from "@/components/DojahReactKyc";
 import { fetchDojahVerificationFromGateway } from "@/lib/api";
 import { authCardWideSx, mergeSx } from "@/lib/desktopLayout";
 import { postDeviceFingerprint } from "@/lib/deviceGuard";
 import {
   dojahDebugLog,
-  getDojahWebSdkConfig,
+  getDojahClientConfig,
   getSignupStepCount,
   isDojahKycEnabled,
 } from "@/lib/dojahConfig";
@@ -76,8 +73,10 @@ export default function VerifyIdentityPage() {
   }, [router]);
 
   const [error, setError] = useState<string | null>(null);
-  const [sdkLoadStatus, setSdkLoadStatus] = useState<DojahSdkLoadStatus>("loading");
-  const [sdkLoadMessage, setSdkLoadMessage] = useState<string | null>(null);
+  const [dojahSession, setDojahSession] = useState<{
+    referenceId: string;
+    metadata: Record<string, unknown>;
+  } | null>(null);
   const [deviceGuard, setDeviceGuard] = useState<Awaited<
     ReturnType<typeof postDeviceFingerprint>
   > | null>(null);
@@ -85,16 +84,10 @@ export default function VerifyIdentityPage() {
   const [restoredDojah, setRestoredDojah] = useState<unknown>(null);
   const [restoreLoading, setRestoreLoading] = useState(false);
   const [restoreError, setRestoreError] = useState<string | null>(null);
-  const dojahRef = useRef<DojahLauncherHandle>(null);
-  /** Same referenceId passed to `open()` — fallback if widget payload omits `reference_id`. */
+  /** Same referenceId passed to the React SDK — fallback if widget payload omits `reference_id`. */
   const lastOpenedReferenceRef = useRef<string | null>(null);
 
-  const { widgetId, isReady } = useMemo(() => getDojahWebSdkConfig(), []);
-
-  const onSdkStatus = useCallback((status: DojahSdkLoadStatus, message?: string) => {
-    setSdkLoadStatus(status);
-    setSdkLoadMessage(status === "error" ? (message ?? null) : null);
-  }, []);
+  const { isConfigured } = useMemo(() => getDojahClientConfig(), []);
 
   useEffect(() => {
     let cancelled = false;
@@ -194,11 +187,13 @@ export default function VerifyIdentityPage() {
 
   const onDojahError = useCallback((message?: string) => {
     dojahDebugLog("onError:", message);
+    setDojahSession(null);
     setError(message ?? "Verification could not be completed. Please try again.");
   }, []);
 
   const onDojahClose = useCallback(() => {
     dojahDebugLog("onClose (widget closed without success)");
+    setDojahSession(null);
     setError(
       "Verification was closed before completion. Tap Start verification again when you’re ready to continue."
     );
@@ -210,22 +205,9 @@ export default function VerifyIdentityPage() {
       router.replace("/signup/personal-details");
       return;
     }
-    if (!isReady) {
+    if (!isConfigured) {
       setError(
-        "Dojah is not configured. Set NEXT_PUBLIC_DOJAH_WIDGET_ID (or DOJAH_WIDGET_ID with our next.config fallback) to your Easy Onboard widget id, then restart `next dev`."
-      );
-      return;
-    }
-    if (sdkLoadStatus === "loading") {
-      setError(
-        "Dojah’s script is still loading. Wait a second and try again — if this persists, hard-refresh the page or check that widget.dojah.io is not blocked."
-      );
-      return;
-    }
-    if (sdkLoadStatus === "error") {
-      setError(
-        sdkLoadMessage ??
-          "Dojah failed to load. Check your network, disable blockers for widget.dojah.io, and refresh the page."
+        "Dojah is not configured. Set NEXT_PUBLIC_DOJAH_APP_ID, NEXT_PUBLIC_DOJAH_PUBLIC_KEY, and NEXT_PUBLIC_DOJAH_WIDGET_ID in .env.local, then restart `next dev`."
       );
       return;
     }
@@ -236,18 +218,8 @@ export default function VerifyIdentityPage() {
       email: email || undefined,
       cache_bust: `${Date.now()}_${Math.random().toString(36).slice(2, 12)}`,
     };
-    dojahDebugLog("open() params", {
-      widgetId,
-      referenceId,
-      collectInWidget: true,
-      metadata,
-    });
-    const opened = dojahRef.current?.open({ referenceId, metadata }) ?? false;
-    if (!opened) {
-      setError(
-        "Could not open Dojah from this page (launcher not ready). Refresh and try again, or open the browser console for [Dojah] logs."
-      );
-    }
+    dojahDebugLog("React SDK session", { referenceId, metadata });
+    setDojahSession({ referenceId, metadata });
   };
 
   return (
@@ -295,28 +267,19 @@ export default function VerifyIdentityPage() {
               </Box>
             </Stack>
 
-            {!isReady && (
+            {!isConfigured && (
               <Alert severity="warning">
-                Set <strong>NEXT_PUBLIC_DOJAH_WIDGET_ID</strong> to your Easy Onboard widget id
-                from{" "}
-                <a href="https://app.dojah.io/easy-onboard" target="_blank" rel="noopener noreferrer">
-                  app.dojah.io/easy-onboard
+                Set <strong>NEXT_PUBLIC_DOJAH_APP_ID</strong>,{" "}
+                <strong>NEXT_PUBLIC_DOJAH_PUBLIC_KEY</strong>, and{" "}
+                <strong>NEXT_PUBLIC_DOJAH_WIDGET_ID</strong> from your{" "}
+                <a href="https://app.dojah.io/dashboard" target="_blank" rel="noopener noreferrer">
+                  Dojah dashboard
                 </a>{" "}
-                (the id string from the embed — not <code>null</code> or a placeholder). Restart{" "}
-                <code>next dev</code> after changing <code>.env.local</code>.
-              </Alert>
-            )}
-
-            {sdkLoadStatus === "loading" && (
-              <Alert severity="info">
-                Loading Dojah script (widget.dojah.io)… You can tap <strong>Start verification</strong> once
-                this finishes.
-              </Alert>
-            )}
-
-            {sdkLoadStatus === "error" && sdkLoadMessage && (
-              <Alert severity="error">
-                <strong>Dojah script error:</strong> {sdkLoadMessage}
+                and{" "}
+                <a href="https://app.dojah.io/easy-onboard" target="_blank" rel="noopener noreferrer">
+                  Easy Onboard
+                </a>
+                . Restart <code>next dev</code> after changing <code>.env.local</code>.
               </Alert>
             )}
 
@@ -402,7 +365,7 @@ export default function VerifyIdentityPage() {
               size="large"
               fullWidth
               onClick={startVerification}
-              disabled={!isReady}
+              disabled={!isConfigured || dojahSession != null}
               sx={{
                 borderRadius: 999,
                 py: 1.4,
@@ -410,50 +373,29 @@ export default function VerifyIdentityPage() {
                 fontWeight: 700,
               }}
             >
-              Start verification
+              {dojahSession ? "Verification in progress…" : "Start verification"}
             </Button>
 
-            <Typography variant="caption" color="text.secondary" display="block" sx={{ mt: -1 }}>
-              Dojah SDK:{" "}
-              {sdkLoadStatus === "loading"
-                ? "loading…"
-                : sdkLoadStatus === "ready"
-                  ? "ready"
-                  : "error — see message above"}
-            </Typography>
-
-            <DojahWebSdkButton
-              ref={dojahRef}
-              widgetId={widgetId}
-              prefillFromParent={false}
-              onSuccess={onDojahSuccess}
-              onError={onDojahError}
-              onClose={onDojahClose}
-              onSdkStatus={onSdkStatus}
-            />
+            {dojahSession && (
+              <DojahReactKyc
+                key={dojahSession.referenceId}
+                referenceId={dojahSession.referenceId}
+                metadata={dojahSession.metadata}
+                onSuccess={onDojahSuccess}
+                onError={onDojahError}
+                onClose={onDojahClose}
+              />
+            )}
 
             <Typography variant="caption" color="text.secondary" display="block">
-              Web SDK:{" "}
+              React SDK:{" "}
               <a
-                href="https://widget.dojah.io/websdk.js"
+                href="https://docs.dojah.io/sdks/react-library"
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                widget.dojah.io/websdk.js
+                docs.dojah.io/sdks/react-library
               </a>
-              . Overview:{" "}
-              <a href="https://docs.dojah.io/overview/quickstart" target="_blank" rel="noopener noreferrer">
-                quickstart
-              </a>
-              ,{" "}
-              <a
-                href="https://docs.dojah.io/sdks/javascript-library"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                JS SDK (optional <code>user_data</code> / <code>gov_data</code>)
-              </a>
-              .
             </Typography>
           </Stack>
         </Stack>

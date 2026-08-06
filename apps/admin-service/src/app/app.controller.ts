@@ -83,4 +83,45 @@ export class AppController {
   async listWaitlistEntries() {
     return this.appService.listWaitlistEntries();
   }
+
+  @MessagePattern('blog-list')
+  async listBlogPosts(@Payload() payload?: { publishedOnly?: boolean }) {
+    return this.appService.listBlogPosts(payload);
+  }
+
+  @MessagePattern('blog-get-by-slug')
+  async getBlogPostBySlug(
+    @Payload() payload: { slug: string; publishedOnly?: boolean }
+  ) {
+    return this.appService.getBlogPostBySlug(payload.slug, {
+      publishedOnly: payload.publishedOnly,
+    });
+  }
+
+  @MessagePattern('blog-get-by-id')
+  async getBlogPostById(@Payload() id: string) {
+    return this.appService.getBlogPostById(id);
+  }
+
+  @MessagePattern('blog-create')
+  async createBlogPost(@Payload() payload: unknown) {
+    return this.appService.createBlogPost(
+      payload as Parameters<AppService['createBlogPost']>[0]
+    );
+  }
+
+  @MessagePattern('blog-update')
+  async updateBlogPost(
+    @Payload() payload: { id: string; data: unknown }
+  ) {
+    return this.appService.updateBlogPost(
+      payload.id,
+      payload.data as Parameters<AppService['updateBlogPost']>[1]
+    );
+  }
+
+  @MessagePattern('blog-delete')
+  async deleteBlogPost(@Payload() id: string) {
+    return this.appService.deleteBlogPost(id);
+  }
 }

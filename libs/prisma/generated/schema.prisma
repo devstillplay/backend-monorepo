@@ -252,3 +252,21 @@ model WaitlistEntry {
   @@index([source])
   @@index([createdAt])
 }
+
+// Marketing blog posts (landing /blog + admin CMS)
+model BlogPost {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  title       String
+  slug        String    @unique
+  excerpt     String?
+  content     String
+  coverImage  String?
+  status      String    @default("draft") // draft | published
+  authorName  String?
+  publishedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([status, publishedAt])
+  @@index([createdAt])
+}

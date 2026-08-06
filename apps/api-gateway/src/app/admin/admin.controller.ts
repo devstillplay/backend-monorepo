@@ -393,4 +393,53 @@ export class AdminController {
       rethrowAdminMicroserviceError(err);
     }
   }
+
+  @Get('blog')
+  async listBlogPosts() {
+    try {
+      return await firstValueFrom(
+        this.adminClient.send('blog-list', { publishedOnly: false })
+      );
+    } catch (err) {
+      rethrowAdminMicroserviceError(err);
+    }
+  }
+
+  @Get('blog/:id')
+  async getBlogPost(@Param('id') id: string) {
+    try {
+      return await firstValueFrom(this.adminClient.send('blog-get-by-id', id));
+    } catch (err) {
+      rethrowAdminMicroserviceError(err);
+    }
+  }
+
+  @Post('blog')
+  async createBlogPost(@Body() body: unknown) {
+    try {
+      return await firstValueFrom(this.adminClient.send('blog-create', body));
+    } catch (err) {
+      rethrowAdminMicroserviceError(err);
+    }
+  }
+
+  @Patch('blog/:id')
+  async updateBlogPost(@Param('id') id: string, @Body() body: unknown) {
+    try {
+      return await firstValueFrom(
+        this.adminClient.send('blog-update', { id, data: body })
+      );
+    } catch (err) {
+      rethrowAdminMicroserviceError(err);
+    }
+  }
+
+  @Delete('blog/:id')
+  async deleteBlogPost(@Param('id') id: string) {
+    try {
+      return await firstValueFrom(this.adminClient.send('blog-delete', id));
+    } catch (err) {
+      rethrowAdminMicroserviceError(err);
+    }
+  }
 }

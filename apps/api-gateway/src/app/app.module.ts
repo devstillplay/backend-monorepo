@@ -19,6 +19,7 @@ import {
 } from './provider/provider.controller';
 import { ChatController, CHAT_SERVICE } from './chat/chat.controller';
 import { WaitlistController } from './waitlist/waitlist.controller';
+import { BlogController } from './blog/blog.controller';
 import { KycController } from './kyc/kyc.controller';
 import { KycService } from './kyc/kyc.service';
 
@@ -161,6 +162,7 @@ import { KycService } from './kyc/kyc.service';
     ProviderController,
     ChatController,
     WaitlistController,
+    BlogController,
     KycController,
   ],
   providers: [AppService, AuthService, KycService],
