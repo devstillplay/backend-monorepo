@@ -148,8 +148,8 @@ export default function DashboardOverview({ onNavigateToUsers }: DashboardOvervi
   }
 
   return (
-    <Stack spacing={3}>
-      <Typography variant="h5" fontWeight={700}>
+    <Stack spacing={3} sx={{ minWidth: 0, maxWidth: "100%", overflowX: "hidden" }}>
+      <Typography variant="h5" fontWeight={700} sx={{ fontSize: { xs: "1.25rem", md: "1.5rem" } }}>
         Dashboard Overview
       </Typography>
 
@@ -182,7 +182,7 @@ export default function DashboardOverview({ onNavigateToUsers }: DashboardOvervi
               <Typography variant="subtitle2" color="text.secondary">
                 Balance in Account
               </Typography>
-              <Typography variant="h5" fontWeight={700} sx={{ color: "#0b7b4c" }}>
+              <Typography variant="h5" fontWeight={700} sx={{ color: "#0b7b4c", wordBreak: "break-word" }}>
                 {formatCurrency(companyBalance?.balance ?? 0)}
               </Typography>
               <Typography variant="caption" color="text.secondary">

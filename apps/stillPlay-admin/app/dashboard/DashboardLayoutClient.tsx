@@ -3,16 +3,22 @@
 import { Box, Drawer, IconButton, Stack, Typography } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import { ReactNode, Suspense, useEffect, useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
 
-/** Matches desktop sidebar width / min-height so SSR + client Suspense boundaries align (null fallback caused hydration mismatches). */
+import DashboardSidebar from "../../components/dashboard/DashboardSidebar";
+import { getQueryClient } from "../../lib/queryClient";
+import { recordActivity } from "../../lib/queries";
+import { useAuthStore } from "../../store/auth";
+import { QueryClientProvider } from "@tanstack/react-query";
+
+/** Matches desktop sidebar width / min-height so SSR + client Suspense boundaries align. */
 function SidebarSuspenseFallback() {
   return (
     <Box
       sx={{
         display: { xs: "none", md: "block" },
         width: 260,
-        height: "100vh",
-        maxHeight: "100dvh",
+        height: "100%",
         flexShrink: 0,
         overflow: "hidden",
         bgcolor: "#fafafa",
@@ -21,11 +27,6 @@ function SidebarSuspenseFallback() {
     />
   );
 }
-import { usePathname, useRouter } from "next/navigation";
-
-import DashboardSidebar from "../../components/dashboard/DashboardSidebar";
-import { recordActivity } from "../../lib/queries";
-import { useAuthStore } from "../../store/auth";
 
 const pathToAction: Record<string, string> = {
   "/dashboard": "Viewed Dashboard",
@@ -36,6 +37,7 @@ const pathToAction: Record<string, string> = {
   "/dashboard/loan-repayment": "Viewed Loan Repayment",
   "/dashboard/support": "Viewed Support",
   "/dashboard/survey": "Viewed Survey",
+  "/dashboard/blog": "Viewed Blog",
   "/dashboard/settings": "Viewed Settings",
 };
 
@@ -77,17 +79,23 @@ export default function DashboardLayoutClient({ children }: DashboardLayoutClien
     return () => clearTimeout(t);
   }, []);
 
+  useEffect(() => {
+    setIsMobileOpen(false);
+  }, [pathname]);
+
+  const queryClient = getQueryClient();
+
   return (
+    <QueryClientProvider client={queryClient}>
     <Box
       sx={{
         backgroundColor: "#fff",
         display: { xs: "flex", md: "grid" },
         flexDirection: { xs: "column", md: "unset" },
-        minHeight: { xs: "100dvh", md: "unset" },
-        height: { md: "100dvh" },
-        maxHeight: { md: "100dvh" },
-        overflow: { md: "hidden" },
-        gridTemplateColumns: { md: "260px 1fr" },
+        height: "100dvh",
+        maxHeight: "100dvh",
+        overflow: "hidden",
+        gridTemplateColumns: { md: "260px minmax(0, 1fr)" },
         gridTemplateRows: { md: "minmax(0, 1fr)" },
       }}
     >
@@ -97,6 +105,7 @@ export default function DashboardLayoutClient({ children }: DashboardLayoutClien
           height: "100%",
           minHeight: 0,
           overflow: "hidden",
+          borderRight: "1px solid #edf2ef",
         }}
       >
         <Suspense fallback={<SidebarSuspenseFallback />}>
@@ -109,8 +118,8 @@ export default function DashboardLayoutClient({ children }: DashboardLayoutClien
           flex: 1,
           minWidth: 0,
           minHeight: 0,
-          height: { md: "100%" },
-          overflow: { xs: "visible", md: "hidden" },
+          height: "100%",
+          overflow: "hidden",
         }}
       >
         <Stack
@@ -121,25 +130,38 @@ export default function DashboardLayoutClient({ children }: DashboardLayoutClien
             display: { xs: "flex", md: "none" },
             flexShrink: 0,
             paddingX: 2,
-            paddingY: 1.5,
+            paddingY: 1.25,
             borderBottom: "1px solid #edf2ef",
+            bgcolor: "#fff",
+            zIndex: 2,
           }}
         >
-          <Typography variant="h6" fontWeight={700}>
-            Dashboard
-          </Typography>
-          <IconButton onClick={() => setIsMobileOpen(true)}>
-            <MenuIcon />
-          </IconButton>
+          <Box
+            component="img"
+            src="/assets/svg/STILL PLAYLOGOBL.svg"
+            alt="Still Play"
+            sx={{ height: 28, width: "auto" }}
+          />
+          <Stack direction="row" alignItems="center" spacing={0.5}>
+            <Typography variant="subtitle2" fontWeight={700} sx={{ display: { xs: "none", sm: "block" } }}>
+              Menu
+            </Typography>
+            <IconButton onClick={() => setIsMobileOpen(true)} aria-label="Open menu" edge="end">
+              <MenuIcon />
+            </IconButton>
+          </Stack>
         </Stack>
 
         <Box
           sx={{
             flex: 1,
             minHeight: 0,
-            overflowY: { xs: "visible", md: "auto" },
+            minWidth: 0,
+            overflowY: "auto",
+            overflowX: "hidden",
             WebkitOverflowScrolling: "touch",
-            padding: { xs: 2, md: 3 },
+            overscrollBehavior: "contain",
+            padding: { xs: 1.5, sm: 2, md: 3 },
           }}
         >
           {children}
@@ -150,16 +172,20 @@ export default function DashboardLayoutClient({ children }: DashboardLayoutClien
         open={isMobileOpen}
         onClose={() => setIsMobileOpen(false)}
         sx={{ display: { xs: "block", md: "none" } }}
-        PaperProps={{ sx: { width: 260 } }}
+        PaperProps={{
+          sx: {
+            width: "min(300px, 88vw)",
+            height: "100%",
+            maxHeight: "100dvh",
+            overflow: "hidden",
+          },
+        }}
       >
-        <Suspense
-          fallback={
-            <Box sx={{ width: "100%", minHeight: 200, bgcolor: "#fafafa" }} />
-          }
-        >
+        <Suspense fallback={<Box sx={{ width: "100%", minHeight: 200, bgcolor: "#fafafa" }} />}>
           <DashboardSidebar onNavigate={() => setIsMobileOpen(false)} />
         </Suspense>
       </Drawer>
     </Box>
+    </QueryClientProvider>
   );
 }

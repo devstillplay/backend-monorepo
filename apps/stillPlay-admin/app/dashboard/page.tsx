@@ -199,7 +199,12 @@ function DashboardPageContent() {
           onChange={handleMainTabChange}
           sx={{
             marginBottom: 2,
-            "& .MuiTab-root": { textTransform: "none", fontWeight: 600 },
+            "& .MuiTab-root": {
+              textTransform: "none",
+              fontWeight: 600,
+              minWidth: "auto",
+              px: { xs: 1.5, md: 2 },
+            },
             "& .MuiTabs-indicator": { backgroundColor: "#0b7b4c" },
             "& .Mui-selected": { color: "#0b7b4c" },
           }}
@@ -220,12 +225,15 @@ function DashboardPageContent() {
           <Box
             sx={{
               background: "#ffffff",
-              borderRadius: { xs: 0, md: 2 },
-              padding: { xs: 2, md: 3.5 },
+              borderRadius: { xs: 2, md: 2 },
+              padding: { xs: 1.5, md: 3.5 },
               paddingBottom: { xs: 3, md: 4 },
-              marginTop: { xs: 2, md: 3 },
-              marginX: { xs: -2, md: 0 },
-              minHeight: "calc(100vh - 220px)",
+              marginTop: { xs: 1, md: 3 },
+              minHeight: { xs: "auto", md: "calc(100vh - 220px)" },
+              width: "100%",
+              maxWidth: "100%",
+              overflowX: "hidden",
+              boxSizing: "border-box",
               display: "flex",
               flexDirection: "column",
             }}
@@ -331,8 +339,8 @@ function DashboardPageContent() {
             <Box
               sx={{
                 marginTop: 1,
-                maxHeight: { xs: 420, sm: "none" },
-                overflowY: { xs: "auto", sm: "visible" },
+                maxHeight: "none",
+                overflowX: "hidden",
               }}
             >
               {isLoading ? (
@@ -389,14 +397,16 @@ function DashboardPageContent() {
                         },
                       }}
                     >
-                      <Stack direction="row" spacing={1} alignItems="center">
+                      <Stack direction="row" spacing={1} alignItems="center" sx={{ minWidth: 0 }}>
                         <Avatar
                           src={row.picture || undefined}
                           sx={{ width: 32, height: 32 }}
                         >
                           {(row.name?.[0] ?? "?").toUpperCase()}
                         </Avatar>
-                        <Typography variant="body2">{row.name}</Typography>
+                        <Typography variant="body2" noWrap sx={{ minWidth: 0 }}>
+                          {row.name}
+                        </Typography>
                       </Stack>
                       <Box
                         sx={{
@@ -899,9 +909,10 @@ function DashboardPageContent() {
       <Dialog
         open={!!editUser}
         onClose={() => !updateUserMutation.isPending && setEditUser(null)}
-        PaperProps={{ sx: { borderRadius: 2 } }}
+        PaperProps={{ sx: { borderRadius: { xs: 2, sm: 2 } } }}
         maxWidth="sm"
         fullWidth
+        scroll="paper"
       >
         <DialogTitle sx={{ pb: 0 }}>User profile</DialogTitle>
         <DialogContent sx={{ pt: 1 }}>

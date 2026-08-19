@@ -201,20 +201,21 @@ export default function DashboardSidebar({
       transition={{ duration: 0.45, ease: "easeOut" }}
       sx={{
         padding: { xs: 2, md: 3 },
-        height: "100vh",
+        height: "100%",
         maxHeight: "100dvh",
         boxSizing: "border-box",
         overflow: "hidden",
         display: "flex",
         flexDirection: "column",
+        minHeight: 0,
       }}
     >
-      <Stack spacing={3} sx={{ flexShrink: 0 }}>
+      <Stack spacing={{ xs: 2, md: 3 }} sx={{ flexShrink: 0 }}>
         <Box
           component="img"
           src="/assets/svg/STILL PLAYLOGOBL.svg"
           alt="Still Play"
-          sx={{ width: 140, height: "auto", marginX: "auto" }}
+          sx={{ width: { xs: 120, md: 140 }, height: "auto", marginX: "auto" }}
         />
         <Box sx={{ textAlign: "center" }}>
           <input
@@ -240,8 +241,8 @@ export default function DashboardSidebar({
             <Avatar
               src={profilePicture ?? undefined}
               sx={{
-                width: 76,
-                height: 76,
+                width: { xs: 64, md: 76 },
+                height: { xs: 64, md: 76 },
                 border: "2px solid #0b7b4c",
                 opacity: uploadingPhoto || updateUserMutation.isPending ? 0.7 : 1,
               }}
@@ -288,8 +289,11 @@ export default function DashboardSidebar({
         sx={{
           flex: 1,
           minHeight: 0,
-          overflow: "hidden",
+          overflowY: "auto",
+          overflowX: "hidden",
           py: 1,
+          WebkitOverflowScrolling: "touch",
+          overscrollBehavior: "contain",
         }}
       >
         {visibleNavItems.map((item) => {
@@ -355,6 +359,7 @@ export default function DashboardSidebar({
                 onClick={onNavigate}
                 sx={{
                   justifyContent: "flex-start",
+                  flexShrink: 0,
                   color: isActive ? "#f59e0b" : "text.primary",
                   backgroundColor: isActive ? "#f3f3f3" : "transparent",
                   borderRadius: 999,
@@ -369,7 +374,7 @@ export default function DashboardSidebar({
         })}
         {!hideAdminOnlyNav ? (
           <Link href="/dashboard/staff" style={{ textDecoration: "none" }}>
-            <Button variant="contained" size="small" fullWidth onClick={onNavigate}>
+            <Button variant="contained" size="small" fullWidth onClick={onNavigate} sx={{ mt: 0.5 }}>
               Create Admin Account
             </Button>
           </Link>

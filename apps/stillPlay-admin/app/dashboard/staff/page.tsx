@@ -115,12 +115,15 @@ export default function StaffPage() {
       <Box
         sx={{
           background: "#ffffff",
-          borderRadius: { xs: 0, md: 2 },
-          padding: { xs: 2, md: 3.5 },
+          borderRadius: { xs: 2, md: 2 },
+          padding: { xs: 1.5, md: 3.5 },
           paddingBottom: { xs: 3, md: 4 },
-          marginTop: { xs: 2, md: 3 },
-          marginX: { xs: -2, md: 0 },
-          minHeight: "calc(100vh - 220px)",
+          marginTop: { xs: 1, md: 3 },
+          minHeight: { xs: "auto", md: "calc(100vh - 220px)" },
+          width: "100%",
+          maxWidth: "100%",
+          overflowX: "hidden",
+          boxSizing: "border-box",
           display: "flex",
           flexDirection: "column",
         }}
@@ -198,9 +201,7 @@ export default function StaffPage() {
             <Box
               sx={{
                 marginTop: 1,
-                overflowX: { xs: "auto", md: "visible" },
-                overflowY: { xs: "auto", md: "visible" },
-                maxHeight: { xs: "70vh", md: "none" },
+                overflowX: "hidden",
                 WebkitOverflowScrolling: "touch",
               }}
             >
@@ -246,7 +247,7 @@ export default function StaffPage() {
                       <Box
                         sx={{
                           display: { xs: "grid", md: "none" },
-                          gridTemplateColumns: "100px 1fr",
+                          gridTemplateColumns: "minmax(72px, 88px) minmax(0, 1fr)",
                           gap: "4px 12px",
                           alignItems: "baseline",
                           "& > .label": { color: "text.secondary", fontSize: "0.75rem" },
@@ -402,9 +403,11 @@ export default function StaffPage() {
       <Dialog
         open={openCreate}
         onClose={resetForm}
-        PaperProps={{ sx: { borderRadius: 2 } }}
+        PaperProps={{ sx: { borderRadius: { xs: 2, sm: 2 } } }}
         maxWidth="sm"
         fullWidth
+        fullScreen={false}
+        scroll="paper"
       >
         <DialogTitle>Create Admin Account</DialogTitle>
         <DialogContent>

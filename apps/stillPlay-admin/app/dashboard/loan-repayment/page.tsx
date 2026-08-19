@@ -60,12 +60,15 @@ export default function LoanRepaymentPage() {
       <Box
         sx={{
           background: "#ffffff",
-          borderRadius: { xs: 0, md: 4 },
-          padding: { xs: 2, md: 3.5 },
+          borderRadius: { xs: 2, md: 4 },
+          padding: { xs: 1.5, md: 3.5 },
           paddingBottom: { xs: 3, md: 4 },
-          marginTop: { xs: 2, md: 3 },
-          marginX: { xs: -2, md: 0 },
-          minHeight: "calc(100vh - 220px)",
+          marginTop: { xs: 1, md: 3 },
+          minHeight: { xs: "auto", md: "calc(100vh - 220px)" },
+          width: "100%",
+          maxWidth: "100%",
+          overflowX: "hidden",
+          boxSizing: "border-box",
           display: "flex",
           flexDirection: "column",
         }}
@@ -146,9 +149,8 @@ export default function LoanRepaymentPage() {
             <Box
               sx={{
                 marginTop: 1,
-                maxHeight: { xs: 420, sm: "none" },
-                overflowY: { xs: "auto", sm: "visible" },
-                overflowX: { xs: "auto", md: "visible" },
+                maxHeight: "none",
+                overflowX: "hidden",
               }}
             >
               {isLoading ? (

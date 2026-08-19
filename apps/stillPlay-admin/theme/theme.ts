@@ -53,5 +53,40 @@ export const theme = createTheme({
         },
       },
     },
+    MuiDialog: {
+      defaultProps: {
+        fullWidth: true,
+        scroll: "paper",
+      },
+      styleOverrides: {
+        paper: {
+          maxHeight: "calc(100dvh - 24px)",
+          "@media (max-width: 600px)": {
+            margin: 12,
+            width: "calc(100% - 24px)",
+            maxWidth: "calc(100% - 24px)",
+          },
+        },
+      },
+    },
+    MuiTabs: {
+      defaultProps: {
+        variant: "scrollable",
+        allowScrollButtonsMobile: true,
+        scrollButtons: "auto",
+      },
+    },
+    MuiPagination: {
+      defaultProps: {
+        size: "small",
+        siblingCount: 0,
+      },
+      styleOverrides: {
+        ul: {
+          justifyContent: "center",
+          flexWrap: "wrap",
+        },
+      },
+    },
   },
 });

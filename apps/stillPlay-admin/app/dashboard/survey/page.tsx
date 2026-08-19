@@ -163,8 +163,12 @@ function SurveyPageInner() {
             {emptyMessage}
           </Typography>
         ) : (
-          <TableContainer component={Paper} variant="outlined" sx={{ mt: 2 }}>
-            <Table size="small">
+          <TableContainer
+            component={Paper}
+            variant="outlined"
+            sx={{ mt: 2, overflowX: "auto", maxWidth: "100%" }}
+          >
+            <Table size="small" sx={{ minWidth: 640 }}>
               <TableHead>
                 <TableRow>
                   <TableCell>Name</TableCell>

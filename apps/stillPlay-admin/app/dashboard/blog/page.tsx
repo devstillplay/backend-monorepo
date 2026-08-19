@@ -26,6 +26,8 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
+import { useTheme } from "@mui/material/styles";
+import useMediaQuery from "@mui/material/useMediaQuery";
 import { motion } from "framer-motion";
 import { useMemo, useRef, useState } from "react";
 
@@ -118,6 +120,8 @@ function toPayload(form: FormState): BlogPostPayload {
 }
 
 export default function BlogAdminPage() {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const token = useAuthStore((s) => s.token);
   const { data: posts = [], isLoading, isError, error, refetch, isFetching } =
     useBlogPosts();
@@ -225,11 +229,14 @@ export default function BlogAdminPage() {
       <Box
         sx={{
           background: "#ffffff",
-          borderRadius: { xs: 0, md: 2 },
-          padding: { xs: 2, md: 3.5 },
-          marginTop: { xs: 2, md: 3 },
-          marginX: { xs: -2, md: 0 },
-          minHeight: "calc(100vh - 220px)",
+          borderRadius: { xs: 2, md: 2 },
+          padding: { xs: 1.5, md: 3.5 },
+          marginTop: { xs: 1, md: 3 },
+          minHeight: { xs: "auto", md: "calc(100vh - 220px)" },
+          width: "100%",
+          maxWidth: "100%",
+          overflowX: "hidden",
+          boxSizing: "border-box",
         }}
       >
         <Stack
@@ -393,7 +400,14 @@ export default function BlogAdminPage() {
         )}
       </Box>
 
-      <Dialog open={dialogOpen} onClose={closeDialog} fullWidth maxWidth="md">
+      <Dialog
+        open={dialogOpen}
+        onClose={closeDialog}
+        fullWidth
+        maxWidth="md"
+        fullScreen={isMobile}
+        scroll="paper"
+      >
         <DialogTitle>{editing ? "Edit blog post" : "New blog post"}</DialogTitle>
         <DialogContent dividers>
           <Stack spacing={2.5} sx={{ pt: 1 }}>
@@ -496,7 +510,8 @@ export default function BlogAdminPage() {
               <Stack direction={{ xs: "column", sm: "row" }} spacing={2} alignItems="flex-start">
                 <Box
                   sx={{
-                    width: 200,
+                    width: { xs: "100%", sm: 200 },
+                    maxWidth: "100%",
                     height: 120,
                     borderRadius: 1.5,
                     overflow: "hidden",
@@ -551,7 +566,7 @@ export default function BlogAdminPage() {
                     onChange={(e) =>
                       setForm((f) => ({ ...f, coverImage: e.target.value }))
                     }
-                    sx={{ minWidth: 280 }}
+                    sx={{ minWidth: { xs: "100%", sm: 280 }, maxWidth: "100%" }}
                   />
                 </Stack>
               </Stack>

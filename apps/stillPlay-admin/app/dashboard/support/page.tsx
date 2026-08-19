@@ -1,8 +1,9 @@
 "use client";
 
 import AccessTimeOutlinedIcon from "@mui/icons-material/AccessTimeOutlined";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import SendIcon from "@mui/icons-material/Send";
-import { Avatar, Box, CircularProgress, Stack, TextField, Typography } from "@mui/material";
+import { Avatar, Box, CircularProgress, IconButton, Stack, TextField, Typography } from "@mui/material";
 import Pusher from "pusher-js";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
@@ -193,24 +194,35 @@ export default function SupportPage() {
   });
 
   return (
-    <Box>
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        minHeight: { xs: "calc(100dvh - 112px)", md: "auto" },
+        height: { xs: "calc(100dvh - 112px)", md: "auto" },
+      }}
+    >
       <DashboardHeader search={search} onSearchChange={setSearch} />
       <Box
         sx={{
           background: "#ffffff",
-          borderRadius: 4,
-          padding: { xs: 2, md: 3.5 },
-          paddingBottom: { xs: 3, md: 4 },
-          marginTop: { xs: 2, md: 3 },
-          minHeight: "calc(100vh - 220px)",
+          borderRadius: 2,
+          padding: { xs: 1.5, md: 3.5 },
+          paddingBottom: { xs: 2, md: 4 },
+          marginTop: { xs: 1, md: 3 },
+          flex: 1,
+          minHeight: 0,
           display: "flex",
           flexDirection: "column",
+          width: "100%",
+          maxWidth: "100%",
+          overflow: "hidden",
         }}
       >
         <Box
           sx={{
             borderRadius: 3,
-            padding: 2,
+            padding: { xs: 1, md: 2 },
             backgroundColor: "#f3f3f3",
             display: "flex",
             flexDirection: { xs: "column", md: "row" },
@@ -222,11 +234,17 @@ export default function SupportPage() {
           {/* User list */}
           <Box
             sx={{
-              flex: { xs: "0 0 auto", md: "0 0 280px" },
-              maxHeight: { xs: 200, md: "100%" },
+              flex: { xs: "1 1 auto", md: "0 0 280px" },
+              display: {
+                xs: selectedUserId ? "none" : "block",
+                md: "block",
+              },
+              maxHeight: { xs: "100%", md: "100%" },
               overflowY: "auto",
+              WebkitOverflowScrolling: "touch",
               borderRight: { md: "1px solid #e0e0e0" },
               pr: { md: 2 },
+              minHeight: 0,
             }}
           >
             <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
@@ -263,9 +281,13 @@ export default function SupportPage() {
           <Box
             sx={{
               flex: 1,
-              display: "flex",
+              display: {
+                xs: selectedUserId ? "flex" : "none",
+                md: "flex",
+              },
               flexDirection: "column",
               minHeight: 0,
+              minWidth: 0,
             }}
           >
             {!selectedThreadId ? (
@@ -298,10 +320,22 @@ export default function SupportPage() {
                     display: "flex",
                     alignItems: "center",
                     gap: 1.5,
+                    minWidth: 0,
                   }}
                 >
+                  <IconButton
+                    size="small"
+                    aria-label="Back to users"
+                    onClick={() => {
+                      setSelectedUserId(null);
+                      setSelectedThreadId(null);
+                    }}
+                    sx={{ display: { xs: "inline-flex", md: "none" } }}
+                  >
+                    <ArrowBackIcon />
+                  </IconButton>
                   <Avatar sx={{ width: 36, height: 36 }} />
-                  <Typography fontWeight={600}>
+                  <Typography fontWeight={600} noWrap>
                     {selectedUser ? getUserDisplay(selectedUser) : "Customer"}
                   </Typography>
                 </Box>
@@ -435,6 +469,7 @@ function MessageBubble({ message, isAdmin }: { message: ChatMessage; isAdmin: bo
       sx={{
         alignSelf: isAdmin ? "flex-end" : "flex-start",
         maxWidth: "75%",
+        wordBreak: "break-word",
         px: 2,
         py: 1,
         borderRadius: 2,

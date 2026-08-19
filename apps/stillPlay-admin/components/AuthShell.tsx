@@ -12,7 +12,7 @@ export default function AuthShell({ children }: AuthShellProps) {
   return (
     <Box
       sx={{
-        minHeight: "100vh",
+        minHeight: "100dvh",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -22,10 +22,10 @@ export default function AuthShell({ children }: AuthShellProps) {
       <Box
         sx={{
           width: "100%",
-          minHeight: "100vh",
+          minHeight: "100dvh",
           background: "#fff",
           borderRadius: 0,
-          overflow: "hidden",
+          overflow: "auto",
           display: "grid",
           gridTemplateColumns: { xs: "1fr", md: "40% 60%" },
         }}

@@ -91,7 +91,7 @@ function ProviderRow({
       </Stack>
 
       {/* Email */}
-      <Typography variant="body2" color="text.secondary" sx={{ fontSize: 12 }}>
+      <Typography variant="body2" color="text.secondary" sx={{ fontSize: 12, wordBreak: "break-all" }}>
         {p.email ?? "—"}
       </Typography>
 
@@ -292,12 +292,15 @@ export default function ProvidersPage() {
       <Box
         sx={{
           background: "#ffffff",
-          borderRadius: { xs: 0, md: 2 },
-          padding: { xs: 2, md: 3.5 },
+          borderRadius: { xs: 2, md: 2 },
+          padding: { xs: 1.5, md: 3.5 },
           paddingBottom: { xs: 3, md: 4 },
-          marginTop: { xs: 2, md: 3 },
-          marginX: { xs: -2, md: 0 },
-          minHeight: "calc(100vh - 220px)",
+          marginTop: { xs: 1, md: 3 },
+          minHeight: { xs: "auto", md: "calc(100vh - 220px)" },
+          width: "100%",
+          maxWidth: "100%",
+          overflowX: "hidden",
+          boxSizing: "border-box",
           display: "flex",
           flexDirection: "column",
         }}

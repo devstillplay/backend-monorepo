@@ -34,6 +34,7 @@ export default function DashboardHeader({
         }}
         sx={{
           width: { xs: "100%", sm: 320, md: 380 },
+          maxWidth: "100%",
           alignSelf: { xs: "stretch", md: "flex-start" },
           "& .MuiOutlinedInput-root": {
             backgroundColor: "#f3f3f3",

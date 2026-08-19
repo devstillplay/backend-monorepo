@@ -421,7 +421,6 @@ export default function SettingsPage() {
             borderColor: "divider",
             mb: 3,
             "& .MuiTab-root": { textTransform: "none", fontWeight: 600 },
-            "& .MuiTabs-flexContainer": { flexWrap: "wrap" },
           }}
         >
           <Tab label="Activity" />
