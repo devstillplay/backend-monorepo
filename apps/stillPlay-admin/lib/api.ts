@@ -914,6 +914,150 @@ export async function deleteBlogPost(
   }
 }
 
+export type MarketingAudience =
+  | "customers"
+  | "admins"
+  | "waitlist"
+  | "financial_partners"
+  | "partner_inquiries"
+  | "all_survey";
+
+export type MarketingSendPayload = {
+  audiences?: MarketingAudience[];
+  customEmails?: string[];
+  individualEmails?: string[];
+  subject: string;
+  html: string;
+};
+
+export type MarketingRecipientPreview = {
+  email: string;
+  name?: string;
+  source: string;
+  status?: "sent" | "failed";
+  error?: string;
+};
+
+export type MarketingPreviewResult = {
+  count: number;
+  recipients: MarketingRecipientPreview[];
+};
+
+export type MarketingSendSummary = {
+  id: string;
+  subject: string;
+  audiences: string[];
+  recipientCount: number;
+  sent: number;
+  failed: number;
+  status: "sent" | "partial" | "failed";
+  sentByEmail?: string | null;
+  createdAt: string;
+};
+
+export type MarketingSendDetail = MarketingSendSummary & {
+  errors?: string | null;
+  recipients: MarketingRecipientPreview[];
+  sentById?: string | null;
+};
+
+export type MarketingSendResult = {
+  message: string;
+  sendId?: string;
+  recipientCount: number;
+  sent: number;
+  failed: number;
+  errors: string[];
+  status?: "sent" | "partial" | "failed";
+  createdAt?: string;
+  recipients: MarketingRecipientPreview[];
+};
+
+export async function previewMarketingRecipients(
+  token: string,
+  payload: Omit<MarketingSendPayload, "subject" | "html">
+): Promise<MarketingPreviewResult> {
+  requireBaseUrl();
+  const res = await fetch(endpoints.admin.marketingPreviewRecipients(), {
+    method: "POST",
+    headers: getAuthHeaders(token),
+    body: JSON.stringify(payload),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    handleAuthError(res);
+    throw new Error(
+      typeof data.message === "string"
+        ? data.message
+        : "Failed to preview recipients"
+    );
+  }
+  return data as MarketingPreviewResult;
+}
+
+export async function sendMarketingEmail(
+  token: string,
+  payload: MarketingSendPayload
+): Promise<MarketingSendResult> {
+  requireBaseUrl();
+  const res = await fetch(endpoints.admin.marketingSend(), {
+    method: "POST",
+    headers: getAuthHeaders(token),
+    body: JSON.stringify(payload),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    handleAuthError(res);
+    throw new Error(
+      typeof data.message === "string"
+        ? data.message
+        : "Failed to send marketing email"
+    );
+  }
+  return data as MarketingSendResult;
+}
+
+export async function listMarketingSendHistory(
+  token: string,
+  limit = 50
+): Promise<{ sends: MarketingSendSummary[] }> {
+  requireBaseUrl();
+  const res = await fetch(
+    `${endpoints.admin.marketingHistory()}?limit=${limit}`,
+    { headers: getAuthHeaders(token) }
+  );
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    handleAuthError(res);
+    throw new Error(
+      typeof data.message === "string"
+        ? data.message
+        : "Failed to load marketing history"
+    );
+  }
+  return data as { sends: MarketingSendSummary[] };
+}
+
+export async function getMarketingSendHistory(
+  token: string,
+  id: string
+): Promise<{ send: MarketingSendDetail }> {
+  requireBaseUrl();
+  const res = await fetch(endpoints.admin.marketingHistoryById(id), {
+    headers: getAuthHeaders(token),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    handleAuthError(res);
+    throw new Error(
+      typeof data.message === "string"
+        ? data.message
+        : "Failed to load send details"
+    );
+  }
+  return data as { send: MarketingSendDetail };
+}
+
 /** Get single admin user (requires token). */
 export async function getAdminUser(
   token: string,

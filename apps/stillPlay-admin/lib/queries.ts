@@ -42,6 +42,15 @@ import {
   type CreateEmployeePayload,
   type Employee,
   type BlogPostPayload,
+  previewMarketingRecipients,
+  sendMarketingEmail,
+  listMarketingSendHistory,
+  getMarketingSendHistory,
+  type MarketingSendPayload,
+  type MarketingPreviewResult,
+  type MarketingSendResult,
+  type MarketingSendSummary,
+  type MarketingSendDetail,
 } from "./api";
 
 export const adminKeys = {
@@ -49,6 +58,7 @@ export const adminKeys = {
   users: () => [...adminKeys.all, "users"] as const,
   waitlist: () => [...adminKeys.all, "waitlist"] as const,
   blog: () => [...adminKeys.all, "blog"] as const,
+  marketingHistory: () => [...adminKeys.all, "marketingHistory"] as const,
   user: (id: string) => [...adminKeys.users(), id] as const,
   employees: () => [...adminKeys.all, "employees"] as const,
   activity: () => [...adminKeys.all, "activity"] as const,
@@ -143,6 +153,46 @@ export function useDeleteBlogPost() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: adminKeys.blog() });
     },
+  });
+}
+
+export function usePreviewMarketingRecipients() {
+  const token = useAuthStore((s) => s.token);
+  return useMutation({
+    mutationFn: (payload: Omit<MarketingSendPayload, "subject" | "html">) =>
+      previewMarketingRecipients(token!, payload),
+  });
+}
+
+export function useSendMarketingEmail() {
+  const token = useAuthStore((s) => s.token);
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: MarketingSendPayload) =>
+      sendMarketingEmail(token!, payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: adminKeys.marketingHistory() });
+    },
+  });
+}
+
+export function useMarketingSendHistory(limit = 50) {
+  const token = useAuthStore((s) => s.token);
+  return useQuery({
+    queryKey: [...adminKeys.marketingHistory(), limit],
+    queryFn: () => listMarketingSendHistory(token!, limit),
+    enabled: !!token,
+    refetchOnWindowFocus: true,
+    staleTime: 30 * 1000,
+  });
+}
+
+export function useMarketingSendDetail(id: string | null) {
+  const token = useAuthStore((s) => s.token);
+  return useQuery({
+    queryKey: [...adminKeys.marketingHistory(), "detail", id],
+    queryFn: () => getMarketingSendHistory(token!, id!),
+    enabled: !!token && !!id,
   });
 }
 

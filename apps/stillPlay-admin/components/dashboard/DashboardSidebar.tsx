@@ -12,6 +12,7 @@ import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 import SupportAgentOutlinedIcon from "@mui/icons-material/SupportAgentOutlined";
 import PollOutlinedIcon from "@mui/icons-material/PollOutlined";
 import ArticleOutlinedIcon from "@mui/icons-material/ArticleOutlined";
+import CampaignOutlinedIcon from "@mui/icons-material/CampaignOutlined";
 import {
   Badge,
   Box,
@@ -70,6 +71,11 @@ const navItems = [
     label: "Blog",
     href: "/dashboard/blog",
     icon: <ArticleOutlinedIcon />,
+  },
+  {
+    label: "Marketing",
+    href: "/dashboard/marketing",
+    icon: <CampaignOutlinedIcon />,
   },
   {
     label: "Support",
@@ -140,7 +146,8 @@ export default function DashboardSidebar({
             (item) =>
               item.href !== "/dashboard" &&
               item.href !== "/dashboard/providers" &&
-              item.href !== "/dashboard/staff"
+              item.href !== "/dashboard/staff" &&
+              item.href !== "/dashboard/marketing"
           )
         : navItems,
     [hideAdminOnlyNav]

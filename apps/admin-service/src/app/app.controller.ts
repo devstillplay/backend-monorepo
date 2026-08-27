@@ -1,10 +1,15 @@
 import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { AppService } from './app.service';
+import { MarketingService } from './marketing/marketing.service';
+import type { MarketingSendPayload } from './marketing/marketing.service';
 
 @Controller()
 export class AppController {
-  constructor(private readonly appService: AppService) {}
+  constructor(
+    private readonly appService: AppService,
+    private readonly marketingService: MarketingService
+  ) {}
 
   // User management
   @MessagePattern('admin-users-list')
@@ -123,5 +128,25 @@ export class AppController {
   @MessagePattern('blog-delete')
   async deleteBlogPost(@Payload() id: string) {
     return this.appService.deleteBlogPost(id);
+  }
+
+  @MessagePattern('marketing-preview-recipients')
+  async previewMarketingRecipients(@Payload() payload: MarketingSendPayload) {
+    return this.marketingService.previewRecipients(payload);
+  }
+
+  @MessagePattern('marketing-send')
+  async sendMarketingEmail(@Payload() payload: MarketingSendPayload) {
+    return this.marketingService.sendMarketing(payload);
+  }
+
+  @MessagePattern('marketing-send-history-list')
+  async listMarketingSendHistory(@Payload() payload: { limit?: number }) {
+    return this.marketingService.listSendHistory(payload?.limit);
+  }
+
+  @MessagePattern('marketing-send-history-get')
+  async getMarketingSendHistory(@Payload() id: string) {
+    return this.marketingService.getSendHistory(id);
   }
 }

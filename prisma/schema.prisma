@@ -270,3 +270,23 @@ model BlogPost {
   @@index([status, publishedAt])
   @@index([createdAt])
 }
+
+// Marketing bulk email send history (admin dashboard)
+model MarketingEmailSend {
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  subject        String
+  audiences      String[]
+  recipientCount Int
+  sent           Int
+  failed         Int
+  status         String   // sent | partial | failed
+  errors         String?
+  /// [{ email, name?, source, status: sent|failed, error? }]
+  recipients     Json
+  sentById       String?
+  sentByEmail    String?
+  createdAt      DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([sentById])
+}

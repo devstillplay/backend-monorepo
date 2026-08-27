@@ -339,6 +339,21 @@ exports.Prisma.BlogPostScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.MarketingEmailSendScalarFieldEnum = {
+  id: 'id',
+  subject: 'subject',
+  audiences: 'audiences',
+  recipientCount: 'recipientCount',
+  sent: 'sent',
+  failed: 'failed',
+  status: 'status',
+  errors: 'errors',
+  recipients: 'recipients',
+  sentById: 'sentById',
+  sentByEmail: 'sentByEmail',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -371,7 +386,8 @@ exports.Prisma.ModelName = {
   ChatSupport: 'ChatSupport',
   ChatMessage: 'ChatMessage',
   WaitlistEntry: 'WaitlistEntry',
-  BlogPost: 'BlogPost'
+  BlogPost: 'BlogPost',
+  MarketingEmailSend: 'MarketingEmailSend'
 };
 
 /**

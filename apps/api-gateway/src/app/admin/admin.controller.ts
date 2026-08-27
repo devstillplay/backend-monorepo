@@ -442,4 +442,57 @@ export class AdminController {
       rethrowAdminMicroserviceError(err);
     }
   }
+
+  @Post('marketing/preview-recipients')
+  async previewMarketingRecipients(@Body() body: unknown) {
+    try {
+      return await firstValueFrom(
+        this.adminClient.send('marketing-preview-recipients', body)
+      );
+    } catch (err) {
+      rethrowAdminMicroserviceError(err);
+    }
+  }
+
+  @Post('marketing/send')
+  async sendMarketingEmail(
+    @Req() req: RequestWithUser,
+    @Body() body: Record<string, unknown>
+  ) {
+    try {
+      return await firstValueFrom(
+        this.adminClient.send('marketing-send', {
+          ...body,
+          sentById: req.user.id,
+          sentByEmail: req.user.email,
+        })
+      );
+    } catch (err) {
+      rethrowAdminMicroserviceError(err);
+    }
+  }
+
+  @Get('marketing/history')
+  async listMarketingSendHistory(@Query('limit') limit?: string) {
+    try {
+      return await firstValueFrom(
+        this.adminClient.send('marketing-send-history-list', {
+          limit: limit != null ? parseInt(limit, 10) : 50,
+        })
+      );
+    } catch (err) {
+      rethrowAdminMicroserviceError(err);
+    }
+  }
+
+  @Get('marketing/history/:id')
+  async getMarketingSendHistory(@Param('id') id: string) {
+    try {
+      return await firstValueFrom(
+        this.adminClient.send('marketing-send-history-get', id)
+      );
+    } catch (err) {
+      rethrowAdminMicroserviceError(err);
+    }
+  }
 }

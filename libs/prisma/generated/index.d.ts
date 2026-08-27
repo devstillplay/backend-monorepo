@@ -118,6 +118,11 @@ export type WaitlistEntry = $Result.DefaultSelection<Prisma.$WaitlistEntryPayloa
  * 
  */
 export type BlogPost = $Result.DefaultSelection<Prisma.$BlogPostPayload>
+/**
+ * Model MarketingEmailSend
+ * 
+ */
+export type MarketingEmailSend = $Result.DefaultSelection<Prisma.$MarketingEmailSendPayload>
 
 /**
  * ##  Prisma Client ʲˢ
@@ -413,6 +418,16 @@ export class PrismaClient<
     * ```
     */
   get blogPost(): Prisma.BlogPostDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.marketingEmailSend`: Exposes CRUD operations for the **MarketingEmailSend** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more MarketingEmailSends
+    * const marketingEmailSends = await prisma.marketingEmailSend.findMany()
+    * ```
+    */
+  get marketingEmailSend(): Prisma.MarketingEmailSendDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -874,7 +889,8 @@ export namespace Prisma {
     ChatSupport: 'ChatSupport',
     ChatMessage: 'ChatMessage',
     WaitlistEntry: 'WaitlistEntry',
-    BlogPost: 'BlogPost'
+    BlogPost: 'BlogPost',
+    MarketingEmailSend: 'MarketingEmailSend'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -893,7 +909,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "loginCode" | "passwordResetCode" | "pendingRegistration" | "wallet" | "loan" | "loanRepayment" | "externalPaymentRef" | "provider" | "providerWallet" | "loanFunding" | "providerCredit" | "providerPayout" | "employee" | "adminActivity" | "companyWallet" | "appSetting" | "chatSupport" | "chatMessage" | "waitlistEntry" | "blogPost"
+      modelProps: "user" | "loginCode" | "passwordResetCode" | "pendingRegistration" | "wallet" | "loan" | "loanRepayment" | "externalPaymentRef" | "provider" | "providerWallet" | "loanFunding" | "providerCredit" | "providerPayout" | "employee" | "adminActivity" | "companyWallet" | "appSetting" | "chatSupport" | "chatMessage" | "waitlistEntry" | "blogPost" | "marketingEmailSend"
       txIsolationLevel: never
     }
     model: {
@@ -2451,6 +2467,80 @@ export namespace Prisma {
           }
         }
       }
+      MarketingEmailSend: {
+        payload: Prisma.$MarketingEmailSendPayload<ExtArgs>
+        fields: Prisma.MarketingEmailSendFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.MarketingEmailSendFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MarketingEmailSendPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.MarketingEmailSendFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MarketingEmailSendPayload>
+          }
+          findFirst: {
+            args: Prisma.MarketingEmailSendFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MarketingEmailSendPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.MarketingEmailSendFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MarketingEmailSendPayload>
+          }
+          findMany: {
+            args: Prisma.MarketingEmailSendFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MarketingEmailSendPayload>[]
+          }
+          create: {
+            args: Prisma.MarketingEmailSendCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MarketingEmailSendPayload>
+          }
+          createMany: {
+            args: Prisma.MarketingEmailSendCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          delete: {
+            args: Prisma.MarketingEmailSendDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MarketingEmailSendPayload>
+          }
+          update: {
+            args: Prisma.MarketingEmailSendUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MarketingEmailSendPayload>
+          }
+          deleteMany: {
+            args: Prisma.MarketingEmailSendDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.MarketingEmailSendUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.MarketingEmailSendUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MarketingEmailSendPayload>
+          }
+          aggregate: {
+            args: Prisma.MarketingEmailSendAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateMarketingEmailSend>
+          }
+          groupBy: {
+            args: Prisma.MarketingEmailSendGroupByArgs<ExtArgs>
+            result: $Utils.Optional<MarketingEmailSendGroupByOutputType>[]
+          }
+          findRaw: {
+            args: Prisma.MarketingEmailSendFindRawArgs<ExtArgs>
+            result: JsonObject
+          }
+          aggregateRaw: {
+            args: Prisma.MarketingEmailSendAggregateRawArgs<ExtArgs>
+            result: JsonObject
+          }
+          count: {
+            args: Prisma.MarketingEmailSendCountArgs<ExtArgs>
+            result: $Utils.Optional<MarketingEmailSendCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -2551,6 +2641,7 @@ export namespace Prisma {
     chatMessage?: ChatMessageOmit
     waitlistEntry?: WaitlistEntryOmit
     blogPost?: BlogPostOmit
+    marketingEmailSend?: MarketingEmailSendOmit
   }
 
   /* Types for Logging */
@@ -23700,6 +23791,1052 @@ export namespace Prisma {
 
 
   /**
+   * Model MarketingEmailSend
+   */
+
+  export type AggregateMarketingEmailSend = {
+    _count: MarketingEmailSendCountAggregateOutputType | null
+    _avg: MarketingEmailSendAvgAggregateOutputType | null
+    _sum: MarketingEmailSendSumAggregateOutputType | null
+    _min: MarketingEmailSendMinAggregateOutputType | null
+    _max: MarketingEmailSendMaxAggregateOutputType | null
+  }
+
+  export type MarketingEmailSendAvgAggregateOutputType = {
+    recipientCount: number | null
+    sent: number | null
+    failed: number | null
+  }
+
+  export type MarketingEmailSendSumAggregateOutputType = {
+    recipientCount: number | null
+    sent: number | null
+    failed: number | null
+  }
+
+  export type MarketingEmailSendMinAggregateOutputType = {
+    id: string | null
+    subject: string | null
+    recipientCount: number | null
+    sent: number | null
+    failed: number | null
+    status: string | null
+    errors: string | null
+    sentById: string | null
+    sentByEmail: string | null
+    createdAt: Date | null
+  }
+
+  export type MarketingEmailSendMaxAggregateOutputType = {
+    id: string | null
+    subject: string | null
+    recipientCount: number | null
+    sent: number | null
+    failed: number | null
+    status: string | null
+    errors: string | null
+    sentById: string | null
+    sentByEmail: string | null
+    createdAt: Date | null
+  }
+
+  export type MarketingEmailSendCountAggregateOutputType = {
+    id: number
+    subject: number
+    audiences: number
+    recipientCount: number
+    sent: number
+    failed: number
+    status: number
+    errors: number
+    recipients: number
+    sentById: number
+    sentByEmail: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type MarketingEmailSendAvgAggregateInputType = {
+    recipientCount?: true
+    sent?: true
+    failed?: true
+  }
+
+  export type MarketingEmailSendSumAggregateInputType = {
+    recipientCount?: true
+    sent?: true
+    failed?: true
+  }
+
+  export type MarketingEmailSendMinAggregateInputType = {
+    id?: true
+    subject?: true
+    recipientCount?: true
+    sent?: true
+    failed?: true
+    status?: true
+    errors?: true
+    sentById?: true
+    sentByEmail?: true
+    createdAt?: true
+  }
+
+  export type MarketingEmailSendMaxAggregateInputType = {
+    id?: true
+    subject?: true
+    recipientCount?: true
+    sent?: true
+    failed?: true
+    status?: true
+    errors?: true
+    sentById?: true
+    sentByEmail?: true
+    createdAt?: true
+  }
+
+  export type MarketingEmailSendCountAggregateInputType = {
+    id?: true
+    subject?: true
+    audiences?: true
+    recipientCount?: true
+    sent?: true
+    failed?: true
+    status?: true
+    errors?: true
+    recipients?: true
+    sentById?: true
+    sentByEmail?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type MarketingEmailSendAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which MarketingEmailSend to aggregate.
+     */
+    where?: MarketingEmailSendWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of MarketingEmailSends to fetch.
+     */
+    orderBy?: MarketingEmailSendOrderByWithRelationInput | MarketingEmailSendOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: MarketingEmailSendWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` MarketingEmailSends from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` MarketingEmailSends.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned MarketingEmailSends
+    **/
+    _count?: true | MarketingEmailSendCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: MarketingEmailSendAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: MarketingEmailSendSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: MarketingEmailSendMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: MarketingEmailSendMaxAggregateInputType
+  }
+
+  export type GetMarketingEmailSendAggregateType<T extends MarketingEmailSendAggregateArgs> = {
+        [P in keyof T & keyof AggregateMarketingEmailSend]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateMarketingEmailSend[P]>
+      : GetScalarType<T[P], AggregateMarketingEmailSend[P]>
+  }
+
+
+
+
+  export type MarketingEmailSendGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: MarketingEmailSendWhereInput
+    orderBy?: MarketingEmailSendOrderByWithAggregationInput | MarketingEmailSendOrderByWithAggregationInput[]
+    by: MarketingEmailSendScalarFieldEnum[] | MarketingEmailSendScalarFieldEnum
+    having?: MarketingEmailSendScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: MarketingEmailSendCountAggregateInputType | true
+    _avg?: MarketingEmailSendAvgAggregateInputType
+    _sum?: MarketingEmailSendSumAggregateInputType
+    _min?: MarketingEmailSendMinAggregateInputType
+    _max?: MarketingEmailSendMaxAggregateInputType
+  }
+
+  export type MarketingEmailSendGroupByOutputType = {
+    id: string
+    subject: string
+    audiences: string[]
+    recipientCount: number
+    sent: number
+    failed: number
+    status: string
+    errors: string | null
+    recipients: JsonValue
+    sentById: string | null
+    sentByEmail: string | null
+    createdAt: Date
+    _count: MarketingEmailSendCountAggregateOutputType | null
+    _avg: MarketingEmailSendAvgAggregateOutputType | null
+    _sum: MarketingEmailSendSumAggregateOutputType | null
+    _min: MarketingEmailSendMinAggregateOutputType | null
+    _max: MarketingEmailSendMaxAggregateOutputType | null
+  }
+
+  type GetMarketingEmailSendGroupByPayload<T extends MarketingEmailSendGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<MarketingEmailSendGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof MarketingEmailSendGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], MarketingEmailSendGroupByOutputType[P]>
+            : GetScalarType<T[P], MarketingEmailSendGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type MarketingEmailSendSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    subject?: boolean
+    audiences?: boolean
+    recipientCount?: boolean
+    sent?: boolean
+    failed?: boolean
+    status?: boolean
+    errors?: boolean
+    recipients?: boolean
+    sentById?: boolean
+    sentByEmail?: boolean
+    createdAt?: boolean
+  }, ExtArgs["result"]["marketingEmailSend"]>
+
+
+
+  export type MarketingEmailSendSelectScalar = {
+    id?: boolean
+    subject?: boolean
+    audiences?: boolean
+    recipientCount?: boolean
+    sent?: boolean
+    failed?: boolean
+    status?: boolean
+    errors?: boolean
+    recipients?: boolean
+    sentById?: boolean
+    sentByEmail?: boolean
+    createdAt?: boolean
+  }
+
+  export type MarketingEmailSendOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "subject" | "audiences" | "recipientCount" | "sent" | "failed" | "status" | "errors" | "recipients" | "sentById" | "sentByEmail" | "createdAt", ExtArgs["result"]["marketingEmailSend"]>
+
+  export type $MarketingEmailSendPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "MarketingEmailSend"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      subject: string
+      audiences: string[]
+      recipientCount: number
+      sent: number
+      failed: number
+      status: string
+      errors: string | null
+      /**
+       * [{ email, name?, source, status: sent|failed, error? }]
+       */
+      recipients: Prisma.JsonValue
+      sentById: string | null
+      sentByEmail: string | null
+      createdAt: Date
+    }, ExtArgs["result"]["marketingEmailSend"]>
+    composites: {}
+  }
+
+  type MarketingEmailSendGetPayload<S extends boolean | null | undefined | MarketingEmailSendDefaultArgs> = $Result.GetResult<Prisma.$MarketingEmailSendPayload, S>
+
+  type MarketingEmailSendCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<MarketingEmailSendFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: MarketingEmailSendCountAggregateInputType | true
+    }
+
+  export interface MarketingEmailSendDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['MarketingEmailSend'], meta: { name: 'MarketingEmailSend' } }
+    /**
+     * Find zero or one MarketingEmailSend that matches the filter.
+     * @param {MarketingEmailSendFindUniqueArgs} args - Arguments to find a MarketingEmailSend
+     * @example
+     * // Get one MarketingEmailSend
+     * const marketingEmailSend = await prisma.marketingEmailSend.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends MarketingEmailSendFindUniqueArgs>(args: SelectSubset<T, MarketingEmailSendFindUniqueArgs<ExtArgs>>): Prisma__MarketingEmailSendClient<$Result.GetResult<Prisma.$MarketingEmailSendPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one MarketingEmailSend that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {MarketingEmailSendFindUniqueOrThrowArgs} args - Arguments to find a MarketingEmailSend
+     * @example
+     * // Get one MarketingEmailSend
+     * const marketingEmailSend = await prisma.marketingEmailSend.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends MarketingEmailSendFindUniqueOrThrowArgs>(args: SelectSubset<T, MarketingEmailSendFindUniqueOrThrowArgs<ExtArgs>>): Prisma__MarketingEmailSendClient<$Result.GetResult<Prisma.$MarketingEmailSendPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first MarketingEmailSend that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MarketingEmailSendFindFirstArgs} args - Arguments to find a MarketingEmailSend
+     * @example
+     * // Get one MarketingEmailSend
+     * const marketingEmailSend = await prisma.marketingEmailSend.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends MarketingEmailSendFindFirstArgs>(args?: SelectSubset<T, MarketingEmailSendFindFirstArgs<ExtArgs>>): Prisma__MarketingEmailSendClient<$Result.GetResult<Prisma.$MarketingEmailSendPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first MarketingEmailSend that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MarketingEmailSendFindFirstOrThrowArgs} args - Arguments to find a MarketingEmailSend
+     * @example
+     * // Get one MarketingEmailSend
+     * const marketingEmailSend = await prisma.marketingEmailSend.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends MarketingEmailSendFindFirstOrThrowArgs>(args?: SelectSubset<T, MarketingEmailSendFindFirstOrThrowArgs<ExtArgs>>): Prisma__MarketingEmailSendClient<$Result.GetResult<Prisma.$MarketingEmailSendPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more MarketingEmailSends that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MarketingEmailSendFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all MarketingEmailSends
+     * const marketingEmailSends = await prisma.marketingEmailSend.findMany()
+     * 
+     * // Get first 10 MarketingEmailSends
+     * const marketingEmailSends = await prisma.marketingEmailSend.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const marketingEmailSendWithIdOnly = await prisma.marketingEmailSend.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends MarketingEmailSendFindManyArgs>(args?: SelectSubset<T, MarketingEmailSendFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MarketingEmailSendPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a MarketingEmailSend.
+     * @param {MarketingEmailSendCreateArgs} args - Arguments to create a MarketingEmailSend.
+     * @example
+     * // Create one MarketingEmailSend
+     * const MarketingEmailSend = await prisma.marketingEmailSend.create({
+     *   data: {
+     *     // ... data to create a MarketingEmailSend
+     *   }
+     * })
+     * 
+     */
+    create<T extends MarketingEmailSendCreateArgs>(args: SelectSubset<T, MarketingEmailSendCreateArgs<ExtArgs>>): Prisma__MarketingEmailSendClient<$Result.GetResult<Prisma.$MarketingEmailSendPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many MarketingEmailSends.
+     * @param {MarketingEmailSendCreateManyArgs} args - Arguments to create many MarketingEmailSends.
+     * @example
+     * // Create many MarketingEmailSends
+     * const marketingEmailSend = await prisma.marketingEmailSend.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends MarketingEmailSendCreateManyArgs>(args?: SelectSubset<T, MarketingEmailSendCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a MarketingEmailSend.
+     * @param {MarketingEmailSendDeleteArgs} args - Arguments to delete one MarketingEmailSend.
+     * @example
+     * // Delete one MarketingEmailSend
+     * const MarketingEmailSend = await prisma.marketingEmailSend.delete({
+     *   where: {
+     *     // ... filter to delete one MarketingEmailSend
+     *   }
+     * })
+     * 
+     */
+    delete<T extends MarketingEmailSendDeleteArgs>(args: SelectSubset<T, MarketingEmailSendDeleteArgs<ExtArgs>>): Prisma__MarketingEmailSendClient<$Result.GetResult<Prisma.$MarketingEmailSendPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one MarketingEmailSend.
+     * @param {MarketingEmailSendUpdateArgs} args - Arguments to update one MarketingEmailSend.
+     * @example
+     * // Update one MarketingEmailSend
+     * const marketingEmailSend = await prisma.marketingEmailSend.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends MarketingEmailSendUpdateArgs>(args: SelectSubset<T, MarketingEmailSendUpdateArgs<ExtArgs>>): Prisma__MarketingEmailSendClient<$Result.GetResult<Prisma.$MarketingEmailSendPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more MarketingEmailSends.
+     * @param {MarketingEmailSendDeleteManyArgs} args - Arguments to filter MarketingEmailSends to delete.
+     * @example
+     * // Delete a few MarketingEmailSends
+     * const { count } = await prisma.marketingEmailSend.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends MarketingEmailSendDeleteManyArgs>(args?: SelectSubset<T, MarketingEmailSendDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more MarketingEmailSends.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MarketingEmailSendUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many MarketingEmailSends
+     * const marketingEmailSend = await prisma.marketingEmailSend.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends MarketingEmailSendUpdateManyArgs>(args: SelectSubset<T, MarketingEmailSendUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one MarketingEmailSend.
+     * @param {MarketingEmailSendUpsertArgs} args - Arguments to update or create a MarketingEmailSend.
+     * @example
+     * // Update or create a MarketingEmailSend
+     * const marketingEmailSend = await prisma.marketingEmailSend.upsert({
+     *   create: {
+     *     // ... data to create a MarketingEmailSend
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the MarketingEmailSend we want to update
+     *   }
+     * })
+     */
+    upsert<T extends MarketingEmailSendUpsertArgs>(args: SelectSubset<T, MarketingEmailSendUpsertArgs<ExtArgs>>): Prisma__MarketingEmailSendClient<$Result.GetResult<Prisma.$MarketingEmailSendPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more MarketingEmailSends that matches the filter.
+     * @param {MarketingEmailSendFindRawArgs} args - Select which filters you would like to apply.
+     * @example
+     * const marketingEmailSend = await prisma.marketingEmailSend.findRaw({
+     *   filter: { age: { $gt: 25 } }
+     * })
+     */
+    findRaw(args?: MarketingEmailSendFindRawArgs): Prisma.PrismaPromise<JsonObject>
+
+    /**
+     * Perform aggregation operations on a MarketingEmailSend.
+     * @param {MarketingEmailSendAggregateRawArgs} args - Select which aggregations you would like to apply.
+     * @example
+     * const marketingEmailSend = await prisma.marketingEmailSend.aggregateRaw({
+     *   pipeline: [
+     *     { $match: { status: "registered" } },
+     *     { $group: { _id: "$country", total: { $sum: 1 } } }
+     *   ]
+     * })
+     */
+    aggregateRaw(args?: MarketingEmailSendAggregateRawArgs): Prisma.PrismaPromise<JsonObject>
+
+
+    /**
+     * Count the number of MarketingEmailSends.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MarketingEmailSendCountArgs} args - Arguments to filter MarketingEmailSends to count.
+     * @example
+     * // Count the number of MarketingEmailSends
+     * const count = await prisma.marketingEmailSend.count({
+     *   where: {
+     *     // ... the filter for the MarketingEmailSends we want to count
+     *   }
+     * })
+    **/
+    count<T extends MarketingEmailSendCountArgs>(
+      args?: Subset<T, MarketingEmailSendCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], MarketingEmailSendCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a MarketingEmailSend.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MarketingEmailSendAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends MarketingEmailSendAggregateArgs>(args: Subset<T, MarketingEmailSendAggregateArgs>): Prisma.PrismaPromise<GetMarketingEmailSendAggregateType<T>>
+
+    /**
+     * Group by MarketingEmailSend.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MarketingEmailSendGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends MarketingEmailSendGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: MarketingEmailSendGroupByArgs['orderBy'] }
+        : { orderBy?: MarketingEmailSendGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, MarketingEmailSendGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetMarketingEmailSendGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the MarketingEmailSend model
+   */
+  readonly fields: MarketingEmailSendFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for MarketingEmailSend.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__MarketingEmailSendClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the MarketingEmailSend model
+   */
+  interface MarketingEmailSendFieldRefs {
+    readonly id: FieldRef<"MarketingEmailSend", 'String'>
+    readonly subject: FieldRef<"MarketingEmailSend", 'String'>
+    readonly audiences: FieldRef<"MarketingEmailSend", 'String[]'>
+    readonly recipientCount: FieldRef<"MarketingEmailSend", 'Int'>
+    readonly sent: FieldRef<"MarketingEmailSend", 'Int'>
+    readonly failed: FieldRef<"MarketingEmailSend", 'Int'>
+    readonly status: FieldRef<"MarketingEmailSend", 'String'>
+    readonly errors: FieldRef<"MarketingEmailSend", 'String'>
+    readonly recipients: FieldRef<"MarketingEmailSend", 'Json'>
+    readonly sentById: FieldRef<"MarketingEmailSend", 'String'>
+    readonly sentByEmail: FieldRef<"MarketingEmailSend", 'String'>
+    readonly createdAt: FieldRef<"MarketingEmailSend", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * MarketingEmailSend findUnique
+   */
+  export type MarketingEmailSendFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MarketingEmailSend
+     */
+    select?: MarketingEmailSendSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MarketingEmailSend
+     */
+    omit?: MarketingEmailSendOmit<ExtArgs> | null
+    /**
+     * Filter, which MarketingEmailSend to fetch.
+     */
+    where: MarketingEmailSendWhereUniqueInput
+  }
+
+  /**
+   * MarketingEmailSend findUniqueOrThrow
+   */
+  export type MarketingEmailSendFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MarketingEmailSend
+     */
+    select?: MarketingEmailSendSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MarketingEmailSend
+     */
+    omit?: MarketingEmailSendOmit<ExtArgs> | null
+    /**
+     * Filter, which MarketingEmailSend to fetch.
+     */
+    where: MarketingEmailSendWhereUniqueInput
+  }
+
+  /**
+   * MarketingEmailSend findFirst
+   */
+  export type MarketingEmailSendFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MarketingEmailSend
+     */
+    select?: MarketingEmailSendSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MarketingEmailSend
+     */
+    omit?: MarketingEmailSendOmit<ExtArgs> | null
+    /**
+     * Filter, which MarketingEmailSend to fetch.
+     */
+    where?: MarketingEmailSendWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of MarketingEmailSends to fetch.
+     */
+    orderBy?: MarketingEmailSendOrderByWithRelationInput | MarketingEmailSendOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for MarketingEmailSends.
+     */
+    cursor?: MarketingEmailSendWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` MarketingEmailSends from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` MarketingEmailSends.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of MarketingEmailSends.
+     */
+    distinct?: MarketingEmailSendScalarFieldEnum | MarketingEmailSendScalarFieldEnum[]
+  }
+
+  /**
+   * MarketingEmailSend findFirstOrThrow
+   */
+  export type MarketingEmailSendFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MarketingEmailSend
+     */
+    select?: MarketingEmailSendSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MarketingEmailSend
+     */
+    omit?: MarketingEmailSendOmit<ExtArgs> | null
+    /**
+     * Filter, which MarketingEmailSend to fetch.
+     */
+    where?: MarketingEmailSendWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of MarketingEmailSends to fetch.
+     */
+    orderBy?: MarketingEmailSendOrderByWithRelationInput | MarketingEmailSendOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for MarketingEmailSends.
+     */
+    cursor?: MarketingEmailSendWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` MarketingEmailSends from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` MarketingEmailSends.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of MarketingEmailSends.
+     */
+    distinct?: MarketingEmailSendScalarFieldEnum | MarketingEmailSendScalarFieldEnum[]
+  }
+
+  /**
+   * MarketingEmailSend findMany
+   */
+  export type MarketingEmailSendFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MarketingEmailSend
+     */
+    select?: MarketingEmailSendSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MarketingEmailSend
+     */
+    omit?: MarketingEmailSendOmit<ExtArgs> | null
+    /**
+     * Filter, which MarketingEmailSends to fetch.
+     */
+    where?: MarketingEmailSendWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of MarketingEmailSends to fetch.
+     */
+    orderBy?: MarketingEmailSendOrderByWithRelationInput | MarketingEmailSendOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing MarketingEmailSends.
+     */
+    cursor?: MarketingEmailSendWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` MarketingEmailSends from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` MarketingEmailSends.
+     */
+    skip?: number
+    distinct?: MarketingEmailSendScalarFieldEnum | MarketingEmailSendScalarFieldEnum[]
+  }
+
+  /**
+   * MarketingEmailSend create
+   */
+  export type MarketingEmailSendCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MarketingEmailSend
+     */
+    select?: MarketingEmailSendSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MarketingEmailSend
+     */
+    omit?: MarketingEmailSendOmit<ExtArgs> | null
+    /**
+     * The data needed to create a MarketingEmailSend.
+     */
+    data: XOR<MarketingEmailSendCreateInput, MarketingEmailSendUncheckedCreateInput>
+  }
+
+  /**
+   * MarketingEmailSend createMany
+   */
+  export type MarketingEmailSendCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many MarketingEmailSends.
+     */
+    data: MarketingEmailSendCreateManyInput | MarketingEmailSendCreateManyInput[]
+  }
+
+  /**
+   * MarketingEmailSend update
+   */
+  export type MarketingEmailSendUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MarketingEmailSend
+     */
+    select?: MarketingEmailSendSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MarketingEmailSend
+     */
+    omit?: MarketingEmailSendOmit<ExtArgs> | null
+    /**
+     * The data needed to update a MarketingEmailSend.
+     */
+    data: XOR<MarketingEmailSendUpdateInput, MarketingEmailSendUncheckedUpdateInput>
+    /**
+     * Choose, which MarketingEmailSend to update.
+     */
+    where: MarketingEmailSendWhereUniqueInput
+  }
+
+  /**
+   * MarketingEmailSend updateMany
+   */
+  export type MarketingEmailSendUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update MarketingEmailSends.
+     */
+    data: XOR<MarketingEmailSendUpdateManyMutationInput, MarketingEmailSendUncheckedUpdateManyInput>
+    /**
+     * Filter which MarketingEmailSends to update
+     */
+    where?: MarketingEmailSendWhereInput
+    /**
+     * Limit how many MarketingEmailSends to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * MarketingEmailSend upsert
+   */
+  export type MarketingEmailSendUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MarketingEmailSend
+     */
+    select?: MarketingEmailSendSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MarketingEmailSend
+     */
+    omit?: MarketingEmailSendOmit<ExtArgs> | null
+    /**
+     * The filter to search for the MarketingEmailSend to update in case it exists.
+     */
+    where: MarketingEmailSendWhereUniqueInput
+    /**
+     * In case the MarketingEmailSend found by the `where` argument doesn't exist, create a new MarketingEmailSend with this data.
+     */
+    create: XOR<MarketingEmailSendCreateInput, MarketingEmailSendUncheckedCreateInput>
+    /**
+     * In case the MarketingEmailSend was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<MarketingEmailSendUpdateInput, MarketingEmailSendUncheckedUpdateInput>
+  }
+
+  /**
+   * MarketingEmailSend delete
+   */
+  export type MarketingEmailSendDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MarketingEmailSend
+     */
+    select?: MarketingEmailSendSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MarketingEmailSend
+     */
+    omit?: MarketingEmailSendOmit<ExtArgs> | null
+    /**
+     * Filter which MarketingEmailSend to delete.
+     */
+    where: MarketingEmailSendWhereUniqueInput
+  }
+
+  /**
+   * MarketingEmailSend deleteMany
+   */
+  export type MarketingEmailSendDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which MarketingEmailSends to delete
+     */
+    where?: MarketingEmailSendWhereInput
+    /**
+     * Limit how many MarketingEmailSends to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * MarketingEmailSend findRaw
+   */
+  export type MarketingEmailSendFindRawArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The query predicate filter. If unspecified, then all documents in the collection will match the predicate. ${@link https://docs.mongodb.com/manual/reference/operator/query MongoDB Docs}.
+     */
+    filter?: InputJsonValue
+    /**
+     * Additional options to pass to the `find` command ${@link https://docs.mongodb.com/manual/reference/command/find/#command-fields MongoDB Docs}.
+     */
+    options?: InputJsonValue
+  }
+
+  /**
+   * MarketingEmailSend aggregateRaw
+   */
+  export type MarketingEmailSendAggregateRawArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * An array of aggregation stages to process and transform the document stream via the aggregation pipeline. ${@link https://docs.mongodb.com/manual/reference/operator/aggregation-pipeline MongoDB Docs}.
+     */
+    pipeline?: InputJsonValue[]
+    /**
+     * Additional options to pass to the `aggregate` command ${@link https://docs.mongodb.com/manual/reference/command/aggregate/#command-fields MongoDB Docs}.
+     */
+    options?: InputJsonValue
+  }
+
+  /**
+   * MarketingEmailSend without action
+   */
+  export type MarketingEmailSendDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MarketingEmailSend
+     */
+    select?: MarketingEmailSendSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MarketingEmailSend
+     */
+    omit?: MarketingEmailSendOmit<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -23991,6 +25128,24 @@ export namespace Prisma {
   export type BlogPostScalarFieldEnum = (typeof BlogPostScalarFieldEnum)[keyof typeof BlogPostScalarFieldEnum]
 
 
+  export const MarketingEmailSendScalarFieldEnum: {
+    id: 'id',
+    subject: 'subject',
+    audiences: 'audiences',
+    recipientCount: 'recipientCount',
+    sent: 'sent',
+    failed: 'failed',
+    status: 'status',
+    errors: 'errors',
+    recipients: 'recipients',
+    sentById: 'sentById',
+    sentByEmail: 'sentByEmail',
+    createdAt: 'createdAt'
+  };
+
+  export type MarketingEmailSendScalarFieldEnum = (typeof MarketingEmailSendScalarFieldEnum)[keyof typeof MarketingEmailSendScalarFieldEnum]
+
+
   export const SortOrder: {
     asc: 'asc',
     desc: 'desc'
@@ -24072,6 +25227,13 @@ export namespace Prisma {
    * Reference to a field of type 'Int[]'
    */
   export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'Json'
+   */
+  export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
     
   /**
    * Deep Input Types
@@ -25493,6 +26655,95 @@ export namespace Prisma {
     publishedAt?: DateTimeNullableWithAggregatesFilter<"BlogPost"> | Date | string | null
     createdAt?: DateTimeWithAggregatesFilter<"BlogPost"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"BlogPost"> | Date | string
+  }
+
+  export type MarketingEmailSendWhereInput = {
+    AND?: MarketingEmailSendWhereInput | MarketingEmailSendWhereInput[]
+    OR?: MarketingEmailSendWhereInput[]
+    NOT?: MarketingEmailSendWhereInput | MarketingEmailSendWhereInput[]
+    id?: StringFilter<"MarketingEmailSend"> | string
+    subject?: StringFilter<"MarketingEmailSend"> | string
+    audiences?: StringNullableListFilter<"MarketingEmailSend">
+    recipientCount?: IntFilter<"MarketingEmailSend"> | number
+    sent?: IntFilter<"MarketingEmailSend"> | number
+    failed?: IntFilter<"MarketingEmailSend"> | number
+    status?: StringFilter<"MarketingEmailSend"> | string
+    errors?: StringNullableFilter<"MarketingEmailSend"> | string | null
+    recipients?: JsonFilter<"MarketingEmailSend">
+    sentById?: StringNullableFilter<"MarketingEmailSend"> | string | null
+    sentByEmail?: StringNullableFilter<"MarketingEmailSend"> | string | null
+    createdAt?: DateTimeFilter<"MarketingEmailSend"> | Date | string
+  }
+
+  export type MarketingEmailSendOrderByWithRelationInput = {
+    id?: SortOrder
+    subject?: SortOrder
+    audiences?: SortOrder
+    recipientCount?: SortOrder
+    sent?: SortOrder
+    failed?: SortOrder
+    status?: SortOrder
+    errors?: SortOrder
+    recipients?: SortOrder
+    sentById?: SortOrder
+    sentByEmail?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type MarketingEmailSendWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: MarketingEmailSendWhereInput | MarketingEmailSendWhereInput[]
+    OR?: MarketingEmailSendWhereInput[]
+    NOT?: MarketingEmailSendWhereInput | MarketingEmailSendWhereInput[]
+    subject?: StringFilter<"MarketingEmailSend"> | string
+    audiences?: StringNullableListFilter<"MarketingEmailSend">
+    recipientCount?: IntFilter<"MarketingEmailSend"> | number
+    sent?: IntFilter<"MarketingEmailSend"> | number
+    failed?: IntFilter<"MarketingEmailSend"> | number
+    status?: StringFilter<"MarketingEmailSend"> | string
+    errors?: StringNullableFilter<"MarketingEmailSend"> | string | null
+    recipients?: JsonFilter<"MarketingEmailSend">
+    sentById?: StringNullableFilter<"MarketingEmailSend"> | string | null
+    sentByEmail?: StringNullableFilter<"MarketingEmailSend"> | string | null
+    createdAt?: DateTimeFilter<"MarketingEmailSend"> | Date | string
+  }, "id">
+
+  export type MarketingEmailSendOrderByWithAggregationInput = {
+    id?: SortOrder
+    subject?: SortOrder
+    audiences?: SortOrder
+    recipientCount?: SortOrder
+    sent?: SortOrder
+    failed?: SortOrder
+    status?: SortOrder
+    errors?: SortOrder
+    recipients?: SortOrder
+    sentById?: SortOrder
+    sentByEmail?: SortOrder
+    createdAt?: SortOrder
+    _count?: MarketingEmailSendCountOrderByAggregateInput
+    _avg?: MarketingEmailSendAvgOrderByAggregateInput
+    _max?: MarketingEmailSendMaxOrderByAggregateInput
+    _min?: MarketingEmailSendMinOrderByAggregateInput
+    _sum?: MarketingEmailSendSumOrderByAggregateInput
+  }
+
+  export type MarketingEmailSendScalarWhereWithAggregatesInput = {
+    AND?: MarketingEmailSendScalarWhereWithAggregatesInput | MarketingEmailSendScalarWhereWithAggregatesInput[]
+    OR?: MarketingEmailSendScalarWhereWithAggregatesInput[]
+    NOT?: MarketingEmailSendScalarWhereWithAggregatesInput | MarketingEmailSendScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"MarketingEmailSend"> | string
+    subject?: StringWithAggregatesFilter<"MarketingEmailSend"> | string
+    audiences?: StringNullableListFilter<"MarketingEmailSend">
+    recipientCount?: IntWithAggregatesFilter<"MarketingEmailSend"> | number
+    sent?: IntWithAggregatesFilter<"MarketingEmailSend"> | number
+    failed?: IntWithAggregatesFilter<"MarketingEmailSend"> | number
+    status?: StringWithAggregatesFilter<"MarketingEmailSend"> | string
+    errors?: StringNullableWithAggregatesFilter<"MarketingEmailSend"> | string | null
+    recipients?: JsonWithAggregatesFilter<"MarketingEmailSend">
+    sentById?: StringNullableWithAggregatesFilter<"MarketingEmailSend"> | string | null
+    sentByEmail?: StringNullableWithAggregatesFilter<"MarketingEmailSend"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"MarketingEmailSend"> | Date | string
   }
 
   export type UserCreateInput = {
@@ -26995,6 +28246,107 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type MarketingEmailSendCreateInput = {
+    id?: string
+    subject: string
+    audiences?: MarketingEmailSendCreateaudiencesInput | string[]
+    recipientCount: number
+    sent: number
+    failed: number
+    status: string
+    errors?: string | null
+    recipients: InputJsonValue
+    sentById?: string | null
+    sentByEmail?: string | null
+    createdAt?: Date | string
+  }
+
+  export type MarketingEmailSendUncheckedCreateInput = {
+    id?: string
+    subject: string
+    audiences?: MarketingEmailSendCreateaudiencesInput | string[]
+    recipientCount: number
+    sent: number
+    failed: number
+    status: string
+    errors?: string | null
+    recipients: InputJsonValue
+    sentById?: string | null
+    sentByEmail?: string | null
+    createdAt?: Date | string
+  }
+
+  export type MarketingEmailSendUpdateInput = {
+    subject?: StringFieldUpdateOperationsInput | string
+    audiences?: MarketingEmailSendUpdateaudiencesInput | string[]
+    recipientCount?: IntFieldUpdateOperationsInput | number
+    sent?: IntFieldUpdateOperationsInput | number
+    failed?: IntFieldUpdateOperationsInput | number
+    status?: StringFieldUpdateOperationsInput | string
+    errors?: NullableStringFieldUpdateOperationsInput | string | null
+    recipients?: InputJsonValue | InputJsonValue
+    sentById?: NullableStringFieldUpdateOperationsInput | string | null
+    sentByEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type MarketingEmailSendUncheckedUpdateInput = {
+    subject?: StringFieldUpdateOperationsInput | string
+    audiences?: MarketingEmailSendUpdateaudiencesInput | string[]
+    recipientCount?: IntFieldUpdateOperationsInput | number
+    sent?: IntFieldUpdateOperationsInput | number
+    failed?: IntFieldUpdateOperationsInput | number
+    status?: StringFieldUpdateOperationsInput | string
+    errors?: NullableStringFieldUpdateOperationsInput | string | null
+    recipients?: InputJsonValue | InputJsonValue
+    sentById?: NullableStringFieldUpdateOperationsInput | string | null
+    sentByEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type MarketingEmailSendCreateManyInput = {
+    id?: string
+    subject: string
+    audiences?: MarketingEmailSendCreateaudiencesInput | string[]
+    recipientCount: number
+    sent: number
+    failed: number
+    status: string
+    errors?: string | null
+    recipients: InputJsonValue
+    sentById?: string | null
+    sentByEmail?: string | null
+    createdAt?: Date | string
+  }
+
+  export type MarketingEmailSendUpdateManyMutationInput = {
+    subject?: StringFieldUpdateOperationsInput | string
+    audiences?: MarketingEmailSendUpdateaudiencesInput | string[]
+    recipientCount?: IntFieldUpdateOperationsInput | number
+    sent?: IntFieldUpdateOperationsInput | number
+    failed?: IntFieldUpdateOperationsInput | number
+    status?: StringFieldUpdateOperationsInput | string
+    errors?: NullableStringFieldUpdateOperationsInput | string | null
+    recipients?: InputJsonValue | InputJsonValue
+    sentById?: NullableStringFieldUpdateOperationsInput | string | null
+    sentByEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type MarketingEmailSendUncheckedUpdateManyInput = {
+    subject?: StringFieldUpdateOperationsInput | string
+    audiences?: MarketingEmailSendUpdateaudiencesInput | string[]
+    recipientCount?: IntFieldUpdateOperationsInput | number
+    sent?: IntFieldUpdateOperationsInput | number
+    failed?: IntFieldUpdateOperationsInput | number
+    status?: StringFieldUpdateOperationsInput | string
+    errors?: NullableStringFieldUpdateOperationsInput | string | null
+    recipients?: InputJsonValue | InputJsonValue
+    sentById?: NullableStringFieldUpdateOperationsInput | string | null
+    sentByEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type StringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -28006,6 +29358,119 @@ export namespace Prisma {
     updatedAt?: SortOrder
   }
 
+  export type StringNullableListFilter<$PrismaModel = never> = {
+    equals?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    has?: string | StringFieldRefInput<$PrismaModel> | null
+    hasEvery?: string[] | ListStringFieldRefInput<$PrismaModel>
+    hasSome?: string[] | ListStringFieldRefInput<$PrismaModel>
+    isEmpty?: boolean
+  }
+
+  export type IntFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntFilter<$PrismaModel> | number
+  }
+  export type JsonFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+  }
+
+  export type MarketingEmailSendCountOrderByAggregateInput = {
+    id?: SortOrder
+    subject?: SortOrder
+    audiences?: SortOrder
+    recipientCount?: SortOrder
+    sent?: SortOrder
+    failed?: SortOrder
+    status?: SortOrder
+    errors?: SortOrder
+    recipients?: SortOrder
+    sentById?: SortOrder
+    sentByEmail?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type MarketingEmailSendAvgOrderByAggregateInput = {
+    recipientCount?: SortOrder
+    sent?: SortOrder
+    failed?: SortOrder
+  }
+
+  export type MarketingEmailSendMaxOrderByAggregateInput = {
+    id?: SortOrder
+    subject?: SortOrder
+    recipientCount?: SortOrder
+    sent?: SortOrder
+    failed?: SortOrder
+    status?: SortOrder
+    errors?: SortOrder
+    sentById?: SortOrder
+    sentByEmail?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type MarketingEmailSendMinOrderByAggregateInput = {
+    id?: SortOrder
+    subject?: SortOrder
+    recipientCount?: SortOrder
+    sent?: SortOrder
+    failed?: SortOrder
+    status?: SortOrder
+    errors?: SortOrder
+    sentById?: SortOrder
+    sentByEmail?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type MarketingEmailSendSumOrderByAggregateInput = {
+    recipientCount?: SortOrder
+    sent?: SortOrder
+    failed?: SortOrder
+  }
+
+  export type IntWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntWithAggregatesFilter<$PrismaModel> | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedIntFilter<$PrismaModel>
+    _min?: NestedIntFilter<$PrismaModel>
+    _max?: NestedIntFilter<$PrismaModel>
+  }
+  export type JsonWithAggregatesFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonWithAggregatesFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonWithAggregatesFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonWithAggregatesFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonWithAggregatesFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonWithAggregatesFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedJsonFilter<$PrismaModel>
+    _max?: NestedJsonFilter<$PrismaModel>
+  }
+
   export type StringFieldUpdateOperationsInput = {
     set?: string
   }
@@ -28211,6 +29676,23 @@ export namespace Prisma {
     upsert?: ChatSupportUpsertWithoutMessagesInput
     connect?: ChatSupportWhereUniqueInput
     update?: XOR<XOR<ChatSupportUpdateToOneWithWhereWithoutMessagesInput, ChatSupportUpdateWithoutMessagesInput>, ChatSupportUncheckedUpdateWithoutMessagesInput>
+  }
+
+  export type MarketingEmailSendCreateaudiencesInput = {
+    set: string[]
+  }
+
+  export type MarketingEmailSendUpdateaudiencesInput = {
+    set?: string[]
+    push?: string | string[]
+  }
+
+  export type IntFieldUpdateOperationsInput = {
+    set?: number
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
   }
 
   export type NestedStringFilter<$PrismaModel = never> = {
@@ -28419,6 +29901,33 @@ export namespace Prisma {
     _min?: NestedDateTimeNullableFilter<$PrismaModel>
     _max?: NestedDateTimeNullableFilter<$PrismaModel>
     isSet?: boolean
+  }
+
+  export type NestedIntWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntWithAggregatesFilter<$PrismaModel> | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedIntFilter<$PrismaModel>
+    _min?: NestedIntFilter<$PrismaModel>
+    _max?: NestedIntFilter<$PrismaModel>
+  }
+  export type NestedJsonFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<NestedJsonFilterBase<$PrismaModel>>, Exclude<keyof Required<NestedJsonFilterBase<$PrismaModel>>, 'path'>>,
+        Required<NestedJsonFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<NestedJsonFilterBase<$PrismaModel>>, 'path'>>
+
+  export type NestedJsonFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
   }
 
   export type LoanRepaymentCreateWithoutLoanInput = {

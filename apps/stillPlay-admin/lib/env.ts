@@ -47,6 +47,12 @@ export const endpoints = {
     waitlist: () => `${getBaseUrl()}/admin/waitlist`,
     blog: () => `${getBaseUrl()}/admin/blog`,
     blogById: (id: string) => `${getBaseUrl()}/admin/blog/${id}`,
+    marketingPreviewRecipients: () =>
+      `${getBaseUrl()}/admin/marketing/preview-recipients`,
+    marketingSend: () => `${getBaseUrl()}/admin/marketing/send`,
+    marketingHistory: () => `${getBaseUrl()}/admin/marketing/history`,
+    marketingHistoryById: (id: string) =>
+      `${getBaseUrl()}/admin/marketing/history/${id}`,
     employees: () => `${getBaseUrl()}/admin/employees`,
     employeeById: (id: string) => `${getBaseUrl()}/admin/employees/${id}`,
     activity: () => `${getBaseUrl()}/admin/activity`,
