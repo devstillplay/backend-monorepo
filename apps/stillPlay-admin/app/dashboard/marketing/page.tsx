@@ -112,8 +112,18 @@ export default function MarketingPage() {
   const [selectedHistoryId, setSelectedHistoryId] = useState<string | null>(null);
   const { data: historyDetailData, isLoading: historyDetailLoading } =
     useMarketingSendDetail(selectedHistoryId);
+  const [search, setSearch] = useState("");
 
-  const historySends = historyData?.sends ?? [];
+  const historySends = useMemo(() => {
+    const sends = historyData?.sends ?? [];
+    const q = search.trim().toLowerCase();
+    if (!q) return sends;
+    return sends.filter(
+      (row) =>
+        row.subject.toLowerCase().includes(q) ||
+        (row.sentByEmail?.toLowerCase().includes(q) ?? false)
+    );
+  }, [historyData?.sends, search]);
 
   const [selectedAudiences, setSelectedAudiences] = useState<AudienceId[]>([]);
   const [customEmails, setCustomEmails] = useState("");
@@ -226,17 +236,24 @@ export default function MarketingPage() {
 
   return (
     <Box>
-      <DashboardHeader
-        title="Marketing"
-        subtitle="Send branded emails to customers, staff, waitlist, and survey respondents via Resend."
-      />
+      <DashboardHeader search={search} onSearchChange={setSearch} />
 
       <motion.div
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
       >
-        <Stack spacing={2} sx={{ mt: 2 }}>
+        <Box sx={{ mb: 2 }}>
+          <Typography variant="h6" sx={{ fontWeight: 700 }}>
+            MARKETING
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            Send branded emails to customers, staff, waitlist, and survey
+            respondents via Resend.
+          </Typography>
+        </Box>
+
+        <Stack spacing={2}>
           {successMessage && (
             <Alert severity="success" onClose={() => setSuccessMessage(null)}>
               {successMessage}
