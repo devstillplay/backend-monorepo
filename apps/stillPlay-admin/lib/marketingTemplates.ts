@@ -4,11 +4,28 @@ export type MarketingTemplateId =
   | 'minimal'
   | 'promotion';
 
+export type MarketingImagePosition =
+  | 'after_header'
+  | 'after_title'
+  | 'after_body'
+  | 'before_cta'
+  | 'after_cta'
+  | 'bottom';
+
+export type MarketingImageSize = 'full' | 'large' | 'medium' | 'small';
+export type MarketingImageAlign = 'left' | 'center' | 'right';
+
 export type MarketingTemplateFields = {
   title: string;
   body: string;
   ctaText?: string;
   ctaUrl?: string;
+  /** Optional hero / content image (absolute HTTPS URL). */
+  imageUrl?: string;
+  imageAlt?: string;
+  imagePosition?: MarketingImagePosition;
+  imageSize?: MarketingImageSize;
+  imageAlign?: MarketingImageAlign;
 };
 
 export type MarketingTemplate = {
@@ -40,6 +57,38 @@ export const MARKETING_TEMPLATES: MarketingTemplate[] = [
   },
 ];
 
+export const MARKETING_IMAGE_POSITION_OPTIONS: {
+  id: MarketingImagePosition;
+  label: string;
+}[] = [
+  { id: 'after_header', label: 'After header / logo' },
+  { id: 'after_title', label: 'After title' },
+  { id: 'after_body', label: 'After body text' },
+  { id: 'before_cta', label: 'Before CTA button' },
+  { id: 'after_cta', label: 'After CTA button' },
+  { id: 'bottom', label: 'Bottom (before footer)' },
+];
+
+export const MARKETING_IMAGE_SIZE_OPTIONS: {
+  id: MarketingImageSize;
+  label: string;
+  width: number;
+}[] = [
+  { id: 'full', label: 'Full width', width: 544 },
+  { id: 'large', label: 'Large (75%)', width: 408 },
+  { id: 'medium', label: 'Medium (50%)', width: 272 },
+  { id: 'small', label: 'Small (33%)', width: 180 },
+];
+
+export const MARKETING_IMAGE_ALIGN_OPTIONS: {
+  id: MarketingImageAlign;
+  label: string;
+}[] = [
+  { id: 'left', label: 'Left' },
+  { id: 'center', label: 'Center' },
+  { id: 'right', label: 'Right' },
+];
+
 export const MARKETING_AUDIENCE_OPTIONS = [
   { id: 'customers', label: 'Customers', description: 'Registered user accounts' },
   { id: 'admins', label: 'Admins / Staff', description: 'Active employee accounts' },
@@ -65,6 +114,13 @@ const DEFAULT_LOGO =
   'https://still-play.com/assets/svg/STILL%20PLAYLOGOBL.svg';
 const DEFAULT_LOGO_WHITE =
   'https://still-play.com/assets/svg/STILL%20PLAYLOGOWH.svg';
+
+const IMAGE_WIDTH: Record<MarketingImageSize, number> = {
+  full: 544,
+  large: 408,
+  medium: 272,
+  small: 180,
+};
 
 function escapeHtml(text: string): string {
   return text
@@ -100,6 +156,31 @@ function footerBlock(): string {
   `;
 }
 
+function imageBlock(fields: MarketingTemplateFields): string {
+  const url = fields.imageUrl?.trim();
+  if (!url) return '';
+
+  const alt = escapeHtml(fields.imageAlt?.trim() || 'Still Play');
+  const size = fields.imageSize ?? 'full';
+  const align = fields.imageAlign ?? 'center';
+  const width = IMAGE_WIDTH[size] ?? IMAGE_WIDTH.full;
+  const maxWidthPct =
+    size === 'full' ? '100%' : size === 'large' ? '75%' : size === 'medium' ? '50%' : '33%';
+  const textAlign = align;
+  const imgMargin =
+    align === 'left' ? '0 auto 0 0' : align === 'right' ? '0 0 0 auto' : '0 auto';
+
+  return `
+    <div style="margin:0 0 24px;text-align:${textAlign};line-height:0;">
+      <img src="${escapeHtml(url)}" alt="${alt}" width="${width}" style="width:${maxWidthPct};max-width:${width}px;height:auto;display:block;margin:${imgMargin};border-radius:8px;" />
+    </div>
+  `;
+}
+
+function slot(image: string, position: MarketingImagePosition, slotPos: MarketingImagePosition): string {
+  return position === slotPos ? image : '';
+}
+
 export function buildMarketingHtml(
   templateId: MarketingTemplateId,
   fields: MarketingTemplateFields,
@@ -110,12 +191,22 @@ export function buildMarketingHtml(
   const ctaText = escapeHtml(fields.ctaText || '');
   const ctaUrl = escapeHtml(fields.ctaUrl || 'https://still-play.com');
   const logo = logoBlock(logoUrl);
+  const position = fields.imagePosition ?? 'after_title';
+  const image = imageBlock(fields);
+
+  const at = (pos: MarketingImagePosition) => slot(image, position, pos);
 
   const ctaButton = ctaText
     ? `<div style="text-align:center;margin:28px 0;">
         <a href="${ctaUrl}" style="display:inline-block;background:#16a34a;color:#fff;text-decoration:none;padding:14px 28px;border-radius:8px;font-weight:600;font-size:15px;">${ctaText}</a>
       </div>`
     : '';
+
+  const promoCta =
+    ctaButton ||
+    `<div style="text-align:center;margin:28px 0;">
+      <a href="${ctaUrl}" style="display:inline-block;background:#eab308;color:#111827;text-decoration:none;padding:14px 28px;border-radius:8px;font-weight:700;font-size:15px;">Learn more</a>
+    </div>`;
 
   const wrapper = (inner: string) =>
     `<!DOCTYPE html><html><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/></head>
@@ -131,8 +222,14 @@ export function buildMarketingHtml(
             ${logoBlock(DEFAULT_LOGO_WHITE)}
             <h1 style="margin:16px 0 0;color:#fff;font-size:22px;font-weight:700;">${title}</h1>
           </div>
+          ${at('after_header')}
+          ${at('after_title')}
           ${body}
+          ${at('after_body')}
+          ${at('before_cta')}
           ${ctaButton}
+          ${at('after_cta')}
+          ${at('bottom')}
           ${footerBlock()}
         </div>
       `);
@@ -141,10 +238,16 @@ export function buildMarketingHtml(
       return wrapper(`
         <div style="background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.08);">
           <div style="background:#111827;padding:28px;text-align:center;">${logoBlock(DEFAULT_LOGO_WHITE)}</div>
+          ${at('after_header')}
           <div style="padding:32px 28px;">
             <h1 style="margin:0 0 20px;font-size:24px;color:#111827;">${title}</h1>
+            ${at('after_title')}
             ${body}
+            ${at('after_body')}
+            ${at('before_cta')}
             ${ctaButton}
+            ${at('after_cta')}
+            ${at('bottom')}
             ${footerBlock()}
           </div>
         </div>
@@ -154,9 +257,15 @@ export function buildMarketingHtml(
       return wrapper(`
         <div style="background:#fff;border-radius:12px;padding:32px 28px;box-shadow:0 1px 3px rgba(0,0,0,0.08);">
           ${logo}
+          ${at('after_header')}
           <h1 style="margin:0 0 16px;font-size:20px;color:#111827;">${title}</h1>
+          ${at('after_title')}
           ${body}
+          ${at('after_body')}
+          ${at('before_cta')}
           ${ctaButton}
+          ${at('after_cta')}
+          ${at('bottom')}
           ${footerBlock()}
         </div>
       `);
@@ -165,13 +274,17 @@ export function buildMarketingHtml(
       return wrapper(`
         <div style="background:#fff;border-radius:12px;padding:32px 28px;box-shadow:0 1px 3px rgba(0,0,0,0.08);">
           ${logo}
+          ${at('after_header')}
           <div style="background:#fef9c3;border-radius:8px;padding:20px;margin-bottom:20px;text-align:center;">
             <h1 style="margin:0;font-size:22px;color:#854d0e;">${title}</h1>
           </div>
+          ${at('after_title')}
           ${body}
-          ${ctaButton || `<div style="text-align:center;margin:28px 0;">
-            <a href="${ctaUrl}" style="display:inline-block;background:#eab308;color:#111827;text-decoration:none;padding:14px 28px;border-radius:8px;font-weight:700;font-size:15px;">Learn more</a>
-          </div>`}
+          ${at('after_body')}
+          ${at('before_cta')}
+          ${promoCta}
+          ${at('after_cta')}
+          ${at('bottom')}
           ${footerBlock()}
         </div>
       `);
@@ -180,9 +293,15 @@ export function buildMarketingHtml(
       return wrapper(`
         <div style="background:#fff;border-radius:12px;padding:32px 28px;">
           ${logo}
+          ${at('after_header')}
           <h1>${title}</h1>
+          ${at('after_title')}
           ${body}
+          ${at('after_body')}
+          ${at('before_cta')}
           ${ctaButton}
+          ${at('after_cta')}
+          ${at('bottom')}
           ${footerBlock()}
         </div>
       `);

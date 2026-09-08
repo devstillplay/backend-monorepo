@@ -2,6 +2,7 @@
 
 import HistoryOutlinedIcon from "@mui/icons-material/HistoryOutlined";
 import EmailOutlinedIcon from "@mui/icons-material/EmailOutlined";
+import ImageOutlinedIcon from "@mui/icons-material/ImageOutlined";
 import PreviewOutlinedIcon from "@mui/icons-material/PreviewOutlined";
 import SendOutlinedIcon from "@mui/icons-material/SendOutlined";
 import {
@@ -37,14 +38,24 @@ import {
 import { useTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { motion } from "framer-motion";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 
 import DashboardHeader from "../../../components/dashboard/DashboardHeader";
-import type { AdminUser, MarketingRecipientPreview } from "../../../lib/api";
+import {
+  uploadImage,
+  type AdminUser,
+  type MarketingRecipientPreview,
+} from "../../../lib/api";
 import {
   MARKETING_AUDIENCE_OPTIONS,
+  MARKETING_IMAGE_ALIGN_OPTIONS,
+  MARKETING_IMAGE_POSITION_OPTIONS,
+  MARKETING_IMAGE_SIZE_OPTIONS,
   MARKETING_TEMPLATES,
   buildMarketingHtml,
+  type MarketingImageAlign,
+  type MarketingImagePosition,
+  type MarketingImageSize,
   type MarketingTemplateId,
 } from "../../../lib/marketingTemplates";
 import {
@@ -54,6 +65,7 @@ import {
   usePreviewMarketingRecipients,
   useSendMarketingEmail,
 } from "../../../lib/queries";
+import { useAuthStore } from "../../../store/auth";
 
 type AudienceId = (typeof MARKETING_AUDIENCE_OPTIONS)[number]["id"];
 
@@ -103,6 +115,8 @@ function statusChipColor(
 export default function MarketingPage() {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const token = useAuthStore((s) => s.token);
+  const imageInputRef = useRef<HTMLInputElement>(null);
 
   const { data: users = [] } = useAdminUsers();
   const previewMutation = usePreviewMarketingRecipients();
@@ -135,6 +149,13 @@ export default function MarketingPage() {
   const [body, setBody] = useState("");
   const [ctaText, setCtaText] = useState("");
   const [ctaUrl, setCtaUrl] = useState("https://still-play.com");
+  const [imageUrl, setImageUrl] = useState("");
+  const [imageAlt, setImageAlt] = useState("");
+  const [imagePosition, setImagePosition] =
+    useState<MarketingImagePosition>("after_title");
+  const [imageSize, setImageSize] = useState<MarketingImageSize>("full");
+  const [imageAlign, setImageAlign] = useState<MarketingImageAlign>("center");
+  const [uploadingImage, setUploadingImage] = useState(false);
   const [previewCount, setPreviewCount] = useState<number | null>(null);
   const [recipientList, setRecipientList] = useState<MarketingRecipientPreview[]>([]);
   const [recipientListMode, setRecipientListMode] = useState<"preview" | "sent" | null>(null);
@@ -166,9 +187,46 @@ export default function MarketingPage() {
         body: body || "Your message will appear here.",
         ctaText: ctaText.trim() || undefined,
         ctaUrl: ctaUrl.trim() || undefined,
+        imageUrl: imageUrl.trim() || undefined,
+        imageAlt: imageAlt.trim() || undefined,
+        imagePosition,
+        imageSize,
+        imageAlign,
       }),
-    [templateId, title, body, ctaText, ctaUrl]
+    [
+      templateId,
+      title,
+      body,
+      ctaText,
+      ctaUrl,
+      imageUrl,
+      imageAlt,
+      imagePosition,
+      imageSize,
+      imageAlign,
+    ]
   );
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !token) return;
+    setUploadingImage(true);
+    setErrorMessage(null);
+    try {
+      const result = await uploadImage(file, {
+        folder: "stillplay/marketing",
+        token,
+      });
+      setImageUrl(result.secureUrl || result.url);
+    } catch (err) {
+      setErrorMessage(
+        err instanceof Error ? err.message : "Image upload failed"
+      );
+    } finally {
+      setUploadingImage(false);
+      e.target.value = "";
+    }
+  };
 
   const toggleAudience = (id: AudienceId) => {
     setPreviewCount(null);
@@ -425,6 +483,179 @@ export default function MarketingPage() {
                       onChange={(e) => setBody(e.target.value)}
                       placeholder="Write your message. Use blank lines for paragraphs."
                     />
+                    <Box>
+                      <Typography variant="body2" fontWeight={600} gutterBottom>
+                        Email image (optional)
+                      </Typography>
+                      <Typography
+                        variant="caption"
+                        color="text.secondary"
+                        display="block"
+                        sx={{ mb: 1 }}
+                      >
+                        Upload or paste a public HTTPS URL. Shown in the
+                        template preview and in the sent email.
+                      </Typography>
+                      <input
+                        ref={imageInputRef}
+                        type="file"
+                        accept="image/*"
+                        hidden
+                        onChange={handleImageUpload}
+                      />
+                      <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+                        <Button
+                          variant="outlined"
+                          startIcon={
+                            uploadingImage ? (
+                              <CircularProgress size={18} />
+                            ) : (
+                              <ImageOutlinedIcon />
+                            )
+                          }
+                          disabled={uploadingImage || !token}
+                          onClick={() => imageInputRef.current?.click()}
+                        >
+                          {uploadingImage ? "Uploading…" : "Upload image"}
+                        </Button>
+                        {imageUrl.trim() && (
+                          <Button
+                            color="inherit"
+                            onClick={() => {
+                              setImageUrl("");
+                              setImageAlt("");
+                              setImagePosition("after_title");
+                              setImageSize("full");
+                              setImageAlign("center");
+                            }}
+                          >
+                            Remove
+                          </Button>
+                        )}
+                      </Stack>
+                      <TextField
+                        fullWidth
+                        sx={{ mt: 1.5 }}
+                        label="Image URL"
+                        placeholder="https://…"
+                        value={imageUrl}
+                        onChange={(e) => setImageUrl(e.target.value)}
+                      />
+                      <TextField
+                        fullWidth
+                        sx={{ mt: 1.5 }}
+                        label="Image alt text"
+                        placeholder="Describe the image"
+                        value={imageAlt}
+                        onChange={(e) => setImageAlt(e.target.value)}
+                      />
+                      {imageUrl.trim() && (
+                        <Stack spacing={1.5} sx={{ mt: 1.5 }}>
+                          <FormControl fullWidth size="small">
+                            <InputLabel id="marketing-image-position-label">
+                              Image placement
+                            </InputLabel>
+                            <Select
+                              labelId="marketing-image-position-label"
+                              label="Image placement"
+                              value={imagePosition}
+                              onChange={(e) =>
+                                setImagePosition(
+                                  e.target.value as MarketingImagePosition
+                                )
+                              }
+                            >
+                              {MARKETING_IMAGE_POSITION_OPTIONS.map((opt) => (
+                                <MenuItem key={opt.id} value={opt.id}>
+                                  {opt.label}
+                                </MenuItem>
+                              ))}
+                            </Select>
+                          </FormControl>
+                          <FormControl fullWidth size="small">
+                            <InputLabel id="marketing-image-size-label">
+                              Image size
+                            </InputLabel>
+                            <Select
+                              labelId="marketing-image-size-label"
+                              label="Image size"
+                              value={imageSize}
+                              onChange={(e) =>
+                                setImageSize(e.target.value as MarketingImageSize)
+                              }
+                            >
+                              {MARKETING_IMAGE_SIZE_OPTIONS.map((opt) => (
+                                <MenuItem key={opt.id} value={opt.id}>
+                                  {opt.label}
+                                </MenuItem>
+                              ))}
+                            </Select>
+                          </FormControl>
+                          <FormControl fullWidth size="small">
+                            <InputLabel id="marketing-image-align-label">
+                              Image alignment
+                            </InputLabel>
+                            <Select
+                              labelId="marketing-image-align-label"
+                              label="Image alignment"
+                              value={imageAlign}
+                              onChange={(e) =>
+                                setImageAlign(
+                                  e.target.value as MarketingImageAlign
+                                )
+                              }
+                            >
+                              {MARKETING_IMAGE_ALIGN_OPTIONS.map((opt) => (
+                                <MenuItem key={opt.id} value={opt.id}>
+                                  {opt.label}
+                                </MenuItem>
+                              ))}
+                            </Select>
+                          </FormControl>
+                          <Box
+                            sx={{
+                              border: "1px solid",
+                              borderColor: "divider",
+                              borderRadius: 1,
+                              overflow: "hidden",
+                              p: 1,
+                              bgcolor: "grey.50",
+                            }}
+                          >
+                            <Box
+                              component="img"
+                              src={imageUrl.trim()}
+                              alt={imageAlt.trim() || "Email image preview"}
+                              sx={{
+                                width:
+                                  imageSize === "full"
+                                    ? "100%"
+                                    : imageSize === "large"
+                                      ? "75%"
+                                      : imageSize === "medium"
+                                        ? "50%"
+                                        : "33%",
+                                maxHeight: 180,
+                                objectFit: "contain",
+                                display: "block",
+                                ml:
+                                  imageAlign === "right"
+                                    ? "auto"
+                                    : imageAlign === "center"
+                                      ? "auto"
+                                      : 0,
+                                mr:
+                                  imageAlign === "left"
+                                    ? "auto"
+                                    : imageAlign === "center"
+                                      ? "auto"
+                                      : 0,
+                              }}
+                            />
+                          </Box>
+                        </Stack>
+                      )}
+                    </Box>
                     <TextField
                       fullWidth
                       label="CTA button text (optional)"
