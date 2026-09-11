@@ -199,6 +199,7 @@ export class AppService {
       lastName: string;
       role: string;
       active: boolean;
+      password: string;
     }>
   ) {
     const employee = await this.prisma.employee.findUnique({ where: { id } });
@@ -225,6 +226,13 @@ export class AppService {
     if (payload.lastName !== undefined) data.lastName = payload.lastName.trim();
     if (payload.role !== undefined) data.role = payload.role;
     if (payload.active !== undefined) data.active = payload.active;
+    if (payload.password !== undefined) {
+      const password = payload.password;
+      if (!password || password.length < 6) {
+        throw new BadRequestException('Password must be at least 6 characters');
+      }
+      data.password = await bcrypt.hash(password, SALT_ROUNDS);
+    }
     if (Object.keys(data).length === 0) {
       const { password: _, ...rest } = employee;
       return { message: 'Employee unchanged', employee: rest };

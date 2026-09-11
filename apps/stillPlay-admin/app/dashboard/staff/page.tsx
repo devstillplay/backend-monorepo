@@ -1,6 +1,8 @@
 "use client";
 
 import AddIcon from "@mui/icons-material/Add";
+import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
+import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import {
   Alert,
@@ -25,13 +27,26 @@ import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 
 import DashboardHeader from "../../../components/dashboard/DashboardHeader";
-import { useEmployees, useCreateEmployee, useUpdateEmployee } from "../../../lib/queries";
+import {
+  useEmployees,
+  useCreateEmployee,
+  useUpdateEmployee,
+  useDeleteEmployee,
+} from "../../../lib/queries";
 import { isCustomerSupportRole, useAuthStore } from "../../../store/auth";
 import { useUserStore } from "../../../store/user";
 import {
   STAFF_ROLES,
   type Employee,
 } from "../../../lib/api";
+
+type EditFormState = {
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
+  role: string;
+};
 
 export default function StaffPage() {
   const router = useRouter();
@@ -52,11 +67,21 @@ export default function StaffPage() {
   const [formPassword, setFormPassword] = useState("");
   const [formRole, setFormRole] = useState<string>(STAFF_ROLES[0]);
 
+  const [editing, setEditing] = useState<Employee | null>(null);
+  const [editForm, setEditForm] = useState<EditFormState>({
+    firstName: "",
+    lastName: "",
+    email: "",
+    password: "",
+    role: STAFF_ROLES[0],
+  });
+  const [deleting, setDeleting] = useState<Employee | null>(null);
+
   const { data: employees = [], isLoading, isError, error, refetch, isFetching } = useEmployees();
   const createMutation = useCreateEmployee();
   const updateEmployeeMutation = useUpdateEmployee();
+  const deleteEmployeeMutation = useDeleteEmployee();
 
-  // If staff request failed due to invalid token (401), auth store was reset — lock out to login
   useEffect(() => {
     if (isError && !token) {
       router.replace("/");
@@ -85,6 +110,30 @@ export default function StaffPage() {
     setOpenCreate(false);
   };
 
+  const openEdit = (employee: Employee) => {
+    setEditing(employee);
+    setEditForm({
+      firstName: employee.firstName ?? "",
+      lastName: employee.lastName ?? "",
+      email: employee.email ?? "",
+      password: "",
+      role: employee.role || STAFF_ROLES[0],
+    });
+    updateEmployeeMutation.reset();
+  };
+
+  const closeEdit = () => {
+    if (updateEmployeeMutation.isPending) return;
+    setEditing(null);
+    setEditForm({
+      firstName: "",
+      lastName: "",
+      email: "",
+      password: "",
+      role: STAFF_ROLES[0],
+    });
+  };
+
   const handleCreate = () => {
     const firstName = formFirstName.trim();
     const lastName = formLastName.trim();
@@ -100,6 +149,115 @@ export default function StaffPage() {
         role: formRole,
       },
       { onSuccess: () => resetForm() }
+    );
+  };
+
+  const handleSaveEdit = () => {
+    if (!editing) return;
+    const firstName = editForm.firstName.trim();
+    const lastName = editForm.lastName.trim();
+    const email = editForm.email.trim();
+    if (!firstName || !lastName || !email) return;
+    if (editForm.password && editForm.password.length < 6) return;
+
+    const payload: Partial<{
+      email: string;
+      firstName: string;
+      lastName: string;
+      role: string;
+      password: string;
+    }> = {
+      firstName,
+      lastName,
+      email,
+      role: editForm.role,
+    };
+    if (editForm.password.trim()) {
+      payload.password = editForm.password;
+    }
+
+    updateEmployeeMutation.mutate(
+      { id: editing.id, payload },
+      { onSuccess: () => closeEdit() }
+    );
+  };
+
+  const handleConfirmDelete = () => {
+    if (!deleting) return;
+    deleteEmployeeMutation.mutate(deleting.id, {
+      onSuccess: () => {
+        setDeleting(null);
+      },
+    });
+  };
+
+  const renderActions = (e: Employee) => {
+    const isSelf = e.id === currentUserId;
+    return (
+      <Stack direction="row" spacing={0.5} flexWrap="wrap" useFlexGap>
+        <Button
+          size="small"
+          variant="outlined"
+          startIcon={<EditOutlinedIcon />}
+          disabled={updateEmployeeMutation.isPending}
+          onClick={() => openEdit(e)}
+        >
+          Edit
+        </Button>
+        {!isSelf && (
+          <>
+            {e.active ? (
+              <Button
+                size="small"
+                color="warning"
+                variant="outlined"
+                disabled={updateEmployeeMutation.isPending}
+                onClick={() =>
+                  updateEmployeeMutation.mutate({
+                    id: e.id,
+                    payload: { active: false },
+                  })
+                }
+              >
+                Suspend
+              </Button>
+            ) : (
+              <Button
+                size="small"
+                variant="contained"
+                disabled={updateEmployeeMutation.isPending}
+                onClick={() =>
+                  updateEmployeeMutation.mutate({
+                    id: e.id,
+                    payload: { active: true },
+                  })
+                }
+                sx={{ backgroundColor: "#0b7b4c" }}
+              >
+                Reinstate
+              </Button>
+            )}
+            <Button
+              size="small"
+              color="error"
+              variant="outlined"
+              startIcon={<DeleteOutlineIcon />}
+              disabled={deleteEmployeeMutation.isPending}
+              onClick={() => {
+                deleteEmployeeMutation.reset();
+                setDeleting(e);
+              }}
+            >
+              Delete
+            </Button>
+          </>
+        )}
+        {isSelf && (
+          <Typography variant="caption" color="text.secondary" sx={{ alignSelf: "center" }}>
+            Current account
+          </Typography>
+        )}
+      </Stack>
     );
   };
 
@@ -129,9 +287,14 @@ export default function StaffPage() {
         }}
       >
         <Stack spacing={2}>
-          {updateEmployeeMutation.isError && (
+          {updateEmployeeMutation.isError && !editing && (
             <Alert severity="error" onClose={() => updateEmployeeMutation.reset()}>
               {(updateEmployeeMutation.error as Error).message}
+            </Alert>
+          )}
+          {deleteEmployeeMutation.isError && !deleting && (
+            <Alert severity="error" onClose={() => deleteEmployeeMutation.reset()}>
+              {(deleteEmployeeMutation.error as Error).message}
             </Alert>
           )}
           <Box
@@ -185,7 +348,7 @@ export default function StaffPage() {
                 paddingY: 1.2,
                 paddingX: 3,
                 display: { xs: "none", md: "grid" },
-                gridTemplateColumns: { md: "1.4fr 1.1fr 0.85fr 1fr 0.55fr 1fr" },
+                gridTemplateColumns: { md: "1.2fr 1.1fr 0.75fr 0.9fr 0.55fr 1.6fr" },
                 alignItems: "center",
                 gap: 1,
               }}
@@ -233,7 +396,7 @@ export default function StaffPage() {
                         paddingX: { xs: 2, md: 3 },
                         borderBottom: { xs: "none", md: "1px solid #fff" },
                         display: { xs: "block", md: "grid" },
-                        gridTemplateColumns: { md: "1.4fr 1.1fr 0.85fr 1fr 0.55fr 1fr" },
+                        gridTemplateColumns: { md: "1.2fr 1.1fr 0.75fr 0.9fr 0.55fr 1.6fr" },
                         alignItems: { md: "center" },
                         gap: { md: 1 },
                         backgroundColor: "#ffffff",
@@ -243,7 +406,6 @@ export default function StaffPage() {
                         "&:hover": { backgroundColor: "#fafafa" },
                       }}
                     >
-                      {/* Mobile: label-value card rows */}
                       <Box
                         sx={{
                           display: { xs: "grid", md: "none" },
@@ -275,45 +437,8 @@ export default function StaffPage() {
                           {e.active ? "Active" : "Suspended"}
                         </span>
                         <span className="label">Actions</span>
-                        <span className="value">
-                          {e.id === currentUserId ? (
-                            <Typography variant="caption" color="text.secondary">
-                              Current account
-                            </Typography>
-                          ) : e.active ? (
-                            <Button
-                              size="small"
-                              color="error"
-                              variant="outlined"
-                              disabled={updateEmployeeMutation.isPending}
-                              onClick={() =>
-                                updateEmployeeMutation.mutate({
-                                  id: e.id,
-                                  payload: { active: false },
-                                })
-                              }
-                            >
-                              Suspend
-                            </Button>
-                          ) : (
-                            <Button
-                              size="small"
-                              variant="contained"
-                              disabled={updateEmployeeMutation.isPending}
-                              onClick={() =>
-                                updateEmployeeMutation.mutate({
-                                  id: e.id,
-                                  payload: { active: true },
-                                })
-                              }
-                              sx={{ backgroundColor: "#0b7b4c" }}
-                            >
-                              Reinstate
-                            </Button>
-                          )}
-                        </span>
+                        <span className="value">{renderActions(e)}</span>
                       </Box>
-                      {/* Desktop: table row */}
                       <>
                         <Box sx={{ display: { xs: "none", md: "block" } }}>
                           <Typography variant="body2" fontWeight={600}>
@@ -331,9 +456,7 @@ export default function StaffPage() {
                           </Typography>
                         </Box>
                         <Box sx={{ display: { xs: "none", md: "block" } }}>
-                          <Typography variant="body2">
-                            {e.role ?? "—"}
-                          </Typography>
+                          <Typography variant="body2">{e.role ?? "—"}</Typography>
                         </Box>
                         <Box sx={{ display: { xs: "none", md: "block" } }}>
                           <Typography
@@ -354,41 +477,7 @@ export default function StaffPage() {
                             flexWrap: "wrap",
                           }}
                         >
-                          {e.id === currentUserId ? (
-                            <Typography variant="caption" color="text.secondary">
-                              Current account
-                            </Typography>
-                          ) : e.active ? (
-                            <Button
-                              size="small"
-                              color="error"
-                              variant="outlined"
-                              disabled={updateEmployeeMutation.isPending}
-                              onClick={() =>
-                                updateEmployeeMutation.mutate({
-                                  id: e.id,
-                                  payload: { active: false },
-                                })
-                              }
-                            >
-                              Suspend
-                            </Button>
-                          ) : (
-                            <Button
-                              size="small"
-                              variant="contained"
-                              disabled={updateEmployeeMutation.isPending}
-                              onClick={() =>
-                                updateEmployeeMutation.mutate({
-                                  id: e.id,
-                                  payload: { active: true },
-                                })
-                              }
-                              sx={{ backgroundColor: "#0b7b4c" }}
-                            >
-                              Reinstate
-                            </Button>
-                          )}
+                          {renderActions(e)}
                         </Box>
                       </>
                     </Box>
@@ -406,7 +495,6 @@ export default function StaffPage() {
         PaperProps={{ sx: { borderRadius: { xs: 2, sm: 2 } } }}
         maxWidth="sm"
         fullWidth
-        fullScreen={false}
         scroll="paper"
       >
         <DialogTitle>Create Admin Account</DialogTitle>
@@ -483,6 +571,151 @@ export default function StaffPage() {
             sx={{ backgroundColor: "#0b7b4c" }}
           >
             {createMutation.isPending ? "Creating..." : "Create"}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog
+        open={!!editing}
+        onClose={closeEdit}
+        PaperProps={{ sx: { borderRadius: { xs: 2, sm: 2 } } }}
+        maxWidth="sm"
+        fullWidth
+        scroll="paper"
+      >
+        <DialogTitle>Edit staff account</DialogTitle>
+        <DialogContent>
+          <Stack spacing={2} sx={{ pt: 1 }}>
+            <TextField
+              label="First name"
+              required
+              fullWidth
+              value={editForm.firstName}
+              onChange={(e) =>
+                setEditForm((prev) => ({ ...prev, firstName: e.target.value }))
+              }
+            />
+            <TextField
+              label="Last name"
+              required
+              fullWidth
+              value={editForm.lastName}
+              onChange={(e) =>
+                setEditForm((prev) => ({ ...prev, lastName: e.target.value }))
+              }
+            />
+            <TextField
+              label="Email"
+              type="email"
+              required
+              fullWidth
+              value={editForm.email}
+              onChange={(e) =>
+                setEditForm((prev) => ({ ...prev, email: e.target.value }))
+              }
+            />
+            <TextField
+              label="New password"
+              type="password"
+              fullWidth
+              value={editForm.password}
+              onChange={(e) =>
+                setEditForm((prev) => ({ ...prev, password: e.target.value }))
+              }
+              placeholder="Leave blank to keep current password"
+              helperText={
+                editForm.password && editForm.password.length < 6
+                  ? "Password must be at least 6 characters"
+                  : "Optional — only fill if you want to change it"
+              }
+              error={!!editForm.password && editForm.password.length < 6}
+            />
+            <FormControl fullWidth required>
+              <InputLabel id="edit-staff-role-label">Role</InputLabel>
+              <Select
+                labelId="edit-staff-role-label"
+                value={editForm.role}
+                label="Role"
+                onChange={(e) =>
+                  setEditForm((prev) => ({ ...prev, role: e.target.value }))
+                }
+              >
+                {STAFF_ROLES.map((role) => (
+                  <MenuItem key={role} value={role}>
+                    {role}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            {updateEmployeeMutation.isError && (
+              <Alert severity="error">
+                {(updateEmployeeMutation.error as Error).message}
+              </Alert>
+            )}
+          </Stack>
+        </DialogContent>
+        <DialogActions sx={{ px: 3, pb: 2 }}>
+          <Button onClick={closeEdit} disabled={updateEmployeeMutation.isPending}>
+            Cancel
+          </Button>
+          <Button
+            variant="contained"
+            onClick={handleSaveEdit}
+            disabled={
+              !editForm.firstName.trim() ||
+              !editForm.lastName.trim() ||
+              !editForm.email.trim() ||
+              (!!editForm.password && editForm.password.length < 6) ||
+              updateEmployeeMutation.isPending
+            }
+            sx={{ backgroundColor: "#0b7b4c" }}
+          >
+            {updateEmployeeMutation.isPending ? "Saving..." : "Save changes"}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog
+        open={!!deleting}
+        onClose={() => {
+          if (!deleteEmployeeMutation.isPending) setDeleting(null);
+        }}
+        maxWidth="xs"
+        fullWidth
+      >
+        <DialogTitle>Delete staff account?</DialogTitle>
+        <DialogContent>
+          <Typography variant="body2" gutterBottom>
+            This permanently deletes{" "}
+            <strong>
+              {[deleting?.firstName, deleting?.lastName].filter(Boolean).join(" ") ||
+                deleting?.email}
+            </strong>{" "}
+            ({deleting?.email}). They will no longer be able to sign in.
+          </Typography>
+          <Typography variant="caption" color="text.secondary">
+            This cannot be undone.
+          </Typography>
+          {deleteEmployeeMutation.isError && (
+            <Alert severity="error" sx={{ mt: 2 }}>
+              {(deleteEmployeeMutation.error as Error).message}
+            </Alert>
+          )}
+        </DialogContent>
+        <DialogActions sx={{ px: 3, pb: 2 }}>
+          <Button
+            onClick={() => setDeleting(null)}
+            disabled={deleteEmployeeMutation.isPending}
+          >
+            Cancel
+          </Button>
+          <Button
+            color="error"
+            variant="contained"
+            onClick={handleConfirmDelete}
+            disabled={deleteEmployeeMutation.isPending}
+          >
+            {deleteEmployeeMutation.isPending ? "Deleting..." : "Delete"}
           </Button>
         </DialogActions>
       </Dialog>

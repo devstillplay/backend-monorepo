@@ -16,6 +16,7 @@ import {
   listEmployees,
   createEmployee,
   updateEmployee,
+  deleteEmployee,
   getLoanEligibility,
   getUserLoanHistory,
   getUserRepayments,
@@ -383,7 +384,7 @@ export function useCreateEmployee() {
   });
 }
 
-/** Update staff (suspend / reinstate / edit fields). */
+/** Update staff (suspend / reinstate / edit fields / password). */
 export function useUpdateEmployee() {
   const token = useAuthStore((s) => s.token);
   const queryClient = useQueryClient();
@@ -395,7 +396,7 @@ export function useUpdateEmployee() {
       id: string;
       payload: Partial<
         Pick<Employee, "email" | "firstName" | "lastName" | "role" | "active">
-      >;
+      > & { password?: string };
     }) => updateEmployee(token!, id, payload),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: adminKeys.employees() });
@@ -406,6 +407,20 @@ export function useUpdateEmployee() {
             ? "Staff reinstated"
             : "Staff updated";
       recordActivity({ action });
+      queryClient.invalidateQueries({ queryKey: adminKeys.activity() });
+    },
+  });
+}
+
+/** Permanently delete a staff account. */
+export function useDeleteEmployee() {
+  const token = useAuthStore((s) => s.token);
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => deleteEmployee(token!, id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: adminKeys.employees() });
+      recordActivity({ action: "Staff deleted" });
       queryClient.invalidateQueries({ queryKey: adminKeys.activity() });
     },
   });

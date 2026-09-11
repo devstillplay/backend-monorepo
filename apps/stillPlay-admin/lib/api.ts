@@ -1115,11 +1115,13 @@ export async function createEmployee(
   return data;
 }
 
-/** Update staff / employee (e.g. suspend: `{ active: false }`, reinstate: `{ active: true }`). */
+/** Update staff / employee (e.g. suspend, email, password, role). */
 export async function updateEmployee(
   token: string,
   id: string,
-  payload: Partial<Pick<Employee, "email" | "firstName" | "lastName" | "role" | "active">>
+  payload: Partial<
+    Pick<Employee, "email" | "firstName" | "lastName" | "role" | "active">
+  > & { password?: string }
 ): Promise<{ message: string; employee: Employee }> {
   const res = await fetch(endpoints.admin.employeeById(id), {
     method: "PATCH",
@@ -1138,6 +1140,29 @@ export async function updateEmployee(
     );
   }
   return data as { message: string; employee: Employee };
+}
+
+/** Permanently delete a staff / employee account. */
+export async function deleteEmployee(
+  token: string,
+  id: string
+): Promise<{ message: string }> {
+  const res = await fetch(endpoints.admin.employeeById(id), {
+    method: "DELETE",
+    headers: getAuthHeaders(token),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    handleAuthError(res);
+    throw new Error(
+      typeof data.message === "string"
+        ? data.message
+        : Array.isArray(data.message)
+          ? (data.message[0] as string)
+          : "Failed to delete staff"
+    );
+  }
+  return data as { message: string };
 }
 
 /** List providers with balance and total paid (for disbursement page). */
