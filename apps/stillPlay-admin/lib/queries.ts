@@ -34,6 +34,13 @@ import {
   sendChatMessage,
   createChatThread,
   listWaitlist,
+  listEventRegistrations,
+  listWebinarEvents,
+  getWebinarEvent,
+  createWebinarEvent,
+  updateWebinarEvent,
+  deleteWebinarEvent,
+  type WebinarEventPayload,
   listBlogPosts,
   createBlogPost,
   updateBlogPost,
@@ -58,6 +65,10 @@ export const adminKeys = {
   all: ["admin"] as const,
   users: () => [...adminKeys.all, "users"] as const,
   waitlist: () => [...adminKeys.all, "waitlist"] as const,
+  eventRegistrations: (eventSlug?: string) =>
+    [...adminKeys.all, "eventRegistrations", eventSlug ?? "all"] as const,
+  webinars: () => [...adminKeys.all, "webinars"] as const,
+  webinar: (id: string) => [...adminKeys.all, "webinars", id] as const,
   blog: () => [...adminKeys.all, "blog"] as const,
   marketingHistory: () => [...adminKeys.all, "marketingHistory"] as const,
   user: (id: string) => [...adminKeys.users(), id] as const,
@@ -104,6 +115,72 @@ export function useWaitlist() {
     enabled: !!token,
     refetchOnWindowFocus: true,
     staleTime: 30 * 1000,
+  });
+}
+
+/** Event / webinar registrations (admin). */
+export function useEventRegistrations(eventSlug?: string) {
+  const token = useAuthStore((s) => s.token);
+  return useQuery({
+    queryKey: adminKeys.eventRegistrations(eventSlug),
+    queryFn: () => listEventRegistrations(token!, eventSlug),
+    enabled: !!token,
+    refetchOnWindowFocus: true,
+    staleTime: 30 * 1000,
+  });
+}
+
+export function useWebinarEvents() {
+  const token = useAuthStore((s) => s.token);
+  return useQuery({
+    queryKey: adminKeys.webinars(),
+    queryFn: () => listWebinarEvents(token!),
+    enabled: !!token,
+  });
+}
+
+export function useWebinarEvent(id: string | null) {
+  const token = useAuthStore((s) => s.token);
+  return useQuery({
+    queryKey: adminKeys.webinar(id ?? ""),
+    queryFn: () => getWebinarEvent(token!, id!),
+    enabled: !!token && !!id,
+  });
+}
+
+function useInvalidateWebinars() {
+  const queryClient = useQueryClient();
+  return () => {
+    queryClient.invalidateQueries({ queryKey: adminKeys.webinars() });
+    queryClient.invalidateQueries({ queryKey: [...adminKeys.all, "eventRegistrations"] });
+  };
+}
+
+export function useCreateWebinarEvent() {
+  const token = useAuthStore((s) => s.token);
+  const invalidate = useInvalidateWebinars();
+  return useMutation({
+    mutationFn: (payload: WebinarEventPayload) => createWebinarEvent(token!, payload),
+    onSuccess: invalidate,
+  });
+}
+
+export function useUpdateWebinarEvent() {
+  const token = useAuthStore((s) => s.token);
+  const invalidate = useInvalidateWebinars();
+  return useMutation({
+    mutationFn: ({ id, payload }: { id: string; payload: Partial<WebinarEventPayload> }) =>
+      updateWebinarEvent(token!, id, payload),
+    onSuccess: invalidate,
+  });
+}
+
+export function useDeleteWebinarEvent() {
+  const token = useAuthStore((s) => s.token);
+  const invalidate = useInvalidateWebinars();
+  return useMutation({
+    mutationFn: (id: string) => deleteWebinarEvent(token!, id),
+    onSuccess: invalidate,
   });
 }
 

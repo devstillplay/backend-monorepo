@@ -271,6 +271,57 @@ model BlogPost {
   @@index([createdAt])
 }
 
+// Public event / webinar registrations (landing /webinar + admin Events)
+/// Admin-editable webinar landing page (/webinar). Registrations link via slug.
+model WebinarEvent {
+  id                  String   @id @default(auto()) @map("_id") @db.ObjectId
+  slug                String   @unique
+  kicker              String   @default("Webinar")
+  title               String
+  /// [{ text, color: "ink" | "gold" | "green" }] — big sticker-style headline lines
+  headlineLines       Json?
+  description         String
+  startsAt            DateTime
+  endsAt              DateTime
+  timezone            String   @default("Africa/Lagos")
+  timezoneLabel       String   @default("WAT")
+  platform            String   @default("Zoom")
+  bannerUrl           String?
+  discussionKicker    String?
+  discussionTitle     String?
+  /// [{ title, desc }]
+  discussionPoints    Json?
+  formTitle           String?
+  formSubtitle        String?
+  registerButtonLabel String?
+  occupationOptions   String[]
+  zoomMeetingId       String?
+  zoomEventType       String?
+  zoomJoinUrl         String?
+  published           Boolean  @default(false)
+  featured            Boolean  @default(false)
+  registrationOpen    Boolean  @default(true)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  @@index([published, featured])
+}
+
+model EventRegistration {
+  id               String   @id @default(auto()) @map("_id") @db.ObjectId
+  eventSlug        String
+  fullName         String
+  email            String
+  occupation       String
+  zoomRegistrantId String?
+  zoomJoinUrl      String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@unique([eventSlug, email])
+  @@index([eventSlug, createdAt])
+}
+
 // Marketing bulk email send history (admin dashboard)
 model MarketingEmailSend {
   id             String   @id @default(auto()) @map("_id") @db.ObjectId

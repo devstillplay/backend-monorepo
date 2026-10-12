@@ -472,6 +472,66 @@ export class AdminController {
     }
   }
 
+  @Get('event-registrations')
+  async listEventRegistrations(@Query('eventSlug') eventSlug?: string) {
+    try {
+      return await firstValueFrom(
+        this.adminClient.send('event-registrations-list', {
+          eventSlug: eventSlug?.trim() || undefined,
+        })
+      );
+    } catch (err) {
+      rethrowAdminMicroserviceError(err);
+    }
+  }
+
+  @Get('events')
+  async listEvents() {
+    try {
+      return await firstValueFrom(this.adminClient.send('event-admin-list', {}));
+    } catch (err) {
+      rethrowAdminMicroserviceError(err);
+    }
+  }
+
+  @Get('events/:id')
+  async getEvent(@Param('id') id: string) {
+    try {
+      return await firstValueFrom(this.adminClient.send('event-admin-get', id));
+    } catch (err) {
+      rethrowAdminMicroserviceError(err);
+    }
+  }
+
+  @Post('events')
+  async createEvent(@Body() body: unknown) {
+    try {
+      return await firstValueFrom(this.adminClient.send('event-admin-create', body));
+    } catch (err) {
+      rethrowAdminMicroserviceError(err);
+    }
+  }
+
+  @Patch('events/:id')
+  async updateEvent(@Param('id') id: string, @Body() body: unknown) {
+    try {
+      return await firstValueFrom(
+        this.adminClient.send('event-admin-update', { id, data: body })
+      );
+    } catch (err) {
+      rethrowAdminMicroserviceError(err);
+    }
+  }
+
+  @Delete('events/:id')
+  async deleteEvent(@Param('id') id: string) {
+    try {
+      return await firstValueFrom(this.adminClient.send('event-admin-delete', id));
+    } catch (err) {
+      rethrowAdminMicroserviceError(err);
+    }
+  }
+
   @Get('marketing/history')
   async listMarketingSendHistory(@Query('limit') limit?: string) {
     try {

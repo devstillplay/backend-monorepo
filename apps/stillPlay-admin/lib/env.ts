@@ -19,6 +19,14 @@ export function getBaseUrl(): string {
   return baseUrl;
 }
 
+/** Public landing site, used to preview webinar pages and resolve relative asset paths. */
+export function getLandingUrl(): string {
+  return (
+    process.env.NEXT_PUBLIC_LANDING_URL ??
+    (process.env.NODE_ENV === 'development' ? 'http://localhost:3003' : 'https://still-play.com')
+  ).replace(/\/$/, '');
+}
+
 /** Use before auth/API calls; throws if API base URL is not set (avoids 404 to same origin). */
 export function requireBaseUrl(): void {
   const url = getBaseUrl();
@@ -45,6 +53,9 @@ export const endpoints = {
     users: () => `${getBaseUrl()}/admin/users`,
     userById: (id: string) => `${getBaseUrl()}/admin/users/${id}`,
     waitlist: () => `${getBaseUrl()}/admin/waitlist`,
+    eventRegistrations: () => `${getBaseUrl()}/admin/event-registrations`,
+    events: () => `${getBaseUrl()}/admin/events`,
+    eventById: (id: string) => `${getBaseUrl()}/admin/events/${id}`,
     blog: () => `${getBaseUrl()}/admin/blog`,
     blogById: (id: string) => `${getBaseUrl()}/admin/blog/${id}`,
     marketingPreviewRecipients: () =>

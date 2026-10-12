@@ -81,6 +81,64 @@ export type WaitlistEntry = {
   updatedAt: string;
 };
 
+export type AdminEvent = {
+  slug: string;
+  title: string;
+  startsAt: string;
+  endsAt: string;
+  timezone: string;
+};
+
+export type WebinarHeadlineColor = "ink" | "gold" | "green";
+
+export type WebinarEvent = {
+  id: string;
+  slug: string;
+  kicker: string;
+  title: string;
+  headlineLines: { text: string; color: WebinarHeadlineColor }[] | null;
+  description: string;
+  startsAt: string;
+  endsAt: string;
+  timezone: string;
+  timezoneLabel: string;
+  platform: string;
+  bannerUrl: string | null;
+  discussionKicker: string | null;
+  discussionTitle: string | null;
+  discussionPoints: { title: string; desc: string }[] | null;
+  formTitle: string | null;
+  formSubtitle: string | null;
+  registerButtonLabel: string | null;
+  occupationOptions: string[];
+  zoomMeetingId: string | null;
+  zoomEventType: "meeting" | "webinar" | null;
+  zoomJoinUrl: string | null;
+  published: boolean;
+  featured: boolean;
+  registrationOpen: boolean;
+  registrationCount?: number;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type WebinarEventPayload = Omit<
+  WebinarEvent,
+  "id" | "registrationCount" | "createdAt" | "updatedAt"
+>;
+
+export type EventRegistration = {
+  id: string;
+  eventSlug: string;
+  fullName: string;
+  email: string;
+  occupation: string;
+  zoomRegistrantId: string | null;
+  zoomJoinUrl: string | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
 export type BlogPost = {
   id: string;
   title: string;
@@ -836,6 +894,105 @@ export async function listWaitlist(
   }
   const entries = (data as { entries?: WaitlistEntry[] }).entries;
   return Array.isArray(entries) ? entries : [];
+}
+
+export async function listEventRegistrations(
+  token: string,
+  eventSlug?: string
+): Promise<{ events: AdminEvent[]; registrations: EventRegistration[] }> {
+  requireBaseUrl();
+  const url = eventSlug
+    ? `${endpoints.admin.eventRegistrations()}?eventSlug=${encodeURIComponent(eventSlug)}`
+    : endpoints.admin.eventRegistrations();
+  const res = await fetch(url, { headers: getAuthHeaders(token) });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    handleAuthError(res);
+    throw new Error(
+      typeof data.message === "string" ? data.message : "Failed to load event registrations"
+    );
+  }
+  const { events, registrations } = data as {
+    events?: AdminEvent[];
+    registrations?: EventRegistration[];
+  };
+  return {
+    events: Array.isArray(events) ? events : [],
+    registrations: Array.isArray(registrations) ? registrations : [],
+  };
+}
+
+async function eventsRequest<T>(
+  token: string,
+  url: string,
+  init: RequestInit,
+  fallbackError: string
+): Promise<T> {
+  requireBaseUrl();
+  const res = await fetch(url, { ...init, headers: getAuthHeaders(token) });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    handleAuthError(res);
+    const msg = Array.isArray(data.message) ? data.message[0] : data.message;
+    throw new Error(typeof msg === "string" ? msg : fallbackError);
+  }
+  return data as T;
+}
+
+export async function listWebinarEvents(token: string): Promise<WebinarEvent[]> {
+  const data = await eventsRequest<{ events?: WebinarEvent[] }>(
+    token,
+    endpoints.admin.events(),
+    {},
+    "Failed to load webinars"
+  );
+  return Array.isArray(data.events) ? data.events : [];
+}
+
+export async function getWebinarEvent(token: string, id: string): Promise<WebinarEvent> {
+  const data = await eventsRequest<{ event: WebinarEvent }>(
+    token,
+    endpoints.admin.eventById(id),
+    {},
+    "Failed to load webinar"
+  );
+  return data.event;
+}
+
+export async function createWebinarEvent(
+  token: string,
+  payload: WebinarEventPayload
+): Promise<WebinarEvent> {
+  const data = await eventsRequest<{ event: WebinarEvent }>(
+    token,
+    endpoints.admin.events(),
+    { method: "POST", body: JSON.stringify(payload) },
+    "Failed to create webinar"
+  );
+  return data.event;
+}
+
+export async function updateWebinarEvent(
+  token: string,
+  id: string,
+  payload: Partial<WebinarEventPayload>
+): Promise<WebinarEvent> {
+  const data = await eventsRequest<{ event: WebinarEvent }>(
+    token,
+    endpoints.admin.eventById(id),
+    { method: "PATCH", body: JSON.stringify(payload) },
+    "Failed to update webinar"
+  );
+  return data.event;
+}
+
+export async function deleteWebinarEvent(token: string, id: string): Promise<void> {
+  await eventsRequest(
+    token,
+    endpoints.admin.eventById(id),
+    { method: "DELETE" },
+    "Failed to delete webinar"
+  );
 }
 
 /** List blog posts (admin — includes drafts). */

@@ -5,6 +5,7 @@ import { PrismaModule } from '@my-workspace/prisma';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { MarketingModule } from './marketing/marketing.module';
+import { EventsModule } from './events/events.module';
 
 const envPaths =
   process.env.RENDER === 'true'
@@ -22,6 +23,7 @@ const envPaths =
     ConfigModule.forRoot({ isGlobal: true, envFilePath: envPaths }),
     PrismaModule,
     MarketingModule,
+    EventsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

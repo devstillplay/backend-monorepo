@@ -339,6 +339,48 @@ exports.Prisma.BlogPostScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.WebinarEventScalarFieldEnum = {
+  id: 'id',
+  slug: 'slug',
+  kicker: 'kicker',
+  title: 'title',
+  headlineLines: 'headlineLines',
+  description: 'description',
+  startsAt: 'startsAt',
+  endsAt: 'endsAt',
+  timezone: 'timezone',
+  timezoneLabel: 'timezoneLabel',
+  platform: 'platform',
+  bannerUrl: 'bannerUrl',
+  discussionKicker: 'discussionKicker',
+  discussionTitle: 'discussionTitle',
+  discussionPoints: 'discussionPoints',
+  formTitle: 'formTitle',
+  formSubtitle: 'formSubtitle',
+  registerButtonLabel: 'registerButtonLabel',
+  occupationOptions: 'occupationOptions',
+  zoomMeetingId: 'zoomMeetingId',
+  zoomEventType: 'zoomEventType',
+  zoomJoinUrl: 'zoomJoinUrl',
+  published: 'published',
+  featured: 'featured',
+  registrationOpen: 'registrationOpen',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.EventRegistrationScalarFieldEnum = {
+  id: 'id',
+  eventSlug: 'eventSlug',
+  fullName: 'fullName',
+  email: 'email',
+  occupation: 'occupation',
+  zoomRegistrantId: 'zoomRegistrantId',
+  zoomJoinUrl: 'zoomJoinUrl',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.MarketingEmailSendScalarFieldEnum = {
   id: 'id',
   subject: 'subject',
@@ -387,6 +429,8 @@ exports.Prisma.ModelName = {
   ChatMessage: 'ChatMessage',
   WaitlistEntry: 'WaitlistEntry',
   BlogPost: 'BlogPost',
+  WebinarEvent: 'WebinarEvent',
+  EventRegistration: 'EventRegistration',
   MarketingEmailSend: 'MarketingEmailSend'
 };
 

@@ -13,6 +13,7 @@ import SupportAgentOutlinedIcon from "@mui/icons-material/SupportAgentOutlined";
 import PollOutlinedIcon from "@mui/icons-material/PollOutlined";
 import ArticleOutlinedIcon from "@mui/icons-material/ArticleOutlined";
 import CampaignOutlinedIcon from "@mui/icons-material/CampaignOutlined";
+import EventOutlinedIcon from "@mui/icons-material/EventOutlined";
 import {
   Badge,
   Box,
@@ -76,6 +77,11 @@ const navItems = [
     label: "Marketing",
     href: "/dashboard/marketing",
     icon: <CampaignOutlinedIcon />,
+  },
+  {
+    label: "Events",
+    href: "/dashboard/events",
+    icon: <EventOutlinedIcon />,
   },
   {
     label: "Support",

@@ -38,6 +38,7 @@ import {
   PARTNERSHIP_EMAIL,
 } from "../lib/config";
 import { joinWaitlist } from "../lib/waitlist";
+import WebinarPromo from "../components/WebinarPromo";
 
 const SECURITY_ITEMS = [
   {
@@ -392,6 +393,8 @@ export default function LandingPage() {
           </Grid>
         </Container>
       </Box>
+
+      <WebinarPromo />
 
       {/* Built for Security and Trust */}
       <Box id="about" component="section" sx={{ py: { xs: 8, md: 12 }, bgcolor: "#f5f5f5" }}>

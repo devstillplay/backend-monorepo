@@ -39,6 +39,7 @@ const pathToAction: Record<string, string> = {
   "/dashboard/survey": "Viewed Survey",
   "/dashboard/blog": "Viewed Blog",
   "/dashboard/marketing": "Viewed Marketing",
+  "/dashboard/events": "Viewed Events",
   "/dashboard/settings": "Viewed Settings",
 };
 

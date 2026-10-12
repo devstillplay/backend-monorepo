@@ -119,6 +119,16 @@ export type WaitlistEntry = $Result.DefaultSelection<Prisma.$WaitlistEntryPayloa
  */
 export type BlogPost = $Result.DefaultSelection<Prisma.$BlogPostPayload>
 /**
+ * Model WebinarEvent
+ * Admin-editable webinar landing page (/webinar). Registrations link via slug.
+ */
+export type WebinarEvent = $Result.DefaultSelection<Prisma.$WebinarEventPayload>
+/**
+ * Model EventRegistration
+ * 
+ */
+export type EventRegistration = $Result.DefaultSelection<Prisma.$EventRegistrationPayload>
+/**
  * Model MarketingEmailSend
  * 
  */
@@ -418,6 +428,26 @@ export class PrismaClient<
     * ```
     */
   get blogPost(): Prisma.BlogPostDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.webinarEvent`: Exposes CRUD operations for the **WebinarEvent** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more WebinarEvents
+    * const webinarEvents = await prisma.webinarEvent.findMany()
+    * ```
+    */
+  get webinarEvent(): Prisma.WebinarEventDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.eventRegistration`: Exposes CRUD operations for the **EventRegistration** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more EventRegistrations
+    * const eventRegistrations = await prisma.eventRegistration.findMany()
+    * ```
+    */
+  get eventRegistration(): Prisma.EventRegistrationDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.marketingEmailSend`: Exposes CRUD operations for the **MarketingEmailSend** model.
@@ -890,6 +920,8 @@ export namespace Prisma {
     ChatMessage: 'ChatMessage',
     WaitlistEntry: 'WaitlistEntry',
     BlogPost: 'BlogPost',
+    WebinarEvent: 'WebinarEvent',
+    EventRegistration: 'EventRegistration',
     MarketingEmailSend: 'MarketingEmailSend'
   };
 
@@ -909,7 +941,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "loginCode" | "passwordResetCode" | "pendingRegistration" | "wallet" | "loan" | "loanRepayment" | "externalPaymentRef" | "provider" | "providerWallet" | "loanFunding" | "providerCredit" | "providerPayout" | "employee" | "adminActivity" | "companyWallet" | "appSetting" | "chatSupport" | "chatMessage" | "waitlistEntry" | "blogPost" | "marketingEmailSend"
+      modelProps: "user" | "loginCode" | "passwordResetCode" | "pendingRegistration" | "wallet" | "loan" | "loanRepayment" | "externalPaymentRef" | "provider" | "providerWallet" | "loanFunding" | "providerCredit" | "providerPayout" | "employee" | "adminActivity" | "companyWallet" | "appSetting" | "chatSupport" | "chatMessage" | "waitlistEntry" | "blogPost" | "webinarEvent" | "eventRegistration" | "marketingEmailSend"
       txIsolationLevel: never
     }
     model: {
@@ -2467,6 +2499,154 @@ export namespace Prisma {
           }
         }
       }
+      WebinarEvent: {
+        payload: Prisma.$WebinarEventPayload<ExtArgs>
+        fields: Prisma.WebinarEventFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.WebinarEventFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WebinarEventPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.WebinarEventFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WebinarEventPayload>
+          }
+          findFirst: {
+            args: Prisma.WebinarEventFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WebinarEventPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.WebinarEventFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WebinarEventPayload>
+          }
+          findMany: {
+            args: Prisma.WebinarEventFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WebinarEventPayload>[]
+          }
+          create: {
+            args: Prisma.WebinarEventCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WebinarEventPayload>
+          }
+          createMany: {
+            args: Prisma.WebinarEventCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          delete: {
+            args: Prisma.WebinarEventDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WebinarEventPayload>
+          }
+          update: {
+            args: Prisma.WebinarEventUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WebinarEventPayload>
+          }
+          deleteMany: {
+            args: Prisma.WebinarEventDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.WebinarEventUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.WebinarEventUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WebinarEventPayload>
+          }
+          aggregate: {
+            args: Prisma.WebinarEventAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateWebinarEvent>
+          }
+          groupBy: {
+            args: Prisma.WebinarEventGroupByArgs<ExtArgs>
+            result: $Utils.Optional<WebinarEventGroupByOutputType>[]
+          }
+          findRaw: {
+            args: Prisma.WebinarEventFindRawArgs<ExtArgs>
+            result: JsonObject
+          }
+          aggregateRaw: {
+            args: Prisma.WebinarEventAggregateRawArgs<ExtArgs>
+            result: JsonObject
+          }
+          count: {
+            args: Prisma.WebinarEventCountArgs<ExtArgs>
+            result: $Utils.Optional<WebinarEventCountAggregateOutputType> | number
+          }
+        }
+      }
+      EventRegistration: {
+        payload: Prisma.$EventRegistrationPayload<ExtArgs>
+        fields: Prisma.EventRegistrationFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.EventRegistrationFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EventRegistrationPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.EventRegistrationFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EventRegistrationPayload>
+          }
+          findFirst: {
+            args: Prisma.EventRegistrationFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EventRegistrationPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.EventRegistrationFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EventRegistrationPayload>
+          }
+          findMany: {
+            args: Prisma.EventRegistrationFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EventRegistrationPayload>[]
+          }
+          create: {
+            args: Prisma.EventRegistrationCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EventRegistrationPayload>
+          }
+          createMany: {
+            args: Prisma.EventRegistrationCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          delete: {
+            args: Prisma.EventRegistrationDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EventRegistrationPayload>
+          }
+          update: {
+            args: Prisma.EventRegistrationUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EventRegistrationPayload>
+          }
+          deleteMany: {
+            args: Prisma.EventRegistrationDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.EventRegistrationUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.EventRegistrationUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EventRegistrationPayload>
+          }
+          aggregate: {
+            args: Prisma.EventRegistrationAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateEventRegistration>
+          }
+          groupBy: {
+            args: Prisma.EventRegistrationGroupByArgs<ExtArgs>
+            result: $Utils.Optional<EventRegistrationGroupByOutputType>[]
+          }
+          findRaw: {
+            args: Prisma.EventRegistrationFindRawArgs<ExtArgs>
+            result: JsonObject
+          }
+          aggregateRaw: {
+            args: Prisma.EventRegistrationAggregateRawArgs<ExtArgs>
+            result: JsonObject
+          }
+          count: {
+            args: Prisma.EventRegistrationCountArgs<ExtArgs>
+            result: $Utils.Optional<EventRegistrationCountAggregateOutputType> | number
+          }
+        }
+      }
       MarketingEmailSend: {
         payload: Prisma.$MarketingEmailSendPayload<ExtArgs>
         fields: Prisma.MarketingEmailSendFieldRefs
@@ -2641,6 +2821,8 @@ export namespace Prisma {
     chatMessage?: ChatMessageOmit
     waitlistEntry?: WaitlistEntryOmit
     blogPost?: BlogPostOmit
+    webinarEvent?: WebinarEventOmit
+    eventRegistration?: EventRegistrationOmit
     marketingEmailSend?: MarketingEmailSendOmit
   }
 
@@ -23791,6 +23973,2150 @@ export namespace Prisma {
 
 
   /**
+   * Model WebinarEvent
+   */
+
+  export type AggregateWebinarEvent = {
+    _count: WebinarEventCountAggregateOutputType | null
+    _min: WebinarEventMinAggregateOutputType | null
+    _max: WebinarEventMaxAggregateOutputType | null
+  }
+
+  export type WebinarEventMinAggregateOutputType = {
+    id: string | null
+    slug: string | null
+    kicker: string | null
+    title: string | null
+    description: string | null
+    startsAt: Date | null
+    endsAt: Date | null
+    timezone: string | null
+    timezoneLabel: string | null
+    platform: string | null
+    bannerUrl: string | null
+    discussionKicker: string | null
+    discussionTitle: string | null
+    formTitle: string | null
+    formSubtitle: string | null
+    registerButtonLabel: string | null
+    zoomMeetingId: string | null
+    zoomEventType: string | null
+    zoomJoinUrl: string | null
+    published: boolean | null
+    featured: boolean | null
+    registrationOpen: boolean | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type WebinarEventMaxAggregateOutputType = {
+    id: string | null
+    slug: string | null
+    kicker: string | null
+    title: string | null
+    description: string | null
+    startsAt: Date | null
+    endsAt: Date | null
+    timezone: string | null
+    timezoneLabel: string | null
+    platform: string | null
+    bannerUrl: string | null
+    discussionKicker: string | null
+    discussionTitle: string | null
+    formTitle: string | null
+    formSubtitle: string | null
+    registerButtonLabel: string | null
+    zoomMeetingId: string | null
+    zoomEventType: string | null
+    zoomJoinUrl: string | null
+    published: boolean | null
+    featured: boolean | null
+    registrationOpen: boolean | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type WebinarEventCountAggregateOutputType = {
+    id: number
+    slug: number
+    kicker: number
+    title: number
+    headlineLines: number
+    description: number
+    startsAt: number
+    endsAt: number
+    timezone: number
+    timezoneLabel: number
+    platform: number
+    bannerUrl: number
+    discussionKicker: number
+    discussionTitle: number
+    discussionPoints: number
+    formTitle: number
+    formSubtitle: number
+    registerButtonLabel: number
+    occupationOptions: number
+    zoomMeetingId: number
+    zoomEventType: number
+    zoomJoinUrl: number
+    published: number
+    featured: number
+    registrationOpen: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type WebinarEventMinAggregateInputType = {
+    id?: true
+    slug?: true
+    kicker?: true
+    title?: true
+    description?: true
+    startsAt?: true
+    endsAt?: true
+    timezone?: true
+    timezoneLabel?: true
+    platform?: true
+    bannerUrl?: true
+    discussionKicker?: true
+    discussionTitle?: true
+    formTitle?: true
+    formSubtitle?: true
+    registerButtonLabel?: true
+    zoomMeetingId?: true
+    zoomEventType?: true
+    zoomJoinUrl?: true
+    published?: true
+    featured?: true
+    registrationOpen?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type WebinarEventMaxAggregateInputType = {
+    id?: true
+    slug?: true
+    kicker?: true
+    title?: true
+    description?: true
+    startsAt?: true
+    endsAt?: true
+    timezone?: true
+    timezoneLabel?: true
+    platform?: true
+    bannerUrl?: true
+    discussionKicker?: true
+    discussionTitle?: true
+    formTitle?: true
+    formSubtitle?: true
+    registerButtonLabel?: true
+    zoomMeetingId?: true
+    zoomEventType?: true
+    zoomJoinUrl?: true
+    published?: true
+    featured?: true
+    registrationOpen?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type WebinarEventCountAggregateInputType = {
+    id?: true
+    slug?: true
+    kicker?: true
+    title?: true
+    headlineLines?: true
+    description?: true
+    startsAt?: true
+    endsAt?: true
+    timezone?: true
+    timezoneLabel?: true
+    platform?: true
+    bannerUrl?: true
+    discussionKicker?: true
+    discussionTitle?: true
+    discussionPoints?: true
+    formTitle?: true
+    formSubtitle?: true
+    registerButtonLabel?: true
+    occupationOptions?: true
+    zoomMeetingId?: true
+    zoomEventType?: true
+    zoomJoinUrl?: true
+    published?: true
+    featured?: true
+    registrationOpen?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type WebinarEventAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which WebinarEvent to aggregate.
+     */
+    where?: WebinarEventWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of WebinarEvents to fetch.
+     */
+    orderBy?: WebinarEventOrderByWithRelationInput | WebinarEventOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: WebinarEventWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` WebinarEvents from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` WebinarEvents.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned WebinarEvents
+    **/
+    _count?: true | WebinarEventCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: WebinarEventMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: WebinarEventMaxAggregateInputType
+  }
+
+  export type GetWebinarEventAggregateType<T extends WebinarEventAggregateArgs> = {
+        [P in keyof T & keyof AggregateWebinarEvent]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateWebinarEvent[P]>
+      : GetScalarType<T[P], AggregateWebinarEvent[P]>
+  }
+
+
+
+
+  export type WebinarEventGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: WebinarEventWhereInput
+    orderBy?: WebinarEventOrderByWithAggregationInput | WebinarEventOrderByWithAggregationInput[]
+    by: WebinarEventScalarFieldEnum[] | WebinarEventScalarFieldEnum
+    having?: WebinarEventScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: WebinarEventCountAggregateInputType | true
+    _min?: WebinarEventMinAggregateInputType
+    _max?: WebinarEventMaxAggregateInputType
+  }
+
+  export type WebinarEventGroupByOutputType = {
+    id: string
+    slug: string
+    kicker: string
+    title: string
+    headlineLines: JsonValue | null
+    description: string
+    startsAt: Date
+    endsAt: Date
+    timezone: string
+    timezoneLabel: string
+    platform: string
+    bannerUrl: string | null
+    discussionKicker: string | null
+    discussionTitle: string | null
+    discussionPoints: JsonValue | null
+    formTitle: string | null
+    formSubtitle: string | null
+    registerButtonLabel: string | null
+    occupationOptions: string[]
+    zoomMeetingId: string | null
+    zoomEventType: string | null
+    zoomJoinUrl: string | null
+    published: boolean
+    featured: boolean
+    registrationOpen: boolean
+    createdAt: Date
+    updatedAt: Date
+    _count: WebinarEventCountAggregateOutputType | null
+    _min: WebinarEventMinAggregateOutputType | null
+    _max: WebinarEventMaxAggregateOutputType | null
+  }
+
+  type GetWebinarEventGroupByPayload<T extends WebinarEventGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<WebinarEventGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof WebinarEventGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], WebinarEventGroupByOutputType[P]>
+            : GetScalarType<T[P], WebinarEventGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type WebinarEventSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    slug?: boolean
+    kicker?: boolean
+    title?: boolean
+    headlineLines?: boolean
+    description?: boolean
+    startsAt?: boolean
+    endsAt?: boolean
+    timezone?: boolean
+    timezoneLabel?: boolean
+    platform?: boolean
+    bannerUrl?: boolean
+    discussionKicker?: boolean
+    discussionTitle?: boolean
+    discussionPoints?: boolean
+    formTitle?: boolean
+    formSubtitle?: boolean
+    registerButtonLabel?: boolean
+    occupationOptions?: boolean
+    zoomMeetingId?: boolean
+    zoomEventType?: boolean
+    zoomJoinUrl?: boolean
+    published?: boolean
+    featured?: boolean
+    registrationOpen?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["webinarEvent"]>
+
+
+
+  export type WebinarEventSelectScalar = {
+    id?: boolean
+    slug?: boolean
+    kicker?: boolean
+    title?: boolean
+    headlineLines?: boolean
+    description?: boolean
+    startsAt?: boolean
+    endsAt?: boolean
+    timezone?: boolean
+    timezoneLabel?: boolean
+    platform?: boolean
+    bannerUrl?: boolean
+    discussionKicker?: boolean
+    discussionTitle?: boolean
+    discussionPoints?: boolean
+    formTitle?: boolean
+    formSubtitle?: boolean
+    registerButtonLabel?: boolean
+    occupationOptions?: boolean
+    zoomMeetingId?: boolean
+    zoomEventType?: boolean
+    zoomJoinUrl?: boolean
+    published?: boolean
+    featured?: boolean
+    registrationOpen?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type WebinarEventOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "slug" | "kicker" | "title" | "headlineLines" | "description" | "startsAt" | "endsAt" | "timezone" | "timezoneLabel" | "platform" | "bannerUrl" | "discussionKicker" | "discussionTitle" | "discussionPoints" | "formTitle" | "formSubtitle" | "registerButtonLabel" | "occupationOptions" | "zoomMeetingId" | "zoomEventType" | "zoomJoinUrl" | "published" | "featured" | "registrationOpen" | "createdAt" | "updatedAt", ExtArgs["result"]["webinarEvent"]>
+
+  export type $WebinarEventPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "WebinarEvent"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      slug: string
+      kicker: string
+      title: string
+      /**
+       * [{ text, color: "ink" | "gold" | "green" }] — big sticker-style headline lines
+       */
+      headlineLines: Prisma.JsonValue | null
+      description: string
+      startsAt: Date
+      endsAt: Date
+      timezone: string
+      timezoneLabel: string
+      platform: string
+      bannerUrl: string | null
+      discussionKicker: string | null
+      discussionTitle: string | null
+      /**
+       * [{ title, desc }]
+       */
+      discussionPoints: Prisma.JsonValue | null
+      formTitle: string | null
+      formSubtitle: string | null
+      registerButtonLabel: string | null
+      occupationOptions: string[]
+      zoomMeetingId: string | null
+      zoomEventType: string | null
+      zoomJoinUrl: string | null
+      published: boolean
+      featured: boolean
+      registrationOpen: boolean
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["webinarEvent"]>
+    composites: {}
+  }
+
+  type WebinarEventGetPayload<S extends boolean | null | undefined | WebinarEventDefaultArgs> = $Result.GetResult<Prisma.$WebinarEventPayload, S>
+
+  type WebinarEventCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<WebinarEventFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: WebinarEventCountAggregateInputType | true
+    }
+
+  export interface WebinarEventDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['WebinarEvent'], meta: { name: 'WebinarEvent' } }
+    /**
+     * Find zero or one WebinarEvent that matches the filter.
+     * @param {WebinarEventFindUniqueArgs} args - Arguments to find a WebinarEvent
+     * @example
+     * // Get one WebinarEvent
+     * const webinarEvent = await prisma.webinarEvent.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends WebinarEventFindUniqueArgs>(args: SelectSubset<T, WebinarEventFindUniqueArgs<ExtArgs>>): Prisma__WebinarEventClient<$Result.GetResult<Prisma.$WebinarEventPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one WebinarEvent that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {WebinarEventFindUniqueOrThrowArgs} args - Arguments to find a WebinarEvent
+     * @example
+     * // Get one WebinarEvent
+     * const webinarEvent = await prisma.webinarEvent.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends WebinarEventFindUniqueOrThrowArgs>(args: SelectSubset<T, WebinarEventFindUniqueOrThrowArgs<ExtArgs>>): Prisma__WebinarEventClient<$Result.GetResult<Prisma.$WebinarEventPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first WebinarEvent that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WebinarEventFindFirstArgs} args - Arguments to find a WebinarEvent
+     * @example
+     * // Get one WebinarEvent
+     * const webinarEvent = await prisma.webinarEvent.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends WebinarEventFindFirstArgs>(args?: SelectSubset<T, WebinarEventFindFirstArgs<ExtArgs>>): Prisma__WebinarEventClient<$Result.GetResult<Prisma.$WebinarEventPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first WebinarEvent that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WebinarEventFindFirstOrThrowArgs} args - Arguments to find a WebinarEvent
+     * @example
+     * // Get one WebinarEvent
+     * const webinarEvent = await prisma.webinarEvent.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends WebinarEventFindFirstOrThrowArgs>(args?: SelectSubset<T, WebinarEventFindFirstOrThrowArgs<ExtArgs>>): Prisma__WebinarEventClient<$Result.GetResult<Prisma.$WebinarEventPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more WebinarEvents that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WebinarEventFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all WebinarEvents
+     * const webinarEvents = await prisma.webinarEvent.findMany()
+     * 
+     * // Get first 10 WebinarEvents
+     * const webinarEvents = await prisma.webinarEvent.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const webinarEventWithIdOnly = await prisma.webinarEvent.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends WebinarEventFindManyArgs>(args?: SelectSubset<T, WebinarEventFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WebinarEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a WebinarEvent.
+     * @param {WebinarEventCreateArgs} args - Arguments to create a WebinarEvent.
+     * @example
+     * // Create one WebinarEvent
+     * const WebinarEvent = await prisma.webinarEvent.create({
+     *   data: {
+     *     // ... data to create a WebinarEvent
+     *   }
+     * })
+     * 
+     */
+    create<T extends WebinarEventCreateArgs>(args: SelectSubset<T, WebinarEventCreateArgs<ExtArgs>>): Prisma__WebinarEventClient<$Result.GetResult<Prisma.$WebinarEventPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many WebinarEvents.
+     * @param {WebinarEventCreateManyArgs} args - Arguments to create many WebinarEvents.
+     * @example
+     * // Create many WebinarEvents
+     * const webinarEvent = await prisma.webinarEvent.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends WebinarEventCreateManyArgs>(args?: SelectSubset<T, WebinarEventCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a WebinarEvent.
+     * @param {WebinarEventDeleteArgs} args - Arguments to delete one WebinarEvent.
+     * @example
+     * // Delete one WebinarEvent
+     * const WebinarEvent = await prisma.webinarEvent.delete({
+     *   where: {
+     *     // ... filter to delete one WebinarEvent
+     *   }
+     * })
+     * 
+     */
+    delete<T extends WebinarEventDeleteArgs>(args: SelectSubset<T, WebinarEventDeleteArgs<ExtArgs>>): Prisma__WebinarEventClient<$Result.GetResult<Prisma.$WebinarEventPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one WebinarEvent.
+     * @param {WebinarEventUpdateArgs} args - Arguments to update one WebinarEvent.
+     * @example
+     * // Update one WebinarEvent
+     * const webinarEvent = await prisma.webinarEvent.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends WebinarEventUpdateArgs>(args: SelectSubset<T, WebinarEventUpdateArgs<ExtArgs>>): Prisma__WebinarEventClient<$Result.GetResult<Prisma.$WebinarEventPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more WebinarEvents.
+     * @param {WebinarEventDeleteManyArgs} args - Arguments to filter WebinarEvents to delete.
+     * @example
+     * // Delete a few WebinarEvents
+     * const { count } = await prisma.webinarEvent.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends WebinarEventDeleteManyArgs>(args?: SelectSubset<T, WebinarEventDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more WebinarEvents.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WebinarEventUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many WebinarEvents
+     * const webinarEvent = await prisma.webinarEvent.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends WebinarEventUpdateManyArgs>(args: SelectSubset<T, WebinarEventUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one WebinarEvent.
+     * @param {WebinarEventUpsertArgs} args - Arguments to update or create a WebinarEvent.
+     * @example
+     * // Update or create a WebinarEvent
+     * const webinarEvent = await prisma.webinarEvent.upsert({
+     *   create: {
+     *     // ... data to create a WebinarEvent
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the WebinarEvent we want to update
+     *   }
+     * })
+     */
+    upsert<T extends WebinarEventUpsertArgs>(args: SelectSubset<T, WebinarEventUpsertArgs<ExtArgs>>): Prisma__WebinarEventClient<$Result.GetResult<Prisma.$WebinarEventPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more WebinarEvents that matches the filter.
+     * @param {WebinarEventFindRawArgs} args - Select which filters you would like to apply.
+     * @example
+     * const webinarEvent = await prisma.webinarEvent.findRaw({
+     *   filter: { age: { $gt: 25 } }
+     * })
+     */
+    findRaw(args?: WebinarEventFindRawArgs): Prisma.PrismaPromise<JsonObject>
+
+    /**
+     * Perform aggregation operations on a WebinarEvent.
+     * @param {WebinarEventAggregateRawArgs} args - Select which aggregations you would like to apply.
+     * @example
+     * const webinarEvent = await prisma.webinarEvent.aggregateRaw({
+     *   pipeline: [
+     *     { $match: { status: "registered" } },
+     *     { $group: { _id: "$country", total: { $sum: 1 } } }
+     *   ]
+     * })
+     */
+    aggregateRaw(args?: WebinarEventAggregateRawArgs): Prisma.PrismaPromise<JsonObject>
+
+
+    /**
+     * Count the number of WebinarEvents.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WebinarEventCountArgs} args - Arguments to filter WebinarEvents to count.
+     * @example
+     * // Count the number of WebinarEvents
+     * const count = await prisma.webinarEvent.count({
+     *   where: {
+     *     // ... the filter for the WebinarEvents we want to count
+     *   }
+     * })
+    **/
+    count<T extends WebinarEventCountArgs>(
+      args?: Subset<T, WebinarEventCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], WebinarEventCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a WebinarEvent.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WebinarEventAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends WebinarEventAggregateArgs>(args: Subset<T, WebinarEventAggregateArgs>): Prisma.PrismaPromise<GetWebinarEventAggregateType<T>>
+
+    /**
+     * Group by WebinarEvent.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WebinarEventGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends WebinarEventGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: WebinarEventGroupByArgs['orderBy'] }
+        : { orderBy?: WebinarEventGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, WebinarEventGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetWebinarEventGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the WebinarEvent model
+   */
+  readonly fields: WebinarEventFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for WebinarEvent.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__WebinarEventClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the WebinarEvent model
+   */
+  interface WebinarEventFieldRefs {
+    readonly id: FieldRef<"WebinarEvent", 'String'>
+    readonly slug: FieldRef<"WebinarEvent", 'String'>
+    readonly kicker: FieldRef<"WebinarEvent", 'String'>
+    readonly title: FieldRef<"WebinarEvent", 'String'>
+    readonly headlineLines: FieldRef<"WebinarEvent", 'Json'>
+    readonly description: FieldRef<"WebinarEvent", 'String'>
+    readonly startsAt: FieldRef<"WebinarEvent", 'DateTime'>
+    readonly endsAt: FieldRef<"WebinarEvent", 'DateTime'>
+    readonly timezone: FieldRef<"WebinarEvent", 'String'>
+    readonly timezoneLabel: FieldRef<"WebinarEvent", 'String'>
+    readonly platform: FieldRef<"WebinarEvent", 'String'>
+    readonly bannerUrl: FieldRef<"WebinarEvent", 'String'>
+    readonly discussionKicker: FieldRef<"WebinarEvent", 'String'>
+    readonly discussionTitle: FieldRef<"WebinarEvent", 'String'>
+    readonly discussionPoints: FieldRef<"WebinarEvent", 'Json'>
+    readonly formTitle: FieldRef<"WebinarEvent", 'String'>
+    readonly formSubtitle: FieldRef<"WebinarEvent", 'String'>
+    readonly registerButtonLabel: FieldRef<"WebinarEvent", 'String'>
+    readonly occupationOptions: FieldRef<"WebinarEvent", 'String[]'>
+    readonly zoomMeetingId: FieldRef<"WebinarEvent", 'String'>
+    readonly zoomEventType: FieldRef<"WebinarEvent", 'String'>
+    readonly zoomJoinUrl: FieldRef<"WebinarEvent", 'String'>
+    readonly published: FieldRef<"WebinarEvent", 'Boolean'>
+    readonly featured: FieldRef<"WebinarEvent", 'Boolean'>
+    readonly registrationOpen: FieldRef<"WebinarEvent", 'Boolean'>
+    readonly createdAt: FieldRef<"WebinarEvent", 'DateTime'>
+    readonly updatedAt: FieldRef<"WebinarEvent", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * WebinarEvent findUnique
+   */
+  export type WebinarEventFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WebinarEvent
+     */
+    select?: WebinarEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WebinarEvent
+     */
+    omit?: WebinarEventOmit<ExtArgs> | null
+    /**
+     * Filter, which WebinarEvent to fetch.
+     */
+    where: WebinarEventWhereUniqueInput
+  }
+
+  /**
+   * WebinarEvent findUniqueOrThrow
+   */
+  export type WebinarEventFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WebinarEvent
+     */
+    select?: WebinarEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WebinarEvent
+     */
+    omit?: WebinarEventOmit<ExtArgs> | null
+    /**
+     * Filter, which WebinarEvent to fetch.
+     */
+    where: WebinarEventWhereUniqueInput
+  }
+
+  /**
+   * WebinarEvent findFirst
+   */
+  export type WebinarEventFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WebinarEvent
+     */
+    select?: WebinarEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WebinarEvent
+     */
+    omit?: WebinarEventOmit<ExtArgs> | null
+    /**
+     * Filter, which WebinarEvent to fetch.
+     */
+    where?: WebinarEventWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of WebinarEvents to fetch.
+     */
+    orderBy?: WebinarEventOrderByWithRelationInput | WebinarEventOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for WebinarEvents.
+     */
+    cursor?: WebinarEventWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` WebinarEvents from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` WebinarEvents.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of WebinarEvents.
+     */
+    distinct?: WebinarEventScalarFieldEnum | WebinarEventScalarFieldEnum[]
+  }
+
+  /**
+   * WebinarEvent findFirstOrThrow
+   */
+  export type WebinarEventFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WebinarEvent
+     */
+    select?: WebinarEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WebinarEvent
+     */
+    omit?: WebinarEventOmit<ExtArgs> | null
+    /**
+     * Filter, which WebinarEvent to fetch.
+     */
+    where?: WebinarEventWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of WebinarEvents to fetch.
+     */
+    orderBy?: WebinarEventOrderByWithRelationInput | WebinarEventOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for WebinarEvents.
+     */
+    cursor?: WebinarEventWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` WebinarEvents from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` WebinarEvents.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of WebinarEvents.
+     */
+    distinct?: WebinarEventScalarFieldEnum | WebinarEventScalarFieldEnum[]
+  }
+
+  /**
+   * WebinarEvent findMany
+   */
+  export type WebinarEventFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WebinarEvent
+     */
+    select?: WebinarEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WebinarEvent
+     */
+    omit?: WebinarEventOmit<ExtArgs> | null
+    /**
+     * Filter, which WebinarEvents to fetch.
+     */
+    where?: WebinarEventWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of WebinarEvents to fetch.
+     */
+    orderBy?: WebinarEventOrderByWithRelationInput | WebinarEventOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing WebinarEvents.
+     */
+    cursor?: WebinarEventWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` WebinarEvents from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` WebinarEvents.
+     */
+    skip?: number
+    distinct?: WebinarEventScalarFieldEnum | WebinarEventScalarFieldEnum[]
+  }
+
+  /**
+   * WebinarEvent create
+   */
+  export type WebinarEventCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WebinarEvent
+     */
+    select?: WebinarEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WebinarEvent
+     */
+    omit?: WebinarEventOmit<ExtArgs> | null
+    /**
+     * The data needed to create a WebinarEvent.
+     */
+    data: XOR<WebinarEventCreateInput, WebinarEventUncheckedCreateInput>
+  }
+
+  /**
+   * WebinarEvent createMany
+   */
+  export type WebinarEventCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many WebinarEvents.
+     */
+    data: WebinarEventCreateManyInput | WebinarEventCreateManyInput[]
+  }
+
+  /**
+   * WebinarEvent update
+   */
+  export type WebinarEventUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WebinarEvent
+     */
+    select?: WebinarEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WebinarEvent
+     */
+    omit?: WebinarEventOmit<ExtArgs> | null
+    /**
+     * The data needed to update a WebinarEvent.
+     */
+    data: XOR<WebinarEventUpdateInput, WebinarEventUncheckedUpdateInput>
+    /**
+     * Choose, which WebinarEvent to update.
+     */
+    where: WebinarEventWhereUniqueInput
+  }
+
+  /**
+   * WebinarEvent updateMany
+   */
+  export type WebinarEventUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update WebinarEvents.
+     */
+    data: XOR<WebinarEventUpdateManyMutationInput, WebinarEventUncheckedUpdateManyInput>
+    /**
+     * Filter which WebinarEvents to update
+     */
+    where?: WebinarEventWhereInput
+    /**
+     * Limit how many WebinarEvents to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * WebinarEvent upsert
+   */
+  export type WebinarEventUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WebinarEvent
+     */
+    select?: WebinarEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WebinarEvent
+     */
+    omit?: WebinarEventOmit<ExtArgs> | null
+    /**
+     * The filter to search for the WebinarEvent to update in case it exists.
+     */
+    where: WebinarEventWhereUniqueInput
+    /**
+     * In case the WebinarEvent found by the `where` argument doesn't exist, create a new WebinarEvent with this data.
+     */
+    create: XOR<WebinarEventCreateInput, WebinarEventUncheckedCreateInput>
+    /**
+     * In case the WebinarEvent was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<WebinarEventUpdateInput, WebinarEventUncheckedUpdateInput>
+  }
+
+  /**
+   * WebinarEvent delete
+   */
+  export type WebinarEventDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WebinarEvent
+     */
+    select?: WebinarEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WebinarEvent
+     */
+    omit?: WebinarEventOmit<ExtArgs> | null
+    /**
+     * Filter which WebinarEvent to delete.
+     */
+    where: WebinarEventWhereUniqueInput
+  }
+
+  /**
+   * WebinarEvent deleteMany
+   */
+  export type WebinarEventDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which WebinarEvents to delete
+     */
+    where?: WebinarEventWhereInput
+    /**
+     * Limit how many WebinarEvents to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * WebinarEvent findRaw
+   */
+  export type WebinarEventFindRawArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The query predicate filter. If unspecified, then all documents in the collection will match the predicate. ${@link https://docs.mongodb.com/manual/reference/operator/query MongoDB Docs}.
+     */
+    filter?: InputJsonValue
+    /**
+     * Additional options to pass to the `find` command ${@link https://docs.mongodb.com/manual/reference/command/find/#command-fields MongoDB Docs}.
+     */
+    options?: InputJsonValue
+  }
+
+  /**
+   * WebinarEvent aggregateRaw
+   */
+  export type WebinarEventAggregateRawArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * An array of aggregation stages to process and transform the document stream via the aggregation pipeline. ${@link https://docs.mongodb.com/manual/reference/operator/aggregation-pipeline MongoDB Docs}.
+     */
+    pipeline?: InputJsonValue[]
+    /**
+     * Additional options to pass to the `aggregate` command ${@link https://docs.mongodb.com/manual/reference/command/aggregate/#command-fields MongoDB Docs}.
+     */
+    options?: InputJsonValue
+  }
+
+  /**
+   * WebinarEvent without action
+   */
+  export type WebinarEventDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WebinarEvent
+     */
+    select?: WebinarEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WebinarEvent
+     */
+    omit?: WebinarEventOmit<ExtArgs> | null
+  }
+
+
+  /**
+   * Model EventRegistration
+   */
+
+  export type AggregateEventRegistration = {
+    _count: EventRegistrationCountAggregateOutputType | null
+    _min: EventRegistrationMinAggregateOutputType | null
+    _max: EventRegistrationMaxAggregateOutputType | null
+  }
+
+  export type EventRegistrationMinAggregateOutputType = {
+    id: string | null
+    eventSlug: string | null
+    fullName: string | null
+    email: string | null
+    occupation: string | null
+    zoomRegistrantId: string | null
+    zoomJoinUrl: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type EventRegistrationMaxAggregateOutputType = {
+    id: string | null
+    eventSlug: string | null
+    fullName: string | null
+    email: string | null
+    occupation: string | null
+    zoomRegistrantId: string | null
+    zoomJoinUrl: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type EventRegistrationCountAggregateOutputType = {
+    id: number
+    eventSlug: number
+    fullName: number
+    email: number
+    occupation: number
+    zoomRegistrantId: number
+    zoomJoinUrl: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type EventRegistrationMinAggregateInputType = {
+    id?: true
+    eventSlug?: true
+    fullName?: true
+    email?: true
+    occupation?: true
+    zoomRegistrantId?: true
+    zoomJoinUrl?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type EventRegistrationMaxAggregateInputType = {
+    id?: true
+    eventSlug?: true
+    fullName?: true
+    email?: true
+    occupation?: true
+    zoomRegistrantId?: true
+    zoomJoinUrl?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type EventRegistrationCountAggregateInputType = {
+    id?: true
+    eventSlug?: true
+    fullName?: true
+    email?: true
+    occupation?: true
+    zoomRegistrantId?: true
+    zoomJoinUrl?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type EventRegistrationAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which EventRegistration to aggregate.
+     */
+    where?: EventRegistrationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of EventRegistrations to fetch.
+     */
+    orderBy?: EventRegistrationOrderByWithRelationInput | EventRegistrationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: EventRegistrationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` EventRegistrations from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` EventRegistrations.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned EventRegistrations
+    **/
+    _count?: true | EventRegistrationCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: EventRegistrationMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: EventRegistrationMaxAggregateInputType
+  }
+
+  export type GetEventRegistrationAggregateType<T extends EventRegistrationAggregateArgs> = {
+        [P in keyof T & keyof AggregateEventRegistration]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateEventRegistration[P]>
+      : GetScalarType<T[P], AggregateEventRegistration[P]>
+  }
+
+
+
+
+  export type EventRegistrationGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: EventRegistrationWhereInput
+    orderBy?: EventRegistrationOrderByWithAggregationInput | EventRegistrationOrderByWithAggregationInput[]
+    by: EventRegistrationScalarFieldEnum[] | EventRegistrationScalarFieldEnum
+    having?: EventRegistrationScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: EventRegistrationCountAggregateInputType | true
+    _min?: EventRegistrationMinAggregateInputType
+    _max?: EventRegistrationMaxAggregateInputType
+  }
+
+  export type EventRegistrationGroupByOutputType = {
+    id: string
+    eventSlug: string
+    fullName: string
+    email: string
+    occupation: string
+    zoomRegistrantId: string | null
+    zoomJoinUrl: string | null
+    createdAt: Date
+    updatedAt: Date
+    _count: EventRegistrationCountAggregateOutputType | null
+    _min: EventRegistrationMinAggregateOutputType | null
+    _max: EventRegistrationMaxAggregateOutputType | null
+  }
+
+  type GetEventRegistrationGroupByPayload<T extends EventRegistrationGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<EventRegistrationGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof EventRegistrationGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], EventRegistrationGroupByOutputType[P]>
+            : GetScalarType<T[P], EventRegistrationGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type EventRegistrationSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    eventSlug?: boolean
+    fullName?: boolean
+    email?: boolean
+    occupation?: boolean
+    zoomRegistrantId?: boolean
+    zoomJoinUrl?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["eventRegistration"]>
+
+
+
+  export type EventRegistrationSelectScalar = {
+    id?: boolean
+    eventSlug?: boolean
+    fullName?: boolean
+    email?: boolean
+    occupation?: boolean
+    zoomRegistrantId?: boolean
+    zoomJoinUrl?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type EventRegistrationOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "eventSlug" | "fullName" | "email" | "occupation" | "zoomRegistrantId" | "zoomJoinUrl" | "createdAt" | "updatedAt", ExtArgs["result"]["eventRegistration"]>
+
+  export type $EventRegistrationPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "EventRegistration"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      eventSlug: string
+      fullName: string
+      email: string
+      occupation: string
+      zoomRegistrantId: string | null
+      zoomJoinUrl: string | null
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["eventRegistration"]>
+    composites: {}
+  }
+
+  type EventRegistrationGetPayload<S extends boolean | null | undefined | EventRegistrationDefaultArgs> = $Result.GetResult<Prisma.$EventRegistrationPayload, S>
+
+  type EventRegistrationCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<EventRegistrationFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: EventRegistrationCountAggregateInputType | true
+    }
+
+  export interface EventRegistrationDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['EventRegistration'], meta: { name: 'EventRegistration' } }
+    /**
+     * Find zero or one EventRegistration that matches the filter.
+     * @param {EventRegistrationFindUniqueArgs} args - Arguments to find a EventRegistration
+     * @example
+     * // Get one EventRegistration
+     * const eventRegistration = await prisma.eventRegistration.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends EventRegistrationFindUniqueArgs>(args: SelectSubset<T, EventRegistrationFindUniqueArgs<ExtArgs>>): Prisma__EventRegistrationClient<$Result.GetResult<Prisma.$EventRegistrationPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one EventRegistration that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {EventRegistrationFindUniqueOrThrowArgs} args - Arguments to find a EventRegistration
+     * @example
+     * // Get one EventRegistration
+     * const eventRegistration = await prisma.eventRegistration.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends EventRegistrationFindUniqueOrThrowArgs>(args: SelectSubset<T, EventRegistrationFindUniqueOrThrowArgs<ExtArgs>>): Prisma__EventRegistrationClient<$Result.GetResult<Prisma.$EventRegistrationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first EventRegistration that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EventRegistrationFindFirstArgs} args - Arguments to find a EventRegistration
+     * @example
+     * // Get one EventRegistration
+     * const eventRegistration = await prisma.eventRegistration.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends EventRegistrationFindFirstArgs>(args?: SelectSubset<T, EventRegistrationFindFirstArgs<ExtArgs>>): Prisma__EventRegistrationClient<$Result.GetResult<Prisma.$EventRegistrationPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first EventRegistration that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EventRegistrationFindFirstOrThrowArgs} args - Arguments to find a EventRegistration
+     * @example
+     * // Get one EventRegistration
+     * const eventRegistration = await prisma.eventRegistration.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends EventRegistrationFindFirstOrThrowArgs>(args?: SelectSubset<T, EventRegistrationFindFirstOrThrowArgs<ExtArgs>>): Prisma__EventRegistrationClient<$Result.GetResult<Prisma.$EventRegistrationPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more EventRegistrations that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EventRegistrationFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all EventRegistrations
+     * const eventRegistrations = await prisma.eventRegistration.findMany()
+     * 
+     * // Get first 10 EventRegistrations
+     * const eventRegistrations = await prisma.eventRegistration.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const eventRegistrationWithIdOnly = await prisma.eventRegistration.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends EventRegistrationFindManyArgs>(args?: SelectSubset<T, EventRegistrationFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EventRegistrationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a EventRegistration.
+     * @param {EventRegistrationCreateArgs} args - Arguments to create a EventRegistration.
+     * @example
+     * // Create one EventRegistration
+     * const EventRegistration = await prisma.eventRegistration.create({
+     *   data: {
+     *     // ... data to create a EventRegistration
+     *   }
+     * })
+     * 
+     */
+    create<T extends EventRegistrationCreateArgs>(args: SelectSubset<T, EventRegistrationCreateArgs<ExtArgs>>): Prisma__EventRegistrationClient<$Result.GetResult<Prisma.$EventRegistrationPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many EventRegistrations.
+     * @param {EventRegistrationCreateManyArgs} args - Arguments to create many EventRegistrations.
+     * @example
+     * // Create many EventRegistrations
+     * const eventRegistration = await prisma.eventRegistration.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends EventRegistrationCreateManyArgs>(args?: SelectSubset<T, EventRegistrationCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a EventRegistration.
+     * @param {EventRegistrationDeleteArgs} args - Arguments to delete one EventRegistration.
+     * @example
+     * // Delete one EventRegistration
+     * const EventRegistration = await prisma.eventRegistration.delete({
+     *   where: {
+     *     // ... filter to delete one EventRegistration
+     *   }
+     * })
+     * 
+     */
+    delete<T extends EventRegistrationDeleteArgs>(args: SelectSubset<T, EventRegistrationDeleteArgs<ExtArgs>>): Prisma__EventRegistrationClient<$Result.GetResult<Prisma.$EventRegistrationPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one EventRegistration.
+     * @param {EventRegistrationUpdateArgs} args - Arguments to update one EventRegistration.
+     * @example
+     * // Update one EventRegistration
+     * const eventRegistration = await prisma.eventRegistration.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends EventRegistrationUpdateArgs>(args: SelectSubset<T, EventRegistrationUpdateArgs<ExtArgs>>): Prisma__EventRegistrationClient<$Result.GetResult<Prisma.$EventRegistrationPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more EventRegistrations.
+     * @param {EventRegistrationDeleteManyArgs} args - Arguments to filter EventRegistrations to delete.
+     * @example
+     * // Delete a few EventRegistrations
+     * const { count } = await prisma.eventRegistration.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends EventRegistrationDeleteManyArgs>(args?: SelectSubset<T, EventRegistrationDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more EventRegistrations.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EventRegistrationUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many EventRegistrations
+     * const eventRegistration = await prisma.eventRegistration.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends EventRegistrationUpdateManyArgs>(args: SelectSubset<T, EventRegistrationUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one EventRegistration.
+     * @param {EventRegistrationUpsertArgs} args - Arguments to update or create a EventRegistration.
+     * @example
+     * // Update or create a EventRegistration
+     * const eventRegistration = await prisma.eventRegistration.upsert({
+     *   create: {
+     *     // ... data to create a EventRegistration
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the EventRegistration we want to update
+     *   }
+     * })
+     */
+    upsert<T extends EventRegistrationUpsertArgs>(args: SelectSubset<T, EventRegistrationUpsertArgs<ExtArgs>>): Prisma__EventRegistrationClient<$Result.GetResult<Prisma.$EventRegistrationPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more EventRegistrations that matches the filter.
+     * @param {EventRegistrationFindRawArgs} args - Select which filters you would like to apply.
+     * @example
+     * const eventRegistration = await prisma.eventRegistration.findRaw({
+     *   filter: { age: { $gt: 25 } }
+     * })
+     */
+    findRaw(args?: EventRegistrationFindRawArgs): Prisma.PrismaPromise<JsonObject>
+
+    /**
+     * Perform aggregation operations on a EventRegistration.
+     * @param {EventRegistrationAggregateRawArgs} args - Select which aggregations you would like to apply.
+     * @example
+     * const eventRegistration = await prisma.eventRegistration.aggregateRaw({
+     *   pipeline: [
+     *     { $match: { status: "registered" } },
+     *     { $group: { _id: "$country", total: { $sum: 1 } } }
+     *   ]
+     * })
+     */
+    aggregateRaw(args?: EventRegistrationAggregateRawArgs): Prisma.PrismaPromise<JsonObject>
+
+
+    /**
+     * Count the number of EventRegistrations.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EventRegistrationCountArgs} args - Arguments to filter EventRegistrations to count.
+     * @example
+     * // Count the number of EventRegistrations
+     * const count = await prisma.eventRegistration.count({
+     *   where: {
+     *     // ... the filter for the EventRegistrations we want to count
+     *   }
+     * })
+    **/
+    count<T extends EventRegistrationCountArgs>(
+      args?: Subset<T, EventRegistrationCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], EventRegistrationCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a EventRegistration.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EventRegistrationAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends EventRegistrationAggregateArgs>(args: Subset<T, EventRegistrationAggregateArgs>): Prisma.PrismaPromise<GetEventRegistrationAggregateType<T>>
+
+    /**
+     * Group by EventRegistration.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EventRegistrationGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends EventRegistrationGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: EventRegistrationGroupByArgs['orderBy'] }
+        : { orderBy?: EventRegistrationGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, EventRegistrationGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetEventRegistrationGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the EventRegistration model
+   */
+  readonly fields: EventRegistrationFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for EventRegistration.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__EventRegistrationClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the EventRegistration model
+   */
+  interface EventRegistrationFieldRefs {
+    readonly id: FieldRef<"EventRegistration", 'String'>
+    readonly eventSlug: FieldRef<"EventRegistration", 'String'>
+    readonly fullName: FieldRef<"EventRegistration", 'String'>
+    readonly email: FieldRef<"EventRegistration", 'String'>
+    readonly occupation: FieldRef<"EventRegistration", 'String'>
+    readonly zoomRegistrantId: FieldRef<"EventRegistration", 'String'>
+    readonly zoomJoinUrl: FieldRef<"EventRegistration", 'String'>
+    readonly createdAt: FieldRef<"EventRegistration", 'DateTime'>
+    readonly updatedAt: FieldRef<"EventRegistration", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * EventRegistration findUnique
+   */
+  export type EventRegistrationFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EventRegistration
+     */
+    select?: EventRegistrationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EventRegistration
+     */
+    omit?: EventRegistrationOmit<ExtArgs> | null
+    /**
+     * Filter, which EventRegistration to fetch.
+     */
+    where: EventRegistrationWhereUniqueInput
+  }
+
+  /**
+   * EventRegistration findUniqueOrThrow
+   */
+  export type EventRegistrationFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EventRegistration
+     */
+    select?: EventRegistrationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EventRegistration
+     */
+    omit?: EventRegistrationOmit<ExtArgs> | null
+    /**
+     * Filter, which EventRegistration to fetch.
+     */
+    where: EventRegistrationWhereUniqueInput
+  }
+
+  /**
+   * EventRegistration findFirst
+   */
+  export type EventRegistrationFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EventRegistration
+     */
+    select?: EventRegistrationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EventRegistration
+     */
+    omit?: EventRegistrationOmit<ExtArgs> | null
+    /**
+     * Filter, which EventRegistration to fetch.
+     */
+    where?: EventRegistrationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of EventRegistrations to fetch.
+     */
+    orderBy?: EventRegistrationOrderByWithRelationInput | EventRegistrationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for EventRegistrations.
+     */
+    cursor?: EventRegistrationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` EventRegistrations from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` EventRegistrations.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of EventRegistrations.
+     */
+    distinct?: EventRegistrationScalarFieldEnum | EventRegistrationScalarFieldEnum[]
+  }
+
+  /**
+   * EventRegistration findFirstOrThrow
+   */
+  export type EventRegistrationFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EventRegistration
+     */
+    select?: EventRegistrationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EventRegistration
+     */
+    omit?: EventRegistrationOmit<ExtArgs> | null
+    /**
+     * Filter, which EventRegistration to fetch.
+     */
+    where?: EventRegistrationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of EventRegistrations to fetch.
+     */
+    orderBy?: EventRegistrationOrderByWithRelationInput | EventRegistrationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for EventRegistrations.
+     */
+    cursor?: EventRegistrationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` EventRegistrations from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` EventRegistrations.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of EventRegistrations.
+     */
+    distinct?: EventRegistrationScalarFieldEnum | EventRegistrationScalarFieldEnum[]
+  }
+
+  /**
+   * EventRegistration findMany
+   */
+  export type EventRegistrationFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EventRegistration
+     */
+    select?: EventRegistrationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EventRegistration
+     */
+    omit?: EventRegistrationOmit<ExtArgs> | null
+    /**
+     * Filter, which EventRegistrations to fetch.
+     */
+    where?: EventRegistrationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of EventRegistrations to fetch.
+     */
+    orderBy?: EventRegistrationOrderByWithRelationInput | EventRegistrationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing EventRegistrations.
+     */
+    cursor?: EventRegistrationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` EventRegistrations from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` EventRegistrations.
+     */
+    skip?: number
+    distinct?: EventRegistrationScalarFieldEnum | EventRegistrationScalarFieldEnum[]
+  }
+
+  /**
+   * EventRegistration create
+   */
+  export type EventRegistrationCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EventRegistration
+     */
+    select?: EventRegistrationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EventRegistration
+     */
+    omit?: EventRegistrationOmit<ExtArgs> | null
+    /**
+     * The data needed to create a EventRegistration.
+     */
+    data: XOR<EventRegistrationCreateInput, EventRegistrationUncheckedCreateInput>
+  }
+
+  /**
+   * EventRegistration createMany
+   */
+  export type EventRegistrationCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many EventRegistrations.
+     */
+    data: EventRegistrationCreateManyInput | EventRegistrationCreateManyInput[]
+  }
+
+  /**
+   * EventRegistration update
+   */
+  export type EventRegistrationUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EventRegistration
+     */
+    select?: EventRegistrationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EventRegistration
+     */
+    omit?: EventRegistrationOmit<ExtArgs> | null
+    /**
+     * The data needed to update a EventRegistration.
+     */
+    data: XOR<EventRegistrationUpdateInput, EventRegistrationUncheckedUpdateInput>
+    /**
+     * Choose, which EventRegistration to update.
+     */
+    where: EventRegistrationWhereUniqueInput
+  }
+
+  /**
+   * EventRegistration updateMany
+   */
+  export type EventRegistrationUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update EventRegistrations.
+     */
+    data: XOR<EventRegistrationUpdateManyMutationInput, EventRegistrationUncheckedUpdateManyInput>
+    /**
+     * Filter which EventRegistrations to update
+     */
+    where?: EventRegistrationWhereInput
+    /**
+     * Limit how many EventRegistrations to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * EventRegistration upsert
+   */
+  export type EventRegistrationUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EventRegistration
+     */
+    select?: EventRegistrationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EventRegistration
+     */
+    omit?: EventRegistrationOmit<ExtArgs> | null
+    /**
+     * The filter to search for the EventRegistration to update in case it exists.
+     */
+    where: EventRegistrationWhereUniqueInput
+    /**
+     * In case the EventRegistration found by the `where` argument doesn't exist, create a new EventRegistration with this data.
+     */
+    create: XOR<EventRegistrationCreateInput, EventRegistrationUncheckedCreateInput>
+    /**
+     * In case the EventRegistration was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<EventRegistrationUpdateInput, EventRegistrationUncheckedUpdateInput>
+  }
+
+  /**
+   * EventRegistration delete
+   */
+  export type EventRegistrationDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EventRegistration
+     */
+    select?: EventRegistrationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EventRegistration
+     */
+    omit?: EventRegistrationOmit<ExtArgs> | null
+    /**
+     * Filter which EventRegistration to delete.
+     */
+    where: EventRegistrationWhereUniqueInput
+  }
+
+  /**
+   * EventRegistration deleteMany
+   */
+  export type EventRegistrationDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which EventRegistrations to delete
+     */
+    where?: EventRegistrationWhereInput
+    /**
+     * Limit how many EventRegistrations to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * EventRegistration findRaw
+   */
+  export type EventRegistrationFindRawArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The query predicate filter. If unspecified, then all documents in the collection will match the predicate. ${@link https://docs.mongodb.com/manual/reference/operator/query MongoDB Docs}.
+     */
+    filter?: InputJsonValue
+    /**
+     * Additional options to pass to the `find` command ${@link https://docs.mongodb.com/manual/reference/command/find/#command-fields MongoDB Docs}.
+     */
+    options?: InputJsonValue
+  }
+
+  /**
+   * EventRegistration aggregateRaw
+   */
+  export type EventRegistrationAggregateRawArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * An array of aggregation stages to process and transform the document stream via the aggregation pipeline. ${@link https://docs.mongodb.com/manual/reference/operator/aggregation-pipeline MongoDB Docs}.
+     */
+    pipeline?: InputJsonValue[]
+    /**
+     * Additional options to pass to the `aggregate` command ${@link https://docs.mongodb.com/manual/reference/command/aggregate/#command-fields MongoDB Docs}.
+     */
+    options?: InputJsonValue
+  }
+
+  /**
+   * EventRegistration without action
+   */
+  export type EventRegistrationDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EventRegistration
+     */
+    select?: EventRegistrationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EventRegistration
+     */
+    omit?: EventRegistrationOmit<ExtArgs> | null
+  }
+
+
+  /**
    * Model MarketingEmailSend
    */
 
@@ -25128,6 +27454,54 @@ export namespace Prisma {
   export type BlogPostScalarFieldEnum = (typeof BlogPostScalarFieldEnum)[keyof typeof BlogPostScalarFieldEnum]
 
 
+  export const WebinarEventScalarFieldEnum: {
+    id: 'id',
+    slug: 'slug',
+    kicker: 'kicker',
+    title: 'title',
+    headlineLines: 'headlineLines',
+    description: 'description',
+    startsAt: 'startsAt',
+    endsAt: 'endsAt',
+    timezone: 'timezone',
+    timezoneLabel: 'timezoneLabel',
+    platform: 'platform',
+    bannerUrl: 'bannerUrl',
+    discussionKicker: 'discussionKicker',
+    discussionTitle: 'discussionTitle',
+    discussionPoints: 'discussionPoints',
+    formTitle: 'formTitle',
+    formSubtitle: 'formSubtitle',
+    registerButtonLabel: 'registerButtonLabel',
+    occupationOptions: 'occupationOptions',
+    zoomMeetingId: 'zoomMeetingId',
+    zoomEventType: 'zoomEventType',
+    zoomJoinUrl: 'zoomJoinUrl',
+    published: 'published',
+    featured: 'featured',
+    registrationOpen: 'registrationOpen',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type WebinarEventScalarFieldEnum = (typeof WebinarEventScalarFieldEnum)[keyof typeof WebinarEventScalarFieldEnum]
+
+
+  export const EventRegistrationScalarFieldEnum: {
+    id: 'id',
+    eventSlug: 'eventSlug',
+    fullName: 'fullName',
+    email: 'email',
+    occupation: 'occupation',
+    zoomRegistrantId: 'zoomRegistrantId',
+    zoomJoinUrl: 'zoomJoinUrl',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type EventRegistrationScalarFieldEnum = (typeof EventRegistrationScalarFieldEnum)[keyof typeof EventRegistrationScalarFieldEnum]
+
+
   export const MarketingEmailSendScalarFieldEnum: {
     id: 'id',
     subject: 'subject',
@@ -25217,6 +27591,13 @@ export namespace Prisma {
 
 
   /**
+   * Reference to a field of type 'Json'
+   */
+  export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
+    
+
+
+  /**
    * Reference to a field of type 'Int'
    */
   export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
@@ -25227,13 +27608,6 @@ export namespace Prisma {
    * Reference to a field of type 'Int[]'
    */
   export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
-    
-
-
-  /**
-   * Reference to a field of type 'Json'
-   */
-  export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
     
   /**
    * Deep Input Types
@@ -26655,6 +29029,241 @@ export namespace Prisma {
     publishedAt?: DateTimeNullableWithAggregatesFilter<"BlogPost"> | Date | string | null
     createdAt?: DateTimeWithAggregatesFilter<"BlogPost"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"BlogPost"> | Date | string
+  }
+
+  export type WebinarEventWhereInput = {
+    AND?: WebinarEventWhereInput | WebinarEventWhereInput[]
+    OR?: WebinarEventWhereInput[]
+    NOT?: WebinarEventWhereInput | WebinarEventWhereInput[]
+    id?: StringFilter<"WebinarEvent"> | string
+    slug?: StringFilter<"WebinarEvent"> | string
+    kicker?: StringFilter<"WebinarEvent"> | string
+    title?: StringFilter<"WebinarEvent"> | string
+    headlineLines?: JsonNullableFilter<"WebinarEvent">
+    description?: StringFilter<"WebinarEvent"> | string
+    startsAt?: DateTimeFilter<"WebinarEvent"> | Date | string
+    endsAt?: DateTimeFilter<"WebinarEvent"> | Date | string
+    timezone?: StringFilter<"WebinarEvent"> | string
+    timezoneLabel?: StringFilter<"WebinarEvent"> | string
+    platform?: StringFilter<"WebinarEvent"> | string
+    bannerUrl?: StringNullableFilter<"WebinarEvent"> | string | null
+    discussionKicker?: StringNullableFilter<"WebinarEvent"> | string | null
+    discussionTitle?: StringNullableFilter<"WebinarEvent"> | string | null
+    discussionPoints?: JsonNullableFilter<"WebinarEvent">
+    formTitle?: StringNullableFilter<"WebinarEvent"> | string | null
+    formSubtitle?: StringNullableFilter<"WebinarEvent"> | string | null
+    registerButtonLabel?: StringNullableFilter<"WebinarEvent"> | string | null
+    occupationOptions?: StringNullableListFilter<"WebinarEvent">
+    zoomMeetingId?: StringNullableFilter<"WebinarEvent"> | string | null
+    zoomEventType?: StringNullableFilter<"WebinarEvent"> | string | null
+    zoomJoinUrl?: StringNullableFilter<"WebinarEvent"> | string | null
+    published?: BoolFilter<"WebinarEvent"> | boolean
+    featured?: BoolFilter<"WebinarEvent"> | boolean
+    registrationOpen?: BoolFilter<"WebinarEvent"> | boolean
+    createdAt?: DateTimeFilter<"WebinarEvent"> | Date | string
+    updatedAt?: DateTimeFilter<"WebinarEvent"> | Date | string
+  }
+
+  export type WebinarEventOrderByWithRelationInput = {
+    id?: SortOrder
+    slug?: SortOrder
+    kicker?: SortOrder
+    title?: SortOrder
+    headlineLines?: SortOrder
+    description?: SortOrder
+    startsAt?: SortOrder
+    endsAt?: SortOrder
+    timezone?: SortOrder
+    timezoneLabel?: SortOrder
+    platform?: SortOrder
+    bannerUrl?: SortOrder
+    discussionKicker?: SortOrder
+    discussionTitle?: SortOrder
+    discussionPoints?: SortOrder
+    formTitle?: SortOrder
+    formSubtitle?: SortOrder
+    registerButtonLabel?: SortOrder
+    occupationOptions?: SortOrder
+    zoomMeetingId?: SortOrder
+    zoomEventType?: SortOrder
+    zoomJoinUrl?: SortOrder
+    published?: SortOrder
+    featured?: SortOrder
+    registrationOpen?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type WebinarEventWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    slug?: string
+    AND?: WebinarEventWhereInput | WebinarEventWhereInput[]
+    OR?: WebinarEventWhereInput[]
+    NOT?: WebinarEventWhereInput | WebinarEventWhereInput[]
+    kicker?: StringFilter<"WebinarEvent"> | string
+    title?: StringFilter<"WebinarEvent"> | string
+    headlineLines?: JsonNullableFilter<"WebinarEvent">
+    description?: StringFilter<"WebinarEvent"> | string
+    startsAt?: DateTimeFilter<"WebinarEvent"> | Date | string
+    endsAt?: DateTimeFilter<"WebinarEvent"> | Date | string
+    timezone?: StringFilter<"WebinarEvent"> | string
+    timezoneLabel?: StringFilter<"WebinarEvent"> | string
+    platform?: StringFilter<"WebinarEvent"> | string
+    bannerUrl?: StringNullableFilter<"WebinarEvent"> | string | null
+    discussionKicker?: StringNullableFilter<"WebinarEvent"> | string | null
+    discussionTitle?: StringNullableFilter<"WebinarEvent"> | string | null
+    discussionPoints?: JsonNullableFilter<"WebinarEvent">
+    formTitle?: StringNullableFilter<"WebinarEvent"> | string | null
+    formSubtitle?: StringNullableFilter<"WebinarEvent"> | string | null
+    registerButtonLabel?: StringNullableFilter<"WebinarEvent"> | string | null
+    occupationOptions?: StringNullableListFilter<"WebinarEvent">
+    zoomMeetingId?: StringNullableFilter<"WebinarEvent"> | string | null
+    zoomEventType?: StringNullableFilter<"WebinarEvent"> | string | null
+    zoomJoinUrl?: StringNullableFilter<"WebinarEvent"> | string | null
+    published?: BoolFilter<"WebinarEvent"> | boolean
+    featured?: BoolFilter<"WebinarEvent"> | boolean
+    registrationOpen?: BoolFilter<"WebinarEvent"> | boolean
+    createdAt?: DateTimeFilter<"WebinarEvent"> | Date | string
+    updatedAt?: DateTimeFilter<"WebinarEvent"> | Date | string
+  }, "id" | "slug">
+
+  export type WebinarEventOrderByWithAggregationInput = {
+    id?: SortOrder
+    slug?: SortOrder
+    kicker?: SortOrder
+    title?: SortOrder
+    headlineLines?: SortOrder
+    description?: SortOrder
+    startsAt?: SortOrder
+    endsAt?: SortOrder
+    timezone?: SortOrder
+    timezoneLabel?: SortOrder
+    platform?: SortOrder
+    bannerUrl?: SortOrder
+    discussionKicker?: SortOrder
+    discussionTitle?: SortOrder
+    discussionPoints?: SortOrder
+    formTitle?: SortOrder
+    formSubtitle?: SortOrder
+    registerButtonLabel?: SortOrder
+    occupationOptions?: SortOrder
+    zoomMeetingId?: SortOrder
+    zoomEventType?: SortOrder
+    zoomJoinUrl?: SortOrder
+    published?: SortOrder
+    featured?: SortOrder
+    registrationOpen?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: WebinarEventCountOrderByAggregateInput
+    _max?: WebinarEventMaxOrderByAggregateInput
+    _min?: WebinarEventMinOrderByAggregateInput
+  }
+
+  export type WebinarEventScalarWhereWithAggregatesInput = {
+    AND?: WebinarEventScalarWhereWithAggregatesInput | WebinarEventScalarWhereWithAggregatesInput[]
+    OR?: WebinarEventScalarWhereWithAggregatesInput[]
+    NOT?: WebinarEventScalarWhereWithAggregatesInput | WebinarEventScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"WebinarEvent"> | string
+    slug?: StringWithAggregatesFilter<"WebinarEvent"> | string
+    kicker?: StringWithAggregatesFilter<"WebinarEvent"> | string
+    title?: StringWithAggregatesFilter<"WebinarEvent"> | string
+    headlineLines?: JsonNullableWithAggregatesFilter<"WebinarEvent">
+    description?: StringWithAggregatesFilter<"WebinarEvent"> | string
+    startsAt?: DateTimeWithAggregatesFilter<"WebinarEvent"> | Date | string
+    endsAt?: DateTimeWithAggregatesFilter<"WebinarEvent"> | Date | string
+    timezone?: StringWithAggregatesFilter<"WebinarEvent"> | string
+    timezoneLabel?: StringWithAggregatesFilter<"WebinarEvent"> | string
+    platform?: StringWithAggregatesFilter<"WebinarEvent"> | string
+    bannerUrl?: StringNullableWithAggregatesFilter<"WebinarEvent"> | string | null
+    discussionKicker?: StringNullableWithAggregatesFilter<"WebinarEvent"> | string | null
+    discussionTitle?: StringNullableWithAggregatesFilter<"WebinarEvent"> | string | null
+    discussionPoints?: JsonNullableWithAggregatesFilter<"WebinarEvent">
+    formTitle?: StringNullableWithAggregatesFilter<"WebinarEvent"> | string | null
+    formSubtitle?: StringNullableWithAggregatesFilter<"WebinarEvent"> | string | null
+    registerButtonLabel?: StringNullableWithAggregatesFilter<"WebinarEvent"> | string | null
+    occupationOptions?: StringNullableListFilter<"WebinarEvent">
+    zoomMeetingId?: StringNullableWithAggregatesFilter<"WebinarEvent"> | string | null
+    zoomEventType?: StringNullableWithAggregatesFilter<"WebinarEvent"> | string | null
+    zoomJoinUrl?: StringNullableWithAggregatesFilter<"WebinarEvent"> | string | null
+    published?: BoolWithAggregatesFilter<"WebinarEvent"> | boolean
+    featured?: BoolWithAggregatesFilter<"WebinarEvent"> | boolean
+    registrationOpen?: BoolWithAggregatesFilter<"WebinarEvent"> | boolean
+    createdAt?: DateTimeWithAggregatesFilter<"WebinarEvent"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"WebinarEvent"> | Date | string
+  }
+
+  export type EventRegistrationWhereInput = {
+    AND?: EventRegistrationWhereInput | EventRegistrationWhereInput[]
+    OR?: EventRegistrationWhereInput[]
+    NOT?: EventRegistrationWhereInput | EventRegistrationWhereInput[]
+    id?: StringFilter<"EventRegistration"> | string
+    eventSlug?: StringFilter<"EventRegistration"> | string
+    fullName?: StringFilter<"EventRegistration"> | string
+    email?: StringFilter<"EventRegistration"> | string
+    occupation?: StringFilter<"EventRegistration"> | string
+    zoomRegistrantId?: StringNullableFilter<"EventRegistration"> | string | null
+    zoomJoinUrl?: StringNullableFilter<"EventRegistration"> | string | null
+    createdAt?: DateTimeFilter<"EventRegistration"> | Date | string
+    updatedAt?: DateTimeFilter<"EventRegistration"> | Date | string
+  }
+
+  export type EventRegistrationOrderByWithRelationInput = {
+    id?: SortOrder
+    eventSlug?: SortOrder
+    fullName?: SortOrder
+    email?: SortOrder
+    occupation?: SortOrder
+    zoomRegistrantId?: SortOrder
+    zoomJoinUrl?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type EventRegistrationWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    eventSlug_email?: EventRegistrationEventSlugEmailCompoundUniqueInput
+    AND?: EventRegistrationWhereInput | EventRegistrationWhereInput[]
+    OR?: EventRegistrationWhereInput[]
+    NOT?: EventRegistrationWhereInput | EventRegistrationWhereInput[]
+    eventSlug?: StringFilter<"EventRegistration"> | string
+    fullName?: StringFilter<"EventRegistration"> | string
+    email?: StringFilter<"EventRegistration"> | string
+    occupation?: StringFilter<"EventRegistration"> | string
+    zoomRegistrantId?: StringNullableFilter<"EventRegistration"> | string | null
+    zoomJoinUrl?: StringNullableFilter<"EventRegistration"> | string | null
+    createdAt?: DateTimeFilter<"EventRegistration"> | Date | string
+    updatedAt?: DateTimeFilter<"EventRegistration"> | Date | string
+  }, "id" | "eventSlug_email">
+
+  export type EventRegistrationOrderByWithAggregationInput = {
+    id?: SortOrder
+    eventSlug?: SortOrder
+    fullName?: SortOrder
+    email?: SortOrder
+    occupation?: SortOrder
+    zoomRegistrantId?: SortOrder
+    zoomJoinUrl?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: EventRegistrationCountOrderByAggregateInput
+    _max?: EventRegistrationMaxOrderByAggregateInput
+    _min?: EventRegistrationMinOrderByAggregateInput
+  }
+
+  export type EventRegistrationScalarWhereWithAggregatesInput = {
+    AND?: EventRegistrationScalarWhereWithAggregatesInput | EventRegistrationScalarWhereWithAggregatesInput[]
+    OR?: EventRegistrationScalarWhereWithAggregatesInput[]
+    NOT?: EventRegistrationScalarWhereWithAggregatesInput | EventRegistrationScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"EventRegistration"> | string
+    eventSlug?: StringWithAggregatesFilter<"EventRegistration"> | string
+    fullName?: StringWithAggregatesFilter<"EventRegistration"> | string
+    email?: StringWithAggregatesFilter<"EventRegistration"> | string
+    occupation?: StringWithAggregatesFilter<"EventRegistration"> | string
+    zoomRegistrantId?: StringNullableWithAggregatesFilter<"EventRegistration"> | string | null
+    zoomJoinUrl?: StringNullableWithAggregatesFilter<"EventRegistration"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"EventRegistration"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"EventRegistration"> | Date | string
   }
 
   export type MarketingEmailSendWhereInput = {
@@ -28246,6 +30855,292 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type WebinarEventCreateInput = {
+    id?: string
+    slug: string
+    kicker?: string
+    title: string
+    headlineLines?: InputJsonValue | null
+    description: string
+    startsAt: Date | string
+    endsAt: Date | string
+    timezone?: string
+    timezoneLabel?: string
+    platform?: string
+    bannerUrl?: string | null
+    discussionKicker?: string | null
+    discussionTitle?: string | null
+    discussionPoints?: InputJsonValue | null
+    formTitle?: string | null
+    formSubtitle?: string | null
+    registerButtonLabel?: string | null
+    occupationOptions?: WebinarEventCreateoccupationOptionsInput | string[]
+    zoomMeetingId?: string | null
+    zoomEventType?: string | null
+    zoomJoinUrl?: string | null
+    published?: boolean
+    featured?: boolean
+    registrationOpen?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type WebinarEventUncheckedCreateInput = {
+    id?: string
+    slug: string
+    kicker?: string
+    title: string
+    headlineLines?: InputJsonValue | null
+    description: string
+    startsAt: Date | string
+    endsAt: Date | string
+    timezone?: string
+    timezoneLabel?: string
+    platform?: string
+    bannerUrl?: string | null
+    discussionKicker?: string | null
+    discussionTitle?: string | null
+    discussionPoints?: InputJsonValue | null
+    formTitle?: string | null
+    formSubtitle?: string | null
+    registerButtonLabel?: string | null
+    occupationOptions?: WebinarEventCreateoccupationOptionsInput | string[]
+    zoomMeetingId?: string | null
+    zoomEventType?: string | null
+    zoomJoinUrl?: string | null
+    published?: boolean
+    featured?: boolean
+    registrationOpen?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type WebinarEventUpdateInput = {
+    slug?: StringFieldUpdateOperationsInput | string
+    kicker?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    headlineLines?: InputJsonValue | InputJsonValue | null
+    description?: StringFieldUpdateOperationsInput | string
+    startsAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    endsAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    timezone?: StringFieldUpdateOperationsInput | string
+    timezoneLabel?: StringFieldUpdateOperationsInput | string
+    platform?: StringFieldUpdateOperationsInput | string
+    bannerUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    discussionKicker?: NullableStringFieldUpdateOperationsInput | string | null
+    discussionTitle?: NullableStringFieldUpdateOperationsInput | string | null
+    discussionPoints?: InputJsonValue | InputJsonValue | null
+    formTitle?: NullableStringFieldUpdateOperationsInput | string | null
+    formSubtitle?: NullableStringFieldUpdateOperationsInput | string | null
+    registerButtonLabel?: NullableStringFieldUpdateOperationsInput | string | null
+    occupationOptions?: WebinarEventUpdateoccupationOptionsInput | string[]
+    zoomMeetingId?: NullableStringFieldUpdateOperationsInput | string | null
+    zoomEventType?: NullableStringFieldUpdateOperationsInput | string | null
+    zoomJoinUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    published?: BoolFieldUpdateOperationsInput | boolean
+    featured?: BoolFieldUpdateOperationsInput | boolean
+    registrationOpen?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type WebinarEventUncheckedUpdateInput = {
+    slug?: StringFieldUpdateOperationsInput | string
+    kicker?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    headlineLines?: InputJsonValue | InputJsonValue | null
+    description?: StringFieldUpdateOperationsInput | string
+    startsAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    endsAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    timezone?: StringFieldUpdateOperationsInput | string
+    timezoneLabel?: StringFieldUpdateOperationsInput | string
+    platform?: StringFieldUpdateOperationsInput | string
+    bannerUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    discussionKicker?: NullableStringFieldUpdateOperationsInput | string | null
+    discussionTitle?: NullableStringFieldUpdateOperationsInput | string | null
+    discussionPoints?: InputJsonValue | InputJsonValue | null
+    formTitle?: NullableStringFieldUpdateOperationsInput | string | null
+    formSubtitle?: NullableStringFieldUpdateOperationsInput | string | null
+    registerButtonLabel?: NullableStringFieldUpdateOperationsInput | string | null
+    occupationOptions?: WebinarEventUpdateoccupationOptionsInput | string[]
+    zoomMeetingId?: NullableStringFieldUpdateOperationsInput | string | null
+    zoomEventType?: NullableStringFieldUpdateOperationsInput | string | null
+    zoomJoinUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    published?: BoolFieldUpdateOperationsInput | boolean
+    featured?: BoolFieldUpdateOperationsInput | boolean
+    registrationOpen?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type WebinarEventCreateManyInput = {
+    id?: string
+    slug: string
+    kicker?: string
+    title: string
+    headlineLines?: InputJsonValue | null
+    description: string
+    startsAt: Date | string
+    endsAt: Date | string
+    timezone?: string
+    timezoneLabel?: string
+    platform?: string
+    bannerUrl?: string | null
+    discussionKicker?: string | null
+    discussionTitle?: string | null
+    discussionPoints?: InputJsonValue | null
+    formTitle?: string | null
+    formSubtitle?: string | null
+    registerButtonLabel?: string | null
+    occupationOptions?: WebinarEventCreateoccupationOptionsInput | string[]
+    zoomMeetingId?: string | null
+    zoomEventType?: string | null
+    zoomJoinUrl?: string | null
+    published?: boolean
+    featured?: boolean
+    registrationOpen?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type WebinarEventUpdateManyMutationInput = {
+    slug?: StringFieldUpdateOperationsInput | string
+    kicker?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    headlineLines?: InputJsonValue | InputJsonValue | null
+    description?: StringFieldUpdateOperationsInput | string
+    startsAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    endsAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    timezone?: StringFieldUpdateOperationsInput | string
+    timezoneLabel?: StringFieldUpdateOperationsInput | string
+    platform?: StringFieldUpdateOperationsInput | string
+    bannerUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    discussionKicker?: NullableStringFieldUpdateOperationsInput | string | null
+    discussionTitle?: NullableStringFieldUpdateOperationsInput | string | null
+    discussionPoints?: InputJsonValue | InputJsonValue | null
+    formTitle?: NullableStringFieldUpdateOperationsInput | string | null
+    formSubtitle?: NullableStringFieldUpdateOperationsInput | string | null
+    registerButtonLabel?: NullableStringFieldUpdateOperationsInput | string | null
+    occupationOptions?: WebinarEventUpdateoccupationOptionsInput | string[]
+    zoomMeetingId?: NullableStringFieldUpdateOperationsInput | string | null
+    zoomEventType?: NullableStringFieldUpdateOperationsInput | string | null
+    zoomJoinUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    published?: BoolFieldUpdateOperationsInput | boolean
+    featured?: BoolFieldUpdateOperationsInput | boolean
+    registrationOpen?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type WebinarEventUncheckedUpdateManyInput = {
+    slug?: StringFieldUpdateOperationsInput | string
+    kicker?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    headlineLines?: InputJsonValue | InputJsonValue | null
+    description?: StringFieldUpdateOperationsInput | string
+    startsAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    endsAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    timezone?: StringFieldUpdateOperationsInput | string
+    timezoneLabel?: StringFieldUpdateOperationsInput | string
+    platform?: StringFieldUpdateOperationsInput | string
+    bannerUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    discussionKicker?: NullableStringFieldUpdateOperationsInput | string | null
+    discussionTitle?: NullableStringFieldUpdateOperationsInput | string | null
+    discussionPoints?: InputJsonValue | InputJsonValue | null
+    formTitle?: NullableStringFieldUpdateOperationsInput | string | null
+    formSubtitle?: NullableStringFieldUpdateOperationsInput | string | null
+    registerButtonLabel?: NullableStringFieldUpdateOperationsInput | string | null
+    occupationOptions?: WebinarEventUpdateoccupationOptionsInput | string[]
+    zoomMeetingId?: NullableStringFieldUpdateOperationsInput | string | null
+    zoomEventType?: NullableStringFieldUpdateOperationsInput | string | null
+    zoomJoinUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    published?: BoolFieldUpdateOperationsInput | boolean
+    featured?: BoolFieldUpdateOperationsInput | boolean
+    registrationOpen?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type EventRegistrationCreateInput = {
+    id?: string
+    eventSlug: string
+    fullName: string
+    email: string
+    occupation: string
+    zoomRegistrantId?: string | null
+    zoomJoinUrl?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type EventRegistrationUncheckedCreateInput = {
+    id?: string
+    eventSlug: string
+    fullName: string
+    email: string
+    occupation: string
+    zoomRegistrantId?: string | null
+    zoomJoinUrl?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type EventRegistrationUpdateInput = {
+    eventSlug?: StringFieldUpdateOperationsInput | string
+    fullName?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    occupation?: StringFieldUpdateOperationsInput | string
+    zoomRegistrantId?: NullableStringFieldUpdateOperationsInput | string | null
+    zoomJoinUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type EventRegistrationUncheckedUpdateInput = {
+    eventSlug?: StringFieldUpdateOperationsInput | string
+    fullName?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    occupation?: StringFieldUpdateOperationsInput | string
+    zoomRegistrantId?: NullableStringFieldUpdateOperationsInput | string | null
+    zoomJoinUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type EventRegistrationCreateManyInput = {
+    id?: string
+    eventSlug: string
+    fullName: string
+    email: string
+    occupation: string
+    zoomRegistrantId?: string | null
+    zoomJoinUrl?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type EventRegistrationUpdateManyMutationInput = {
+    eventSlug?: StringFieldUpdateOperationsInput | string
+    fullName?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    occupation?: StringFieldUpdateOperationsInput | string
+    zoomRegistrantId?: NullableStringFieldUpdateOperationsInput | string | null
+    zoomJoinUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type EventRegistrationUncheckedUpdateManyInput = {
+    eventSlug?: StringFieldUpdateOperationsInput | string
+    fullName?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    occupation?: StringFieldUpdateOperationsInput | string
+    zoomRegistrantId?: NullableStringFieldUpdateOperationsInput | string | null
+    zoomJoinUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type MarketingEmailSendCreateInput = {
     id?: string
     subject: string
@@ -29357,6 +32252,18 @@ export namespace Prisma {
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
+  export type JsonNullableFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonNullableFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonNullableFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    isSet?: boolean
+  }
 
   export type StringNullableListFilter<$PrismaModel = never> = {
     equals?: string[] | ListStringFieldRefInput<$PrismaModel> | null
@@ -29364,6 +32271,146 @@ export namespace Prisma {
     hasEvery?: string[] | ListStringFieldRefInput<$PrismaModel>
     hasSome?: string[] | ListStringFieldRefInput<$PrismaModel>
     isEmpty?: boolean
+  }
+
+  export type WebinarEventCountOrderByAggregateInput = {
+    id?: SortOrder
+    slug?: SortOrder
+    kicker?: SortOrder
+    title?: SortOrder
+    headlineLines?: SortOrder
+    description?: SortOrder
+    startsAt?: SortOrder
+    endsAt?: SortOrder
+    timezone?: SortOrder
+    timezoneLabel?: SortOrder
+    platform?: SortOrder
+    bannerUrl?: SortOrder
+    discussionKicker?: SortOrder
+    discussionTitle?: SortOrder
+    discussionPoints?: SortOrder
+    formTitle?: SortOrder
+    formSubtitle?: SortOrder
+    registerButtonLabel?: SortOrder
+    occupationOptions?: SortOrder
+    zoomMeetingId?: SortOrder
+    zoomEventType?: SortOrder
+    zoomJoinUrl?: SortOrder
+    published?: SortOrder
+    featured?: SortOrder
+    registrationOpen?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type WebinarEventMaxOrderByAggregateInput = {
+    id?: SortOrder
+    slug?: SortOrder
+    kicker?: SortOrder
+    title?: SortOrder
+    description?: SortOrder
+    startsAt?: SortOrder
+    endsAt?: SortOrder
+    timezone?: SortOrder
+    timezoneLabel?: SortOrder
+    platform?: SortOrder
+    bannerUrl?: SortOrder
+    discussionKicker?: SortOrder
+    discussionTitle?: SortOrder
+    formTitle?: SortOrder
+    formSubtitle?: SortOrder
+    registerButtonLabel?: SortOrder
+    zoomMeetingId?: SortOrder
+    zoomEventType?: SortOrder
+    zoomJoinUrl?: SortOrder
+    published?: SortOrder
+    featured?: SortOrder
+    registrationOpen?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type WebinarEventMinOrderByAggregateInput = {
+    id?: SortOrder
+    slug?: SortOrder
+    kicker?: SortOrder
+    title?: SortOrder
+    description?: SortOrder
+    startsAt?: SortOrder
+    endsAt?: SortOrder
+    timezone?: SortOrder
+    timezoneLabel?: SortOrder
+    platform?: SortOrder
+    bannerUrl?: SortOrder
+    discussionKicker?: SortOrder
+    discussionTitle?: SortOrder
+    formTitle?: SortOrder
+    formSubtitle?: SortOrder
+    registerButtonLabel?: SortOrder
+    zoomMeetingId?: SortOrder
+    zoomEventType?: SortOrder
+    zoomJoinUrl?: SortOrder
+    published?: SortOrder
+    featured?: SortOrder
+    registrationOpen?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+  export type JsonNullableWithAggregatesFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonNullableWithAggregatesFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedJsonNullableFilter<$PrismaModel>
+    _max?: NestedJsonNullableFilter<$PrismaModel>
+    isSet?: boolean
+  }
+
+  export type EventRegistrationEventSlugEmailCompoundUniqueInput = {
+    eventSlug: string
+    email: string
+  }
+
+  export type EventRegistrationCountOrderByAggregateInput = {
+    id?: SortOrder
+    eventSlug?: SortOrder
+    fullName?: SortOrder
+    email?: SortOrder
+    occupation?: SortOrder
+    zoomRegistrantId?: SortOrder
+    zoomJoinUrl?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type EventRegistrationMaxOrderByAggregateInput = {
+    id?: SortOrder
+    eventSlug?: SortOrder
+    fullName?: SortOrder
+    email?: SortOrder
+    occupation?: SortOrder
+    zoomRegistrantId?: SortOrder
+    zoomJoinUrl?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type EventRegistrationMinOrderByAggregateInput = {
+    id?: SortOrder
+    eventSlug?: SortOrder
+    fullName?: SortOrder
+    email?: SortOrder
+    occupation?: SortOrder
+    zoomRegistrantId?: SortOrder
+    zoomJoinUrl?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
   }
 
   export type IntFilter<$PrismaModel = never> = {
@@ -29678,6 +32725,15 @@ export namespace Prisma {
     update?: XOR<XOR<ChatSupportUpdateToOneWithWhereWithoutMessagesInput, ChatSupportUpdateWithoutMessagesInput>, ChatSupportUncheckedUpdateWithoutMessagesInput>
   }
 
+  export type WebinarEventCreateoccupationOptionsInput = {
+    set: string[]
+  }
+
+  export type WebinarEventUpdateoccupationOptionsInput = {
+    set?: string[]
+    push?: string | string[]
+  }
+
   export type MarketingEmailSendCreateaudiencesInput = {
     set: string[]
   }
@@ -29900,6 +32956,18 @@ export namespace Prisma {
     _count?: NestedIntNullableFilter<$PrismaModel>
     _min?: NestedDateTimeNullableFilter<$PrismaModel>
     _max?: NestedDateTimeNullableFilter<$PrismaModel>
+    isSet?: boolean
+  }
+  export type NestedJsonNullableFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<NestedJsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<NestedJsonNullableFilterBase<$PrismaModel>>, 'path'>>,
+        Required<NestedJsonNullableFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<NestedJsonNullableFilterBase<$PrismaModel>>, 'path'>>
+
+  export type NestedJsonNullableFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
     isSet?: boolean
   }
 

@@ -3,12 +3,15 @@ import { MessagePattern, Payload } from '@nestjs/microservices';
 import { AppService } from './app.service';
 import { MarketingService } from './marketing/marketing.service';
 import type { MarketingSendPayload } from './marketing/marketing.service';
+import { EventsService } from './events/events.service';
+import type { EventRegisterPayload, WebinarInput } from './events/events.service';
 
 @Controller()
 export class AppController {
   constructor(
     private readonly appService: AppService,
-    private readonly marketingService: MarketingService
+    private readonly marketingService: MarketingService,
+    private readonly eventsService: EventsService
   ) {}
 
   // User management
@@ -148,5 +151,50 @@ export class AppController {
   @MessagePattern('marketing-send-history-get')
   async getMarketingSendHistory(@Payload() id: string) {
     return this.marketingService.getSendHistory(id);
+  }
+
+  @MessagePattern('event-register')
+  async registerForEvent(@Payload() payload: EventRegisterPayload) {
+    return this.eventsService.register(payload);
+  }
+
+  @MessagePattern('event-registrations-list')
+  async listEventRegistrations(@Payload() payload: { eventSlug?: string }) {
+    return this.eventsService.listRegistrations(payload?.eventSlug);
+  }
+
+  @MessagePattern('event-public-featured')
+  async getFeaturedEvent() {
+    return this.eventsService.getFeatured();
+  }
+
+  @MessagePattern('event-public-get')
+  async getPublicEvent(@Payload() payload: { slug: string }) {
+    return this.eventsService.getPublicBySlug(payload?.slug);
+  }
+
+  @MessagePattern('event-admin-list')
+  async listEventsAdmin() {
+    return this.eventsService.adminList();
+  }
+
+  @MessagePattern('event-admin-get')
+  async getEventAdmin(@Payload() id: string) {
+    return this.eventsService.adminGet(id);
+  }
+
+  @MessagePattern('event-admin-create')
+  async createEvent(@Payload() payload: WebinarInput) {
+    return this.eventsService.create(payload);
+  }
+
+  @MessagePattern('event-admin-update')
+  async updateEvent(@Payload() payload: { id: string; data: WebinarInput }) {
+    return this.eventsService.update(payload?.id, payload?.data);
+  }
+
+  @MessagePattern('event-admin-delete')
+  async deleteEvent(@Payload() id: string) {
+    return this.eventsService.remove(id);
   }
 }

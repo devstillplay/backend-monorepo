@@ -2,6 +2,11 @@
 export const MOBILE_APP_URL =
   process.env.NEXT_PUBLIC_MOBILE_APP_URL ?? "https://stillplay.app";
 
+/** Public marketing site URL (used in calendar invites and share metadata) */
+export const SITE_URL = (
+  process.env.NEXT_PUBLIC_SITE_URL ?? "https://still-play.com"
+).replace(/\/$/, "");
+
 /** Login page URL (web version) */
 export const LOGIN_URL = `${MOBILE_APP_URL}/login`;
 
